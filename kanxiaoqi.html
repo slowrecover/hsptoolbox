@@ -31,11 +31,31 @@ body{
 .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
 .brand b{font-size:1rem;letter-spacing:.02em;color:var(--ink);font-weight:700}
 .brand .sub{font-size:.74rem;color:var(--muted);padding-left:17px;letter-spacing:.01em}
-.streak-dots{margin-top:5px}
+.recbtn{display:flex;flex-direction:column;align-items:flex-end;gap:5px;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px;margin-top:2px}
+.recbtn .lbl{font-size:.72rem;color:var(--muted);font-weight:600}
+.recbtn:hover .lbl{color:var(--accent)}
 .streak-dots{display:flex;gap:5px;align-items:center}
 .sd{width:8px;height:8px;border-radius:50%;background:var(--line)}
 .sd.on{background:var(--accent)}
 .streak-num{font-size:.72rem;color:var(--muted);margin-left:4px}
+
+/* 我的记录 页 */
+.rec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.rec-back{background:none;border:none;color:var(--muted);font-family:inherit;font-size:.9rem;cursor:pointer;padding:4px}
+.rec-back:hover{color:var(--ink)}
+.rec-title{font-size:1.06rem;font-weight:600}
+.rec-stats{display:flex;gap:26px;margin-bottom:24px}
+.rec-stats .n{font-size:1.7rem;font-weight:700;color:var(--accent);line-height:1.1}
+.rec-stats .k{font-size:.74rem;color:var(--muted);margin-top:3px}
+.cal-month{font-size:.82rem;color:var(--muted);margin-bottom:10px;font-weight:600}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+.cal .wd{font-size:.66rem;color:var(--muted);text-align:center;padding-bottom:2px}
+.cal .d{aspect-ratio:1;border-radius:9px;background:var(--surface-soft);
+  display:flex;align-items:center;justify-content:center;font-size:.74rem;color:var(--muted)}
+.cal .d.empty{background:none}
+.cal .d.on{background:var(--accent);color:#fff;font-weight:600}
+.cal .d.today{box-shadow:0 0 0 2px var(--accent-soft) inset,0 0 0 2px var(--accent)}
+.rec-sum{margin-top:22px;color:var(--muted);font-size:.9rem;text-align:center;line-height:1.6}
 
 .prompt{font-size:1.18rem;font-weight:600;margin:0 0 16px;line-height:1.45}
 .mins{display:inline-flex;gap:6px;margin:0 0 20px}
@@ -111,6 +131,7 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);background:#f
 [data-stage="2"] .s2{display:block}
 [data-stage="3"] .s3{display:block}
 [data-stage="4"] .s4{display:block}
+[data-stage="5"] .s5{display:block}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.stage,.win .check,.check-btn.on{animation:none}}
 </style>
@@ -121,9 +142,12 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);background:#f
     <div class="top">
       <div class="brand">
         <span class="name"><span class="dot"></span><b>砍小器</b></span>
-        <span class="sub">用行为科学,把"开始"变简单</span>
+        <span class="sub">用行为科学,帮高敏感的你,慢慢开始</span>
       </div>
-      <div class="streak-dots" id="streakDots"></div>
+      <button class="recbtn" id="openRec">
+        <span class="lbl">我的记录 ›</span>
+        <span class="streak-dots" id="streakDots"></span>
+      </button>
     </div>
 
     <div class="stage s1">
@@ -159,6 +183,20 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);background:#f
       <button class="btn" id="again">再砍一件</button>
       <button class="btn ghost" id="rest">歇会儿</button>
     </div>
+
+    <div class="stage s5">
+      <div class="rec-head">
+        <span class="rec-title">我的记录</span>
+        <button class="rec-back" id="recBack">← 返回</button>
+      </div>
+      <div class="rec-stats">
+        <div><div class="n" id="recTotal">0</div><div class="k">累计小胜</div></div>
+        <div><div class="n" id="recStreak">0</div><div class="k">连续天数</div></div>
+      </div>
+      <div class="cal-month" id="calMonth"></div>
+      <div class="cal" id="cal"></div>
+      <p class="rec-sum" id="recSum"></p>
+    </div>
   </div>
 </div>
 
@@ -176,7 +214,8 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);background:#f
 
   function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
   function save(d){try{localStorage.setItem(KEY,JSON.stringify(d))}catch(e){}}
-  let data=load()||{total:0,streak:0,lastDay:''};
+  let data=load()||{total:0,streak:0,lastDay:'',days:{}};
+  if(!data.days)data.days={};
 
   function buzz(){try{if(navigator.vibrate)navigator.vibrate(12)}catch(e){}}
 
@@ -204,8 +243,42 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);background:#f
       data.streak=(data.lastDay===y)?data.streak+1:1;
       data.lastDay=t;
     }
-    data.total+=1; save(data); renderStreak();
+    data.total+=1;
+    data.days[t]=(data.days[t]||0)+1;
+    save(data); renderStreak();
   }
+
+  // 我的记录:渲染日历 + 统计
+  function openRecord(){
+    document.getElementById('recTotal').textContent=data.total;
+    document.getElementById('recStreak').textContent=data.streak;
+    const now=new Date();
+    const Y=now.getFullYear(), M=now.getMonth();
+    document.getElementById('calMonth').textContent=Y+' 年 '+(M+1)+' 月';
+    const first=new Date(Y,M,1).getDay();
+    const lead=(first+6)%7;
+    const dim=new Date(Y,M+1,0).getDate();
+    const todayStr=day(Date.now());
+    const cal=document.getElementById('cal'); cal.innerHTML='';
+    ['一','二','三','四','五','六','日'].forEach(w=>{
+      const e=document.createElement('div');e.className='wd';e.textContent=w;cal.appendChild(e);
+    });
+    for(let i=0;i<lead;i++){const e=document.createElement('div');e.className='d empty';cal.appendChild(e);}
+    let active=0;
+    for(let dnum=1;dnum<=dim;dnum++){
+      const ds=Y+'-'+String(M+1).padStart(2,'0')+'-'+String(dnum).padStart(2,'0');
+      const e=document.createElement('div');e.className='d';e.textContent=dnum;
+      if(data.days[ds]){e.classList.add('on');active++;}
+      if(ds===todayStr)e.classList.add('today');
+      cal.appendChild(e);
+    }
+    document.getElementById('recSum').textContent = active>0
+      ? '这个月,你动过 '+active+' 天。看,亮了这么多。'
+      : '这个月还空着——做一件小事,就点亮第一格。';
+    go(5);
+  }
+  document.getElementById('openRec').onclick=openRecord;
+  document.getElementById('recBack').onclick=()=>go(1);
 
   function addStepInput(){
     const row=document.createElement('div');row.className='steprow';
