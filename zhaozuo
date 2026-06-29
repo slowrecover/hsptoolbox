@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>照做清单</title>
+<style>
+:root{
+  --bg:#E9EDEA; --surface:#FFFFFF; --surface-soft:#F4F6F3;
+  --ink:#2B3A35; --muted:#9AA8A1; --line:#DCE3DF;
+  --accent:#4F9277; --accent-press:#447F68; --accent-soft:#E2EFE8;
+  --radius:20px;
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans SC","Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--bg);color:var(--ink);font-family:var(--font);
+  -webkit-font-smoothing:antialiased;line-height:1.55;
+  display:flex;align-items:center;justify-content:center;padding:24px;
+}
+.wrap{width:100%;max-width:440px}
+.card{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);padding:34px 30px;
+  box-shadow:0 16px 46px -26px rgba(43,58,53,.5);
+}
+.top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:26px;gap:12px}
+.brand{display:flex;flex-direction:column;gap:3px}
+.brand .name{display:flex;align-items:center;gap:9px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.brand b{font-size:1rem;letter-spacing:.02em;color:var(--ink);font-weight:700}
+.brand .sub{font-size:.74rem;color:var(--muted);padding-left:17px}
+.streak{text-align:right;font-size:.72rem;color:var(--muted);line-height:1.35;margin-top:3px}
+.streak b{color:var(--accent);font-size:.95rem}
+
+.daterow{font-size:.82rem;color:var(--muted);margin-bottom:16px}
+
+.list{display:flex;flex-direction:column}
+.item{display:flex;align-items:center;gap:13px;padding:14px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.item:last-child{border-bottom:none}
+.box{
+  flex:none;width:27px;height:27px;border-radius:50%;border:2px solid var(--line);
+  background:none;transition:.18s;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:.88rem;
+}
+.item.on .box{background:var(--accent);border-color:var(--accent);animation:tick .3s ease}
+@keyframes tick{0%{transform:scale(.7)}55%{transform:scale(1.18)}100%{transform:scale(1)}}
+.item .t{font-size:1.1rem;font-weight:600}
+.item.on .t{color:var(--muted);text-decoration:line-through}
+
+.progress{margin-top:18px;font-size:.86rem;color:var(--muted)}
+.progress.done{color:var(--accent);font-weight:600}
+
+.btn{
+  margin-top:14px;width:100%;border:none;cursor:pointer;font-family:inherit;
+  font-size:1rem;font-weight:600;color:#fff;background:var(--accent);
+  padding:14px;border-radius:14px;transition:background .15s,transform .06s;
+}
+.btn:hover{background:var(--accent-press)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:none;color:var(--muted);font-weight:500;padding:10px;font-size:.88rem}
+.btn.ghost:hover{color:var(--ink)}
+
+/* edit mode */
+.editrow{display:flex;gap:8px;margin-bottom:9px}
+.editrow input{
+  flex:1;font-family:inherit;font-size:1rem;color:var(--ink);
+  background:var(--surface-soft);border:1px solid var(--line);
+  border-radius:12px;padding:12px 13px;transition:.15s;
+}
+.editrow input:focus{outline:none;border-color:var(--accent);background:#fff}
+.editrow .del{
+  border:1px solid var(--line);background:var(--surface-soft);color:var(--muted);
+  border-radius:12px;width:46px;flex:none;cursor:pointer;font-size:1.1rem;
+}
+.editrow .del:hover{color:var(--ink)}
+.addrow{
+  background:none;border:1px dashed var(--line);color:var(--muted);
+  width:100%;border-radius:12px;padding:11px;cursor:pointer;font-family:inherit;
+  font-size:.88rem;margin-top:3px;transition:.15s;
+}
+.addrow:hover{color:var(--accent);border-color:var(--accent)}
+.edit-hint{font-size:.78rem;color:var(--muted);margin:0 0 16px}
+
+.view{display:none}
+[data-view="list"] .v-list{display:block}
+[data-view="edit"] .v-edit{display:block}
+.empty{color:var(--muted);font-size:.92rem;padding:20px 0;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card" id="card" data-view="list">
+    <div class="top">
+      <div class="brand">
+        <span class="name"><span class="dot"></span><b>照做清单</b></span>
+        <span class="sub">一次定好,之后别想,照做就行</span>
+      </div>
+      <div class="streak" id="streak"></div>
+    </div>
+
+    <!-- 清单(每天打勾) -->
+    <div class="view v-list">
+      <div class="daterow" id="dateRow"></div>
+      <div class="list" id="list"></div>
+      <p class="progress" id="progress"></p>
+      <button class="btn ghost" id="toEdit">编辑清单</button>
+    </div>
+
+    <!-- 编辑(增删改) -->
+    <div class="view v-edit">
+      <p class="edit-hint">写下你每天想照做的事。一次定好,之后就别再纠结。</p>
+      <div id="editList"></div>
+      <button class="addrow" id="addItem">+ 添加一项</button>
+      <button class="btn" id="doneEdit">完成</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const KEY='zhaozuo_v1';
+  const card=document.getElementById('card');
+  const day=d=>new Date(d).toLocaleDateString('sv');
+  const uid=()=>Math.random().toString(36).slice(2,8);
+  function buzz(){try{if(navigator.vibrate)navigator.vibrate(12)}catch(e){}}
+
+  function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}}
+
+  let data=load();
+  if(!data){
+    data={items:[
+      {id:uid(),text:'早起'},
+      {id:uid(),text:'喝水'},
+      {id:uid(),text:'看书'},
+      {id:uid(),text:'运动'},
+    ],log:{}};
+    save();
+  }
+  if(!data.log)data.log={};
+
+  const todayKey=()=>day(Date.now());
+  function todayChecked(){return data.log[todayKey()]||[]}
+
+  function computeStreak(){
+    let count=0, d=Date.now();
+    if(!(data.log[day(d)]&&data.log[day(d)].length)) d-=864e5;
+    while(data.log[day(d)]&&data.log[day(d)].length){count++; d-=864e5;}
+    return count;
+  }
+
+  function renderStreak(){
+    const s=computeStreak();
+    document.getElementById('streak').innerHTML = s>0 ? '连续<br><b>'+s+'</b> 天' : '';
+  }
+
+  const weekday=['日','一','二','三','四','五','六'];
+  function renderDate(){
+    const n=new Date();
+    document.getElementById('dateRow').textContent =
+      '今天 · 周'+weekday[n.getDay()]+' · '+(n.getMonth()+1)+'月'+n.getDate()+'日';
+  }
+
+  function renderList(){
+    renderDate();
+    const list=document.getElementById('list'); list.innerHTML='';
+    if(data.items.length===0){
+      list.innerHTML='<div class="empty">还没有清单。点下面「编辑清单」,写下你每天想做的事。</div>';
+      document.getElementById('progress').textContent='';
+    }else{
+      const checked=todayChecked();
+      data.items.forEach(it=>{
+        const on=checked.includes(it.id);
+        const row=document.createElement('div');
+        row.className='item'+(on?' on':'');
+        row.innerHTML='<span class="box">✓</span><span class="t"></span>';
+        row.querySelector('.t').textContent=it.text;
+        row.onclick=()=>toggle(it.id);
+        list.appendChild(row);
+      });
+      const done=todayChecked().length, total=data.items.length;
+      const p=document.getElementById('progress');
+      if(done>=total&&total>0){p.className='progress done';p.textContent='今天,照做完了。';}
+      else{p.className='progress';p.textContent='今天 '+done+' / '+total;}
+    }
+    renderStreak();
+  }
+
+  function toggle(id){
+    const t=todayKey();
+    const arr=data.log[t]||[];
+    const i=arr.indexOf(id);
+    if(i>=0)arr.splice(i,1); else {arr.push(id);buzz();}
+    data.log[t]=arr; save(); renderList();
+  }
+
+  // 编辑
+  function addEditRow(text){
+    const row=document.createElement('div');row.className='editrow';
+    row.innerHTML='<input type="text" placeholder="例如:冥想 5 分钟"><button class="del">×</button>';
+    const inp=row.querySelector('input'); if(text)inp.value=text;
+    row.querySelector('.del').onclick=()=>row.remove();
+    document.getElementById('editList').appendChild(row);
+    return inp;
+  }
+  function openEdit(){
+    const box=document.getElementById('editList'); box.innerHTML='';
+    if(data.items.length===0)addEditRow('');
+    else data.items.forEach(it=>addEditRow(it.text));
+    card.dataset.view='edit';
+  }
+  function saveEdit(){
+    const vals=[...document.querySelectorAll('#editList input')].map(i=>i.value.trim()).filter(Boolean);
+    // 保留已有项的 id(按文字匹配),新项给新 id —— 这样打勾记录不乱
+    const oldByText={}; data.items.forEach(it=>oldByText[it.text]=it.id);
+    data.items=vals.map(v=>({id:oldByText[v]||uid(),text:v}));
+    save(); card.dataset.view='list'; renderList();
+  }
+
+  document.getElementById('toEdit').onclick=openEdit;
+  document.getElementById('addItem').onclick=()=>addEditRow('').focus();
+  document.getElementById('doneEdit').onclick=saveEdit;
+
+  renderList();
+})();
+</script>
+</body>
+</html>
