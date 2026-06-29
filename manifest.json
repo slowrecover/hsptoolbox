@@ -1,0 +1,12 @@
+{
+  "name": "自救工具箱",
+  "short_name": "工具箱",
+  "description": "用行为科学,帮高敏感的你,慢慢开始",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#E9EDEA",
+  "theme_color": "#4F9277",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
