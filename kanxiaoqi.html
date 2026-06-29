@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>砍小器</title>
+<style>
+:root{
+  --bg:#E9EDEA; --surface:#FFFFFF; --surface-soft:#F4F6F3;
+  --ink:#2B3A35; --muted:#9AA8A1; --line:#DCE3DF;
+  --accent:#4F9277; --accent-press:#447F68; --accent-soft:#E2EFE8;
+  --radius:20px;
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans SC","Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--bg);color:var(--ink);font-family:var(--font);
+  -webkit-font-smoothing:antialiased;line-height:1.55;
+  display:flex;align-items:center;justify-content:center;padding:24px;
+}
+.wrap{width:100%;max-width:440px}
+.card{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);padding:38px 30px;
+  box-shadow:0 16px 46px -26px rgba(43,58,53,.5);
+}
+.top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;gap:12px}
+.brand{display:flex;flex-direction:column;gap:3px}
+.brand .name{display:flex;align-items:center;gap:9px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.brand b{font-size:1rem;letter-spacing:.02em;color:var(--ink);font-weight:700}
+.brand .sub{font-size:.74rem;color:var(--muted);padding-left:17px;letter-spacing:.01em}
+.streak-dots{margin-top:5px}
+.streak-dots{display:flex;gap:5px;align-items:center}
+.sd{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.sd.on{background:var(--accent)}
+.streak-num{font-size:.72rem;color:var(--muted);margin-left:4px}
+
+.prompt{font-size:1.18rem;font-weight:600;margin:0 0 16px;line-height:1.45}
+.mins{display:inline-flex;gap:6px;margin:0 0 20px}
+.mins button{
+  border:1px solid var(--line);background:var(--surface-soft);color:var(--muted);
+  border-radius:999px;padding:5px 15px;font-family:inherit;font-size:.82rem;cursor:pointer;transition:.15s;
+}
+.mins button.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+
+textarea,input[type=text]{
+  width:100%;font-family:inherit;font-size:1.02rem;color:var(--ink);
+  background:var(--surface-soft);border:1px solid var(--line);
+  border-radius:14px;padding:15px;resize:none;line-height:1.55;
+  transition:border-color .15s,background .15s;
+}
+textarea{min-height:104px}
+textarea:focus,input:focus{outline:none;border-color:var(--accent);background:#fff}
+.btn{
+  margin-top:22px;width:100%;border:none;cursor:pointer;font-family:inherit;
+  font-size:1.02rem;font-weight:600;color:#fff;background:var(--accent);
+  padding:15px;border-radius:14px;transition:background .15s,transform .06s;
+}
+.btn:hover{background:var(--accent-press)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{background:#C6D2CC;cursor:not-allowed}
+.btn.ghost{background:none;color:var(--muted);font-weight:500;margin-top:6px;padding:9px;font-size:.86rem}
+.btn.ghost:hover{color:var(--ink)}
+
+.parked{font-size:.82rem;color:var(--muted);margin:0 0 16px}
+.parked b{color:var(--accent);font-weight:600}
+
+.steprow{display:flex;gap:8px;margin-bottom:9px}
+.steprow input{flex:1}
+.steprow .del{
+  border:1px solid var(--line);background:var(--surface-soft);color:var(--muted);
+  border-radius:11px;width:44px;flex:none;cursor:pointer;font-size:1.1rem;
+}
+.steprow .del:hover{color:var(--ink)}
+.addstep{
+  background:none;border:1px dashed var(--line);color:var(--muted);
+  width:100%;border-radius:11px;padding:10px;cursor:pointer;font-family:inherit;
+  font-size:.84rem;margin-top:3px;transition:.15s;
+}
+.addstep:hover{color:var(--accent);border-color:var(--accent)}
+
+.task{display:flex;align-items:flex-start;gap:13px;padding:15px 0;border-bottom:1px solid var(--line)}
+.task:first-child{padding-top:4px}
+.task:last-of-type{border-bottom:none}
+.check-btn{
+  flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);
+  background:none;cursor:pointer;margin-top:2px;transition:.18s;
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;
+}
+.check-btn:active{transform:scale(.85)}
+.check-btn.on{background:var(--accent);border-color:var(--accent);animation:tick .3s ease}
+@keyframes tick{0%{transform:scale(.7)}55%{transform:scale(1.18)}100%{transform:scale(1)}}
+.task .t{font-size:1.16rem;font-weight:600;line-height:1.45}
+.task.done .t{color:var(--muted);text-decoration:line-through}
+
+.win{text-align:center}
+.win .check{
+  width:58px;height:58px;border-radius:50%;background:var(--accent-soft);
+  color:var(--accent);display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;margin:0 auto 18px;animation:pop .45s cubic-bezier(.2,1.3,.4,1) both;
+}
+@keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+.win h2{margin:0 0 8px;font-size:1.32rem}
+.win .line{color:var(--muted);margin:0;font-size:.96rem;line-height:1.6}
+.win .streak{font-size:.82rem;color:var(--accent);font-weight:600;margin-top:18px}
+
+.stage{display:none;animation:rise .35s ease both}
+[data-stage="1"] .s1{display:block}
+[data-stage="2"] .s2{display:block}
+[data-stage="3"] .s3{display:block}
+[data-stage="4"] .s4{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.stage,.win .check,.check-btn.on{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card" id="card" data-stage="1">
+    <div class="top">
+      <div class="brand">
+        <span class="name"><span class="dot"></span><b>砍小器</b></span>
+        <span class="sub">用行为科学,把"开始"变简单</span>
+      </div>
+      <div class="streak-dots" id="streakDots"></div>
+    </div>
+
+    <div class="stage s1">
+      <p class="prompt">你急着想做、又动不了的那件事,是什么?</p>
+      <textarea id="bigThing" placeholder="把它写下来……"></textarea>
+      <button class="btn" id="toStep" disabled>砍小它</button>
+    </div>
+
+    <div class="stage s2">
+      <p class="parked">先放下:<b id="parked2"></b></p>
+      <p class="prompt"><span id="mins">1</span> 分钟能做完的最小一步?</p>
+      <div class="mins">
+        <button data-m="1" class="on">1 分钟</button>
+        <button data-m="3">3 分钟</button>
+      </div>
+      <div id="steps"></div>
+      <button class="addstep" id="addStep">+ 再拆一小步</button>
+      <button class="btn" id="toDo" disabled>就这些</button>
+      <button class="btn ghost" id="back1">换一件事</button>
+    </div>
+
+    <div class="stage s3">
+      <div id="taskList"></div>
+      <button class="btn" id="finish">我做完了</button>
+      <button class="btn ghost" id="back2">再砍小一点</button>
+    </div>
+
+    <div class="stage s4 win">
+      <div class="check">✓</div>
+      <h2 id="winTitle">小胜 +1</h2>
+      <p class="line" id="winLine"></p>
+      <p class="streak" id="streak"></p>
+      <button class="btn" id="again">再砍一件</button>
+      <button class="btn ghost" id="rest">歇会儿</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const KEY='kanxiaoqi_v4';
+  const card=document.getElementById('card');
+  const big=document.getElementById('bigThing');
+  const toStep=document.getElementById('toStep');
+  const toDo=document.getElementById('toDo');
+  const stepsBox=document.getElementById('steps');
+  const taskList=document.getElementById('taskList');
+  const go=n=>card.dataset.stage=n;
+  const day=d=>new Date(d).toLocaleDateString('sv');
+
+  function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+  function save(d){try{localStorage.setItem(KEY,JSON.stringify(d))}catch(e){}}
+  let data=load()||{total:0,streak:0,lastDay:''};
+
+  function buzz(){try{if(navigator.vibrate)navigator.vibrate(12)}catch(e){}}
+
+  // 分钟切换
+  document.querySelectorAll('.mins button').forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll('.mins button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      document.getElementById('mins').textContent=b.dataset.m;
+    };
+  });
+
+  function renderStreak(){
+    const box=document.getElementById('streakDots'); box.innerHTML='';
+    const n=Math.min(data.streak,7);
+    for(let i=0;i<7;i++){const s=document.createElement('span');s.className='sd'+(i<n?' on':'');box.appendChild(s);}
+    if(data.streak>0){const t=document.createElement('span');t.className='streak-num';t.textContent='连续'+data.streak+'天';box.appendChild(t);}
+  }
+  renderStreak();
+
+  function recordWin(){
+    const t=day(Date.now());
+    if(data.lastDay!==t){
+      const y=day(Date.now()-864e5);
+      data.streak=(data.lastDay===y)?data.streak+1:1;
+      data.lastDay=t;
+    }
+    data.total+=1; save(data); renderStreak();
+  }
+
+  function addStepInput(){
+    const row=document.createElement('div');row.className='steprow';
+    row.innerHTML='<input type="text" placeholder="小到懒得拦你……"><button class="del" title="删掉">×</button>';
+    const inp=row.querySelector('input');
+    inp.addEventListener('input',checkSteps);
+    row.querySelector('.del').onclick=()=>{row.remove();checkSteps();};
+    stepsBox.appendChild(row);return inp;
+  }
+  const stepVals=()=>[...stepsBox.querySelectorAll('input')].map(i=>i.value.trim()).filter(Boolean);
+  function checkSteps(){toDo.disabled=stepVals().length===0}
+
+  big.addEventListener('input',()=>toStep.disabled=!big.value.trim());
+  toStep.onclick=()=>{document.getElementById('parked2').textContent=big.value.trim();stepsBox.innerHTML='';const f=addStepInput();go(2);setTimeout(()=>f.focus(),60);};
+  document.getElementById('addStep').onclick=()=>addStepInput().focus();
+  document.getElementById('back1').onclick=()=>{go(1);big.focus();};
+
+  toDo.onclick=()=>{
+    taskList.innerHTML='';
+    stepVals().forEach(v=>{
+      const t=document.createElement('div');t.className='task';
+      t.innerHTML='<button class="check-btn">✓</button><div class="t"></div>';
+      t.querySelector('.t').textContent=v;
+      t.querySelector('.check-btn').onclick=function(){this.classList.toggle('on');t.classList.toggle('done');buzz();};
+      taskList.appendChild(t);
+    });
+    go(3);
+  };
+  document.getElementById('back2').onclick=()=>go(2);
+
+  const lines=['够了。这一步,就是今天的种树。','你刚刚让一件事,真的发生了。','一手打对了——引擎松开,车动了一下。','怕还在,但你照做了。这,就是赢。','又一锹。根,在往下扎。'];
+  document.getElementById('finish').onclick=()=>{
+    recordWin();buzz();
+    document.getElementById('winTitle').textContent='小胜 +1';
+    document.getElementById('winLine').textContent=lines[(data.total-1)%lines.length];
+    document.getElementById('streak').textContent='累计 '+data.total+' 个小胜'+(data.streak>1?' · 连续 '+data.streak+' 天没断':'');
+    go(4);
+  };
+  document.getElementById('again').onclick=()=>{big.value='';toStep.disabled=true;toDo.disabled=true;go(1);big.focus();};
+  document.getElementById('rest').onclick=()=>{
+    document.getElementById('winTitle').textContent='去歇着吧';
+    document.getElementById('winLine').textContent='你今天已经动了。剩下的,交给明天那一步。';
+  };
+})();
+</script>
+</body>
+</html>
