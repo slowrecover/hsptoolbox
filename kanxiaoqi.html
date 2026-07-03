@@ -9,6 +9,7 @@
   --bg:#E9EDEA; --surface:#FFFFFF; --surface-soft:#F4F6F3;
   --ink:#2B3A35; --muted:#9AA8A1; --line:#DCE3DF;
   --accent:#4F9277; --accent-press:#447F68; --accent-soft:#E2EFE8;
+  --warm:#AD8A50;
   --radius:20px;
   --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans SC","Segoe UI",sans-serif;
 }
@@ -25,6 +26,8 @@ body{
   border-radius:var(--radius);padding:38px 30px;
   box-shadow:0 16px 46px -26px rgba(43,58,53,.5);
 }
+.home-link{display:inline-block;font-size:.78rem;color:var(--muted);text-decoration:none;margin-bottom:16px}
+.home-link:hover{color:var(--accent)}
 .top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;gap:12px}
 .brand{display:flex;flex-direction:column;gap:3px}
 .brand .name{display:flex;align-items:center;gap:9px}
@@ -127,6 +130,18 @@ a.btn{display:block;text-align:center;text-decoration:none;box-sizing:border-box
 .win .line{color:var(--muted);margin:0;font-size:.96rem;line-height:1.6}
 .win .streak{font-size:.82rem;color:var(--accent);font-weight:600;margin-top:18px}
 
+.stall-hint{margin:10px 0 0;font-size:.86rem;color:var(--warm);font-weight:600;display:none}
+
+.nudge-overlay{position:fixed;inset:0;background:rgba(43,58,53,.72);display:none;align-items:center;justify-content:center;padding:24px;z-index:50}
+.nudge-card{background:var(--ink);color:#fff;border-radius:20px;padding:32px 26px;max-width:360px;text-align:center;box-shadow:0 24px 60px -20px rgba(0,0,0,.5);animation:nudge-in .25s ease both}
+@keyframes nudge-in{0%{transform:scale(.92);opacity:0}100%{transform:scale(1);opacity:1}}
+.nudge-text{font-size:1.1rem;font-weight:700;line-height:1.5;margin:0 0 22px}
+.nudge-actions{display:flex;flex-direction:column;gap:10px}
+.nudge-btn{width:100%;border:none;cursor:pointer;font-family:inherit;font-size:1rem;font-weight:700;
+  color:var(--ink);background:#fff;padding:14px;border-radius:14px;transition:transform .06s}
+.nudge-btn:active{transform:translateY(1px)}
+.nudge-btn.ghost{background:transparent;color:rgba(255,255,255,.75);font-weight:500;font-size:.86rem;padding:8px}
+
 .stage{display:none;animation:rise .35s ease both}
 [data-stage="1"] .s1{display:block}
 [data-stage="2"] .s2{display:block}
@@ -138,8 +153,18 @@ a.btn{display:block;text-align:center;text-decoration:none;box-sizing:border-box
 </style>
 </head>
 <body>
+<div class="nudge-overlay" id="switchNudge">
+  <div class="nudge-card">
+    <p class="nudge-text" id="switchNudgeText"></p>
+    <div class="nudge-actions">
+      <button class="nudge-btn" id="stayBtn">算了,我做</button>
+      <button class="nudge-btn ghost" id="reallySwitchBtn">还是要换</button>
+    </div>
+  </div>
+</div>
 <div class="wrap">
   <div class="card" id="card" data-stage="1">
+    <a class="home-link" href="index.html">‹ 首页</a>
     <div class="top">
       <div class="brand">
         <span class="name"><span class="dot"></span><b>砍小器</b></span>
@@ -155,6 +180,7 @@ a.btn{display:block;text-align:center;text-decoration:none;box-sizing:border-box
       <p class="prompt">你急着想做、又动不了的那件事,是什么?</p>
       <textarea id="bigThing" placeholder="把它写下来……"></textarea>
       <button class="btn" id="toStep" disabled>砍小它</button>
+      <p class="stall-hint" id="stallHint"></p>
       <a class="btn ghost" href="qingxu.html">只是难受,不是任务卡住?→ 情绪记录本</a>
     </div>
 
@@ -293,10 +319,43 @@ a.btn{display:block;text-align:center;text-decoration:none;box-sizing:border-box
   const stepVals=()=>[...stepsBox.querySelectorAll('input')].map(i=>i.value.trim()).filter(Boolean);
   function checkSteps(){toDo.disabled=stepVals().length===0}
 
-  big.addEventListener('input',()=>toStep.disabled=!big.value.trim());
-  toStep.onclick=()=>{document.getElementById('parked2').textContent=big.value.trim();stepsBox.innerHTML='';const f=addStepInput();go(2);setTimeout(()=>f.focus(),60);};
+  let stallTimer=null;
+  const STALL_LINES=['赶紧写。别磨蹭了。','光看着不写,它自己不会变小。现在,写。','还在等什么?写下来。','别再拖了。写。'];
+  function clearStall(){clearTimeout(stallTimer);document.getElementById('stallHint').style.display='none';}
+  function armStall(){
+    clearStall();
+    stallTimer=setTimeout(()=>{
+      if(card.dataset.stage!=='1'||big.value.trim())return;
+      const h=document.getElementById('stallHint');
+      h.textContent=STALL_LINES[Math.floor(Math.random()*STALL_LINES.length)];
+      h.style.display='block';
+    },8000);
+  }
+
+  const SWITCH_LINES=[
+    '又想换?这是你自己写下来的,不是我逼你的。',
+    '已经砍到只剩一小步了,现在换,等于白砍。',
+    '换来换去,最后什么都做不完。就这一步,先做完。'
+  ];
+
+  big.addEventListener('input',()=>{
+    toStep.disabled=!big.value.trim();
+    if(big.value.trim())clearStall(); else armStall();
+  });
+  toStep.onclick=()=>{clearStall();document.getElementById('parked2').textContent=big.value.trim();stepsBox.innerHTML='';const f=addStepInput();go(2);setTimeout(()=>f.focus(),60);};
   document.getElementById('addStep').onclick=()=>addStepInput().focus();
-  document.getElementById('back1').onclick=()=>{go(1);big.focus();};
+  document.getElementById('back1').onclick=()=>{
+    document.getElementById('switchNudgeText').textContent=SWITCH_LINES[Math.floor(Math.random()*SWITCH_LINES.length)];
+    document.getElementById('switchNudge').style.display='flex';
+  };
+  document.getElementById('stayBtn').onclick=()=>{
+    document.getElementById('switchNudge').style.display='none';
+  };
+  document.getElementById('reallySwitchBtn').onclick=()=>{
+    document.getElementById('switchNudge').style.display='none';
+    big.value='';toStep.disabled=true;
+    go(1);big.focus();armStall();
+  };
 
   toDo.onclick=()=>{
     taskList.innerHTML='';
@@ -319,11 +378,13 @@ a.btn{display:block;text-align:center;text-decoration:none;box-sizing:border-box
     document.getElementById('streak').textContent='累计 '+data.total+' 个小胜'+(data.streak>1?' · 连续 '+data.streak+' 天没断':'');
     go(4);
   };
-  document.getElementById('again').onclick=()=>{big.value='';toStep.disabled=true;toDo.disabled=true;go(1);big.focus();};
+  document.getElementById('again').onclick=()=>{big.value='';toStep.disabled=true;toDo.disabled=true;go(1);big.focus();armStall();};
   document.getElementById('rest').onclick=()=>{
     document.getElementById('winTitle').textContent='去歇着吧';
     document.getElementById('winLine').textContent='你今天已经动了。剩下的,交给明天那一步。';
   };
+
+  armStall();
 })();
 </script>
 </body>

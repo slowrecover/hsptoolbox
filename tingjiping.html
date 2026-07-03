@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>想法停机坪</title>
+<meta name="description" content="每个想法都值得登记,但不是每个想法都今天起飞。一个治三分钟热度的小工具。">
+<style>
+  :root{
+    --bg:#E9EDEA; --surface:#FFFFFF; --surface-soft:#F4F6F3;
+    --ink:#2B3A35; --muted:#9AA8A1; --line:#DCE3DF;
+    --accent:#4F9277; --accent-press:#447F68; --accent-soft:#E2EFE8;
+    --warm:#AD8A50;
+    --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans SC","Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font);
+    min-height:100vh;
+    padding:28px 16px 60px;
+  }
+  .wrap{max-width:480px;margin:0 auto;}
+  .home-link{display:inline-block;font-size:.78rem;color:var(--muted);text-decoration:none;margin-bottom:16px;}
+  .home-link:hover{color:var(--accent);}
+  .masthead{display:flex;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:6px;}
+  h1{font-size:19px;font-weight:700;letter-spacing:.5px;}
+  .masthead .code{font-size:11px;letter-spacing:3px;color:var(--muted);}
+  .tagline{font-size:12px;color:var(--muted);margin-bottom:18px;letter-spacing:.5px;}
+
+  .capture{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius,16px);padding:14px;margin-bottom:20px;box-shadow:0 1px 0 rgba(43,58,53,.05);}
+  .capture label{display:block;font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;}
+  .capture textarea{
+    width:100%;border:none;background:transparent;resize:none;
+    font-family:inherit;font-size:16px;line-height:1.6;color:var(--ink);
+    min-height:56px;outline:none;
+  }
+  .capture .row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+  .hint{font-size:11px;color:var(--muted);}
+  .btn{
+    border:none;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:600;
+    font-family:inherit;cursor:pointer;color:#fff;background:var(--accent);
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);padding:8px 14px;font-weight:500;}
+  .btn.small{padding:7px 12px;font-size:12px;border-radius:7px;}
+  .btn.danger{background:transparent;color:var(--warm);border:1px solid var(--warm);}
+  .btn.go{background:var(--accent);}
+
+  .tabs{display:flex;gap:6px;margin-bottom:14px;}
+  .tab{
+    flex:1;text-align:center;padding:9px 4px;border-radius:8px;font-size:13px;
+    border:1px solid var(--line);background:transparent;color:var(--muted);
+    font-family:inherit;cursor:pointer;
+  }
+  .tab.on{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600;}
+  .tab .n{font-size:11px;opacity:.75;margin-left:3px;}
+
+  .card{
+    position:relative;background:var(--surface);border:1px solid var(--line);
+    border-radius:10px;padding:14px 16px;margin-bottom:12px;
+  }
+  .card::before,.card::after{
+    content:"";position:absolute;top:50%;width:14px;height:14px;border-radius:50%;
+    background:var(--bg);border:1px solid var(--line);transform:translateY(-50%);
+  }
+  .card::before{left:-8px;}
+  .card::after{right:-8px;}
+  .card .meta{display:flex;justify-content:space-between;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;}
+  .card .text{font-size:15px;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
+  .card .actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  .stamp{
+    position:absolute;right:12px;top:34px;
+    font-size:11px;letter-spacing:2px;padding:3px 8px;border:1.5px solid;
+    border-radius:4px;transform:rotate(-8deg);opacity:.85;pointer-events:none;
+  }
+  .stamp.park{color:var(--muted);border-color:var(--muted);}
+  .stamp.go{color:var(--accent);border-color:var(--accent);}
+
+  .court{border-top:1px dashed var(--line);margin-top:12px;padding-top:12px;}
+  .court p.qtitle{font-size:11px;letter-spacing:2px;color:var(--warm);margin-bottom:10px;}
+  .q{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;}
+  .q span{font-size:13px;line-height:1.5;flex:1;}
+  .yn{display:flex;gap:4px;}
+  .yn button{
+    border:1px solid var(--line);background:transparent;border-radius:6px;
+    padding:6px 12px;font-size:12px;font-family:inherit;color:var(--muted);cursor:pointer;
+  }
+  .yn button.y.sel{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .yn button.n.sel{background:var(--warm);border-color:var(--warm);color:#fff;}
+  .verdict{margin-top:4px;}
+
+  .empty{
+    text-align:center;color:var(--muted);font-size:13px;line-height:1.8;
+    padding:36px 20px;border:1px dashed var(--line);border-radius:10px;
+  }
+  .notice{
+    font-size:12px;color:var(--warm);background:rgba(173,138,80,.1);
+    border:1px solid rgba(173,138,80,.3);border-radius:8px;padding:10px 12px;margin-bottom:12px;
+    display:none;
+  }
+  .io-row{display:flex;gap:8px;justify-content:center;margin-top:18px;flex-wrap:wrap;}
+  .footer-tip{font-size:11px;color:var(--muted);text-align:center;margin-top:26px;line-height:1.8;letter-spacing:.5px;}
+  .credit{font-size:11px;color:var(--muted);text-align:center;margin-top:10px;letter-spacing:1px;}
+  .toast{
+    position:fixed;left:50%;bottom:28px;transform:translateX(-50%);
+    background:var(--ink);color:var(--bg);font-size:13px;padding:10px 18px;
+    border-radius:20px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:86%;text-align:center;
+  }
+  .toast.show{opacity:1;}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="home-link" href="index.html">‹ 首页</a>
+  <div class="masthead">
+    <h1>想法停机坪</h1>
+    <span class="code">IDEA · RWY 01</span>
+  </div>
+  <p class="tagline">每个想法都值得登记,但不是每个想法都今天起飞。</p>
+
+  <div class="capture">
+    <label>新想法 · 30秒登记,然后回去做手头的事</label>
+    <textarea id="input" placeholder="想到什么写什么,不用组织语言…"></textarea>
+    <div class="row">
+      <span class="hint" id="count"></span>
+      <button class="btn" onclick="addIdea()">丢进候机厅</button>
+    </div>
+  </div>
+
+  <div class="notice" id="notice"></div>
+
+  <div class="tabs">
+    <button class="tab on" id="tab-inbox" onclick="switchTab('inbox')">候机厅<span class="n" id="n-inbox"></span></button>
+    <button class="tab" id="tab-active" onclick="switchTab('active')">起飞中<span class="n" id="n-active"></span></button>
+    <button class="tab" id="tab-parked" onclick="switchTab('parked')">停机坪<span class="n" id="n-parked"></span></button>
+  </div>
+
+  <div id="list"><div class="empty">加载中…</div></div>
+
+  <p class="footer-tip">
+    候机厅 → 每周五开一次「想法法庭」<br>
+    三问全过才准飞 · 起飞中最多 2 条 · 停机坪每月回看一次
+  </p>
+
+  <div class="io-row">
+    <button class="btn ghost small" id="copyBtn">复制想法(给AI分析)</button>
+    <button class="btn ghost small" id="exportTextBtn">导出文本</button>
+    <button class="btn ghost small" id="exportJsonBtn">导出备份</button>
+    <button class="btn ghost small" id="importBtn">导入备份</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none">
+  </div>
+
+  <p class="credit">一个想法太多的人,做给自己的工具。<br>你的记录只保存在你自己的设备里,没有人看得到。</p>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='runway-ideas';
+let data={ideas:[]};
+let tab='inbox';
+let openCourt=null;
+let answers={};
+
+const QUESTIONS=[
+  '它服务我当下的主线吗?',
+  '三个月内,它能变成钱或真实的反馈吗?',
+  '我愿意为它「放弃」现在正在做的事吗?'
+];
+
+function load(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(raw){data=JSON.parse(raw);}
+  }catch(e){ data={ideas:[]}; }
+  render();
+}
+function save(){
+  try{ localStorage.setItem(KEY,JSON.stringify(data)); }
+  catch(e){ toast('保存失败,可能是浏览器隐私模式'); }
+}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function fmt(ts){
+  const d=new Date(ts);
+  return (d.getMonth()+1)+'月'+d.getDate()+'日';
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2200);
+}
+function notice(msg){
+  const n=document.getElementById('notice');
+  if(!msg){n.style.display='none';return;}
+  n.textContent=msg;n.style.display='block';
+}
+
+const STATUS_LABEL={inbox:'候机厅(还没审判)',active:'起飞中(主线)',parked:'停机坪(法庭驳回,待回看)'};
+function buildExportText(){
+  let text='想法停机坪 · 导出于 '+new Date().toLocaleString('zh-CN')+'\n\n';
+  ['active','inbox','parked'].forEach(st=>{
+    const items=data.ideas.filter(i=>i.status===st);
+    text+='## '+STATUS_LABEL[st]+' ('+items.length+')\n';
+    if(items.length===0)text+='(空)\n';
+    else items.forEach(i=>{ text+='- ['+fmt(i.created)+'] '+i.text+'\n'; });
+    text+='\n';
+  });
+  return text;
+}
+function fileDate(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function downloadBlob(content,type,filename){
+  const blob=new Blob([content],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;a.click();
+  URL.revokeObjectURL(url);
+}
+function copyForAnalysis(){
+  const text=buildExportText();
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast('已复制,去粘给 AI 看看吧')).catch(()=>toast('复制失败,换成导出文本试试'));
+  }else{
+    toast('这个浏览器不支持复制,用导出文本吧');
+  }
+}
+function exportText(){
+  downloadBlob(buildExportText(),'text/markdown','想法停机坪-'+fileDate()+'.md');
+  toast('已导出文本');
+}
+function exportJson(){
+  downloadBlob(JSON.stringify(data,null,2),'application/json','想法停机坪-备份-'+fileDate()+'.json');
+  toast('已导出 JSON 备份');
+}
+function importJsonFile(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const parsed=JSON.parse(reader.result);
+      if(!parsed||!Array.isArray(parsed.ideas))throw new Error('格式不对');
+      if(!window.confirm('导入会覆盖这台设备上现在的想法,确定吗?'))return;
+      data=parsed;
+      save();
+      switchTab('inbox');
+      toast('已导入,数据已恢复');
+    }catch(e){
+      toast('导入失败,文件格式不对');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function addIdea(){
+  const el=document.getElementById('input');
+  const text=el.value.trim();
+  if(!text){toast('先写点什么吧');return;}
+  data.ideas.unshift({id:uid(),text,status:'inbox',created:Date.now()});
+  el.value='';
+  save();
+  switchTab('inbox');
+  toast('已登记。回去做手头的事吧 ✈');
+}
+
+function switchTab(t){
+  tab=t;openCourt=null;answers={};notice('');
+  ['inbox','active','parked'].forEach(x=>{
+    document.getElementById('tab-'+x).classList.toggle('on',x===t);
+  });
+  render();
+}
+
+function startCourt(id){
+  openCourt=id;answers={};render();
+}
+function setAns(q,v){
+  answers[q]=v;render();
+}
+function verdict(id){
+  if(answers.q0===undefined||answers.q1===undefined||answers.q2===undefined){
+    toast('三个问题都要回答');return;
+  }
+  const idea=data.ideas.find(i=>i.id===id);
+  if(!idea)return;
+  const allYes=answers.q0&&answers.q1&&answers.q2;
+  if(allYes){
+    const activeCount=data.ideas.filter(i=>i.status==='active').length;
+    if(activeCount>=2){
+      notice('主线保护:已有 2 条在起飞中。先完成或让一条降落,这条暂留候机厅。');
+      openCourt=null;answers={};render();return;
+    }
+    idea.status='active';toast('准飞 ✈ 它现在是你的主线之一');
+  }else{
+    idea.status='parked';toast('进停机坪。好想法会等你。');
+  }
+  openCourt=null;answers={};
+  save();render();
+}
+function setStatus(id,status,msg){
+  const idea=data.ideas.find(i=>i.id===id);
+  if(!idea)return;
+  if(status==='active'){
+    const c=data.ideas.filter(i=>i.status==='active').length;
+    if(c>=2){notice('主线保护:起飞中最多 2 条。');render();return;}
+  }
+  idea.status=status;
+  save();
+  if(msg)toast(msg);
+  render();
+}
+function removeIdea(id,done){
+  data.ideas=data.ideas.filter(i=>i.id!==id);
+  save();
+  toast(done?'完成降落 🎉 干得漂亮':'已删除');
+  render();
+}
+
+function render(){
+  const list=document.getElementById('list');
+  const groups={inbox:[],active:[],parked:[]};
+  data.ideas.forEach(i=>{if(groups[i.status])groups[i.status].push(i);});
+  document.getElementById('n-inbox').textContent=groups.inbox.length||'';
+  document.getElementById('n-active').textContent=groups.active.length||'';
+  document.getElementById('n-parked').textContent=groups.parked.length||'';
+  document.getElementById('count').textContent=data.ideas.length?('共登记 '+data.ideas.length+' 个想法'):'';
+
+  const items=groups[tab];
+  if(!items.length){
+    const msgs={
+      inbox:'候机厅空着。<br>下一个念头冒出来的时候,30秒丢进来。',
+      active:'还没有起飞的想法。<br>去候机厅开一次「想法法庭」,选出值得飞的那个。',
+      parked:'停机坪空着。<br>被法庭驳回的想法会停在这里,每月回看一次。'
+    };
+    list.innerHTML='<div class="empty">'+msgs[tab]+'</div>';
+    return;
+  }
+
+  list.innerHTML=items.map(i=>{
+    let stamp='',actions='',court='';
+    if(tab==='inbox'){
+      if(openCourt===i.id){
+        court='<div class="court"><p class="qtitle">想 法 法 庭 · 三 问</p>'+
+          QUESTIONS.map((q,idx)=>{
+            const a=answers['q'+idx];
+            return '<div class="q"><span>'+q+'</span><div class="yn">'+
+              '<button class="y'+(a===true?' sel':'')+'" onclick="setAns(\'q'+idx+'\',true)">是</button>'+
+              '<button class="n'+(a===false?' sel':'')+'" onclick="setAns(\'q'+idx+'\',false)">否</button>'+
+              '</div></div>';
+          }).join('')+
+          '<div class="actions verdict"><button class="btn small" onclick="verdict(\''+i.id+'\')">宣判</button>'+
+          '<button class="btn small ghost" onclick="openCourt=null;render()">先不判</button></div></div>';
+      }else{
+        actions='<button class="btn small" onclick="startCourt(\''+i.id+'\')">开庭审判</button>'+
+                '<button class="btn small danger" onclick="removeIdea(\''+i.id+'\')">删除</button>';
+      }
+    }else if(tab==='active'){
+      stamp='<span class="stamp go">准 飞</span>';
+      actions='<button class="btn small go" onclick="removeIdea(\''+i.id+'\',true)">已完成</button>'+
+              '<button class="btn small ghost" onclick="setStatus(\''+i.id+'\',\'parked\',\'已降落,进停机坪\')">降落</button>';
+    }else{
+      stamp='<span class="stamp park">待 命</span>';
+      actions='<button class="btn small ghost" onclick="setStatus(\''+i.id+'\',\'inbox\',\'已送回候机厅,周五再审\')">重新审判</button>'+
+              '<button class="btn small danger" onclick="removeIdea(\''+i.id+'\')">删除</button>';
+    }
+    return '<div class="card">'+stamp+
+      '<div class="meta"><span>IDEA PASS</span><span>'+fmt(i.created)+'</span></div>'+
+      '<div class="text">'+escapeHtml(i.text)+'</div>'+
+      (actions?'<div class="actions">'+actions+'</div>':'')+court+
+      '</div>';
+  }).join('');
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+document.getElementById('copyBtn').onclick=copyForAnalysis;
+document.getElementById('exportTextBtn').onclick=exportText;
+document.getElementById('exportJsonBtn').onclick=exportJson;
+document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();
+document.getElementById('importFile').onchange=(e)=>{
+  const f=e.target.files[0];
+  if(f)importJsonFile(f);
+  e.target.value='';
+};
+
+load();
+</script>
+</body>
+</html>

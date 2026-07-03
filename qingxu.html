@@ -6,94 +6,100 @@
 <title>情绪记录本</title>
 <style>
   :root {
-    --primary:#7FA8D9; --primary-deep:#5C86BD; --primary-light:#E3EEFA;
-    --bg:#F4F8FC; --card:#FFFFFF; --text:#33415C; --muted:#9BAAC4; --line:#E8EEF6;
+    --bg:#E9EDEA; --surface:#FFFFFF; --surface-soft:#F4F6F3;
+    --ink:#2B3A35; --muted:#9AA8A1; --line:#DCE3DF;
+    --accent:#4F9277; --accent-press:#447F68; --accent-soft:#E2EFE8; --accent-mid:#9FC3AE;
+    --warm:#AD8A50; --plum:#8F6F94; --cool:#4F7C9A;
+    --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans SC","Segoe UI",sans-serif;
   }
   * { box-sizing:border-box; }
   html,body { height:100%; }
-  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
-    background:var(--bg); color:var(--text); }
+  body { margin:0; font-family:var(--font);
+    background:var(--bg); color:var(--ink); }
   .app { max-width:480px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; }
   .content { flex:1; padding:28px 20px 100px; }
 
-  h1 { font-size:19px; margin:0 0 2px; font-weight:600; letter-spacing:.2px; }
+  .home-link { display:inline-block; font-size:.78rem; color:var(--muted); text-decoration:none; margin-bottom:16px; }
+  .home-link:hover { color:var(--accent); }
+  h1 { font-size:19px; margin:0 0 2px; font-weight:600; letter-spacing:-.1px; }
   .sub { color:var(--muted); font-size:12.5px; margin-bottom:24px; }
 
-  .tabs { display:flex; gap:4px; margin-bottom:28px; background:#EAF0F9; padding:4px; border-radius:14px; }
+  .tabs { display:flex; gap:4px; margin-bottom:28px; background:var(--surface-soft); padding:4px; border-radius:14px; }
   .tab { flex:1; text-align:center; padding:10px 0; font-size:13.5px; color:var(--muted); cursor:pointer;
     user-select:none; border-radius:10px; }
-  .tab.active { background:#FFFFFF; color:var(--text); font-weight:600; box-shadow:0 1px 5px rgba(92,134,189,.15); }
+  .tab.active { background:var(--surface); color:var(--ink); font-weight:600; box-shadow:0 1px 5px rgba(43,58,53,.14); }
 
   textarea { width:100%; border:none; border-radius:0; padding:0; font-size:17px; line-height:1.5;
-    font-family:inherit; resize:none; background:transparent; color:var(--text); }
-  textarea::placeholder { color:#C3C8DC; }
+    font-family:inherit; resize:none; background:transparent; color:var(--ink); }
+  textarea::placeholder { color:#B7C2BC; }
   textarea:focus { outline:none; }
   #triggerText { min-height:64px; margin-bottom:20px; }
 
   .chips { display:flex; flex-wrap:wrap; gap:8px; }
-  .chip { padding:7px 14px; border-radius:999px; background:#FFFFFF; color:var(--text);
-    font-size:13.5px; cursor:pointer; border:1px solid var(--line); }
-  .chip.selected { background:var(--primary); color:white; border-color:var(--primary); }
+  .chip { padding:7px 14px; border-radius:999px; background:var(--surface); color:var(--ink);
+    font-size:13.5px; font-weight:500; cursor:pointer; border:1px solid var(--line); transition:.15s; }
+  .chip.selected { color:white; }
+  .chip.more { background:var(--surface-soft); color:var(--muted); border-style:dashed; font-weight:400; }
 
-  .more-toggle { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--primary-deep);
-    background:var(--primary-light); padding:9px 16px; border-radius:999px; cursor:pointer; user-select:none;
+  .more-toggle { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--accent-press);
+    background:var(--accent-soft); padding:9px 16px; border-radius:999px; cursor:pointer; user-select:none;
     margin:20px 0 4px; }
   .more-panel { display:none; margin-top:14px; padding-top:16px; border-top:1px solid var(--line); }
   .more-panel .field-label { font-size:12px; color:var(--muted); margin-bottom:8px; }
   .more-panel textarea { border:1px solid var(--line); border-radius:12px; padding:12px; font-size:14px;
-    background:#FBFBFD; min-height:44px; margin-top:16px; }
+    background:var(--surface-soft); min-height:44px; margin-top:16px; }
 
   .suggestion-card { display:none; margin-top:20px; padding:16px 0 4px; border-top:1px solid var(--line); }
-  .suggestion-label { font-size:11.5px; color:var(--primary); font-weight:600; letter-spacing:.4px; margin-bottom:8px; }
+  .suggestion-label { font-size:11.5px; color:var(--accent); font-weight:600; letter-spacing:.4px; margin-bottom:8px; }
   .suggestion-text { font-size:15px; line-height:1.6; margin-bottom:14px; }
-  .why-toggle { display:inline-flex; align-items:center; gap:4px; font-size:12px; color:var(--primary-deep);
-    background:var(--primary-light); padding:7px 13px; border-radius:999px; cursor:pointer; user-select:none;
+  .why-toggle { display:inline-flex; align-items:center; gap:4px; font-size:12px; color:var(--accent-press);
+    background:var(--accent-soft); padding:7px 13px; border-radius:999px; cursor:pointer; user-select:none;
     margin-top:12px; }
   .why-box { display:none; font-size:13px; line-height:1.6; color:var(--muted); margin-top:10px; }
 
   .interaction-area { margin-top:4px; }
   .breath-wrap { display:flex; flex-direction:column; align-items:center; padding:12px 0 4px; }
-  .breath-circle { width:100px; height:100px; border-radius:50%; background:var(--primary-light);
+  .breath-circle { width:100px; height:100px; border-radius:50%; background:var(--accent-soft);
     display:flex; align-items:center; justify-content:center; transform:scale(1); transition:transform 1s ease-in-out;
     margin-bottom:14px; }
-  .breath-circle span { font-size:12.5px; color:var(--primary-deep); text-align:center; padding:0 10px; }
-  .breath-btn, .timer-btn { padding:7px 18px; background:var(--primary); color:white; border-radius:999px;
+  .breath-circle span { font-size:12.5px; color:var(--accent-press); text-align:center; padding:0 10px; }
+  .breath-btn, .timer-btn { padding:7px 18px; background:var(--accent); color:white; border-radius:999px;
     font-size:12.5px; cursor:pointer; user-select:none; }
   .timer-wrap { display:flex; flex-direction:column; align-items:center; padding:8px 0 4px; }
-  .timer-num { font-size:32px; color:var(--primary-deep); font-weight:600; margin-bottom:12px; }
+  .timer-num { font-size:32px; color:var(--accent-press); font-weight:600; margin-bottom:12px; }
   .checklist { display:flex; flex-direction:column; gap:8px; }
   .check-item { display:flex; align-items:center; gap:10px; font-size:14px; cursor:pointer; user-select:none; }
-  .check-box { width:17px; height:17px; border-radius:6px; border:1.5px solid var(--primary); flex-shrink:0; }
-  .check-item.checked .check-box { background:var(--primary); }
+  .check-box { width:17px; height:17px; border-radius:6px; border:1.5px solid var(--accent); flex-shrink:0; }
+  .check-item.checked .check-box { background:var(--accent); }
   .check-item.checked { color:var(--muted); text-decoration:line-through; }
 
   .save-bar { position:sticky; bottom:0; padding:14px 20px 22px; background:linear-gradient(to top,var(--bg) 60%,transparent); }
-  button.primary { width:100%; padding:15px; border:none; border-radius:14px; background:var(--primary);
+  button.primary { width:100%; padding:15px; border:none; border-radius:14px; background:var(--accent);
     color:white; font-size:15px; font-weight:600; cursor:pointer; }
 
   .stat-line { font-size:12px; color:var(--muted); margin-top:10px; }
 
-  .card { background:var(--card); border-radius:18px; padding:18px; margin-bottom:14px; }
+  .card { background:var(--surface); border-radius:18px; padding:18px; margin-bottom:14px; }
   .entry { padding:12px 0; border-bottom:1px solid var(--line); }
   .entry:last-child { border-bottom:none; }
   .entry-date { font-size:11.5px; color:var(--muted); }
   .entry-tags { display:flex; gap:6px; margin:4px 0; flex-wrap:wrap; }
-  .entry-feel { font-size:12.5px; color:var(--primary-deep); font-weight:600; }
-  .entry-trigger-type { font-size:11.5px; color:var(--muted); background:#EEF0F8; padding:2px 8px; border-radius:999px; }
+  .entry-feel { font-size:12.5px; font-weight:600; }
+  .entry-trigger-type { font-size:11.5px; color:var(--muted); background:var(--surface-soft); padding:2px 8px; border-radius:999px; }
   .entry-text { font-size:14px; }
   .locked { text-align:center; color:var(--muted); padding:36px 20px; font-size:13.5px; }
   .heatmap { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:4px; }
-  .heat-cell { aspect-ratio:1; border-radius:4px; background:#EDF0F8; }
-  .heat-1 { background:#DCE2F5; } .heat-2 { background:#A9B7E0; } .heat-3 { background:var(--primary); }
+  .heat-cell { aspect-ratio:1; border-radius:4px; background:var(--surface-soft); }
+  .heat-1 { background:var(--accent-soft); } .heat-2 { background:var(--accent-mid); } .heat-3 { background:var(--accent); }
   .tag-row { display:flex; align-items:center; gap:8px; margin-bottom:9px; font-size:13.5px; }
   .tag-row span:first-child { width:76px; flex-shrink:0; color:var(--muted); }
-  .tag-bar { height:7px; border-radius:4px; background:var(--primary); }
-  .tag-bar.alt { background:#B7A9D6; }
+  .tag-bar { height:7px; border-radius:4px; background:var(--accent); }
 </style>
 </head>
 <body>
 <div class="app">
   <div class="content">
+    <a class="home-link" href="index.html">‹ 首页</a>
     <h1>情绪记录本</h1>
     <div class="sub">不评判,只记录。写完就好。</div>
 
@@ -107,16 +113,19 @@
       <textarea id="triggerText" placeholder="发生了什么?"></textarea>
 
       <div class="chips" id="feelChips">
-        <div class="chip" data-feel="烦躁">烦躁</div>
-        <div class="chip" data-feel="焦虑">焦虑</div>
-        <div class="chip" data-feel="委屈">委屈</div>
-        <div class="chip" data-feel="愤怒">愤怒</div>
-        <div class="chip" data-feel="无力">无力</div>
-        <div class="chip" data-feel="孤独">孤独</div>
-        <div class="chip" data-feel="羞愧">羞愧</div>
-        <div class="chip" data-feel="内疚">内疚</div>
-        <div class="chip" data-feel="害怕">害怕</div>
-        <div class="chip" data-feel="说不清">说不清</div>
+        <div class="chip" data-feel="烦躁" data-group="warm">烦躁</div>
+        <div class="chip" data-feel="焦虑" data-group="warm">焦虑</div>
+        <div class="chip" data-feel="委屈" data-group="plum">委屈</div>
+        <div class="chip" data-feel="愤怒" data-group="warm">愤怒</div>
+        <div class="chip" data-feel="无力" data-group="cool">无力</div>
+        <div class="chip more" id="feelMoreToggle">还有别的感觉 ⋯</div>
+        <div id="feelChipsMore" style="display:none">
+          <div class="chip" data-feel="孤独" data-group="cool">孤独</div>
+          <div class="chip" data-feel="羞愧" data-group="plum">羞愧</div>
+          <div class="chip" data-feel="内疚" data-group="plum">内疚</div>
+          <div class="chip" data-feel="害怕" data-group="warm">害怕</div>
+          <div class="chip" data-feel="说不清" data-group="cool">说不清</div>
+        </div>
       </div>
 
       <div class="suggestion-card" id="suggestionCard">
@@ -162,6 +171,12 @@
 <script>
   const STORAGE_KEY = 'hsp_emotion_log';
   const UNLOCK_THRESHOLD = 5;
+
+  const FEEL_GROUP = {
+    '烦躁':'warm', '焦虑':'warm', '愤怒':'warm', '害怕':'warm',
+    '委屈':'plum', '羞愧':'plum', '内疚':'plum',
+    '无力':'cool', '孤独':'cool', '说不清':'cool'
+  };
 
   const copingSuggestions = {
     '烦躁': [
@@ -267,23 +282,45 @@
     document.getElementById('moreToggle').textContent = open ? '＋ 添加分类 / 写点别的想法' : '－ 收起';
   });
 
-  let selectedFeel = null;
-  document.querySelectorAll('#feelChips .chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('#feelChips .chip').forEach(c => c.classList.remove('selected'));
-      chip.classList.add('selected');
-      selectedFeel = chip.dataset.feel;
-      showSuggestion(selectedFeel);
-    });
+  document.getElementById('feelMoreToggle').addEventListener('click', () => {
+    const box = document.getElementById('feelChipsMore');
+    const open = box.style.display === 'contents';
+    box.style.display = open ? 'none' : 'contents';
+    document.getElementById('feelMoreToggle').textContent = open ? '还有别的感觉 ⋯' : '收起 ‹';
+    bindFeelChip(box.querySelectorAll('.chip[data-feel]'));
   });
+
+  let selectedFeel = null;
+  function clearFeelSelection() {
+    document.querySelectorAll('#feelChips .chip[data-feel]').forEach(c => {
+      c.classList.remove('selected'); c.style.background = ''; c.style.borderColor = '';
+    });
+  }
+  function bindFeelChip(chips) {
+    chips.forEach(chip => {
+      if (chip.dataset.bound) return;
+      chip.dataset.bound = '1';
+      chip.addEventListener('click', () => {
+        clearFeelSelection();
+        chip.classList.add('selected');
+        chip.style.background = 'var(--' + chip.dataset.group + ')';
+        chip.style.borderColor = 'var(--' + chip.dataset.group + ')';
+        selectedFeel = chip.dataset.feel;
+        showSuggestion(selectedFeel);
+      });
+    });
+  }
+  bindFeelChip(document.querySelectorAll('#feelChips .chip[data-feel]'));
 
   let selectedTriggerType = null;
   document.querySelectorAll('#triggerChips .chip').forEach(chip => {
     chip.addEventListener('click', () => {
       const already = chip.classList.contains('selected');
-      document.querySelectorAll('#triggerChips .chip').forEach(c => c.classList.remove('selected'));
-      if (!already) { chip.classList.add('selected'); selectedTriggerType = chip.dataset.trigger; }
-      else { selectedTriggerType = null; }
+      document.querySelectorAll('#triggerChips .chip').forEach(c => { c.classList.remove('selected'); c.style.background=''; c.style.borderColor=''; });
+      if (!already) {
+        chip.classList.add('selected'); chip.style.background = 'var(--accent)'; chip.style.borderColor = 'var(--accent)';
+        selectedTriggerType = chip.dataset.trigger;
+      } else { selectedTriggerType = null; }
     });
   });
 
@@ -389,8 +426,10 @@
     saveEntries(entries);
     document.getElementById('triggerText').value = '';
     document.getElementById('copeText').value = '';
-    document.querySelectorAll('#feelChips .chip').forEach(c => c.classList.remove('selected'));
-    document.querySelectorAll('#triggerChips .chip').forEach(c => c.classList.remove('selected'));
+    clearFeelSelection();
+    document.getElementById('feelChipsMore').style.display = 'none';
+    document.getElementById('feelMoreToggle').textContent = '还有别的感觉 ⋯';
+    document.querySelectorAll('#triggerChips .chip').forEach(c => { c.classList.remove('selected'); c.style.background=''; c.style.borderColor=''; });
     document.getElementById('suggestionCard').style.display = 'none';
     document.getElementById('morePanel').style.display = 'none';
     document.getElementById('moreToggle').textContent = '＋ 添加分类 / 写点别的想法';
@@ -408,10 +447,11 @@
     list.innerHTML = entries.map(e => {
       const d = new Date(e.date);
       const dateStr = `${d.getMonth()+1}月${d.getDate()}日`;
+      const feelColor = FEEL_GROUP[e.feel] ? `var(--${FEEL_GROUP[e.feel]})` : 'var(--accent-press)';
       return `<div class="entry">
         <div class="entry-date">${dateStr}</div>
         <div class="entry-tags">
-          ${e.feel ? `<span class="entry-feel">${e.feel}</span>` : ''}
+          ${e.feel ? `<span class="entry-feel" style="color:${feelColor}">${e.feel}</span>` : ''}
           ${e.triggerType ? `<span class="entry-trigger-type">${e.triggerType}</span>` : ''}
         </div>
         <div class="entry-text">${escapeHtml(e.trigger)}</div>
@@ -442,7 +482,7 @@
     const feelMax = Math.max(...Object.values(feelCounts), 1);
     const feelRows = Object.entries(feelCounts).sort((a,b)=>b[1]-a[1]).map(([feel,count]) => `
       <div class="tag-row"><span>${feel}</span>
-      <div class="tag-bar" style="width:${(count/feelMax*120)}px;"></div>
+      <div class="tag-bar" style="width:${(count/feelMax*120)}px; background:${FEEL_GROUP[feel] ? 'var(--'+FEEL_GROUP[feel]+')' : 'var(--accent)'};"></div>
       <span style="color:var(--muted);">${count}</span></div>`).join('');
 
     const triggerCounts = {};
@@ -453,7 +493,7 @@
           const tMax = Math.max(...Object.values(triggerCounts), 1);
           return Object.entries(triggerCounts).sort((a,b)=>b[1]-a[1]).map(([t,count]) => `
             <div class="tag-row"><span>${t}</span>
-            <div class="tag-bar alt" style="width:${(count/tMax*120)}px;"></div>
+            <div class="tag-bar" style="width:${(count/tMax*120)}px;"></div>
             <span style="color:var(--muted);">${count}</span></div>`).join('');
         })();
 
