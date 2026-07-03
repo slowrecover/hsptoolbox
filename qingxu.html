@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情绪记录本</title>
+<style>
+  :root {
+    --primary:#7FA8D9; --primary-deep:#5C86BD; --primary-light:#E3EEFA;
+    --bg:#F4F8FC; --card:#FFFFFF; --text:#33415C; --muted:#9BAAC4; --line:#E8EEF6;
+  }
+  * { box-sizing:border-box; }
+  html,body { height:100%; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg); color:var(--text); }
+  .app { max-width:480px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; }
+  .content { flex:1; padding:28px 20px 100px; }
+
+  h1 { font-size:19px; margin:0 0 2px; font-weight:600; letter-spacing:.2px; }
+  .sub { color:var(--muted); font-size:12.5px; margin-bottom:24px; }
+
+  .tabs { display:flex; gap:4px; margin-bottom:28px; background:#EAF0F9; padding:4px; border-radius:14px; }
+  .tab { flex:1; text-align:center; padding:10px 0; font-size:13.5px; color:var(--muted); cursor:pointer;
+    user-select:none; border-radius:10px; }
+  .tab.active { background:#FFFFFF; color:var(--text); font-weight:600; box-shadow:0 1px 5px rgba(92,134,189,.15); }
+
+  textarea { width:100%; border:none; border-radius:0; padding:0; font-size:17px; line-height:1.5;
+    font-family:inherit; resize:none; background:transparent; color:var(--text); }
+  textarea::placeholder { color:#C3C8DC; }
+  textarea:focus { outline:none; }
+  #triggerText { min-height:64px; margin-bottom:20px; }
+
+  .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { padding:7px 14px; border-radius:999px; background:#FFFFFF; color:var(--text);
+    font-size:13.5px; cursor:pointer; border:1px solid var(--line); }
+  .chip.selected { background:var(--primary); color:white; border-color:var(--primary); }
+
+  .more-toggle { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--primary-deep);
+    background:var(--primary-light); padding:9px 16px; border-radius:999px; cursor:pointer; user-select:none;
+    margin:20px 0 4px; }
+  .more-panel { display:none; margin-top:14px; padding-top:16px; border-top:1px solid var(--line); }
+  .more-panel .field-label { font-size:12px; color:var(--muted); margin-bottom:8px; }
+  .more-panel textarea { border:1px solid var(--line); border-radius:12px; padding:12px; font-size:14px;
+    background:#FBFBFD; min-height:44px; margin-top:16px; }
+
+  .suggestion-card { display:none; margin-top:20px; padding:16px 0 4px; border-top:1px solid var(--line); }
+  .suggestion-label { font-size:11.5px; color:var(--primary); font-weight:600; letter-spacing:.4px; margin-bottom:8px; }
+  .suggestion-text { font-size:15px; line-height:1.6; margin-bottom:14px; }
+  .why-toggle { display:inline-flex; align-items:center; gap:4px; font-size:12px; color:var(--primary-deep);
+    background:var(--primary-light); padding:7px 13px; border-radius:999px; cursor:pointer; user-select:none;
+    margin-top:12px; }
+  .why-box { display:none; font-size:13px; line-height:1.6; color:var(--muted); margin-top:10px; }
+
+  .interaction-area { margin-top:4px; }
+  .breath-wrap { display:flex; flex-direction:column; align-items:center; padding:12px 0 4px; }
+  .breath-circle { width:100px; height:100px; border-radius:50%; background:var(--primary-light);
+    display:flex; align-items:center; justify-content:center; transform:scale(1); transition:transform 1s ease-in-out;
+    margin-bottom:14px; }
+  .breath-circle span { font-size:12.5px; color:var(--primary-deep); text-align:center; padding:0 10px; }
+  .breath-btn, .timer-btn { padding:7px 18px; background:var(--primary); color:white; border-radius:999px;
+    font-size:12.5px; cursor:pointer; user-select:none; }
+  .timer-wrap { display:flex; flex-direction:column; align-items:center; padding:8px 0 4px; }
+  .timer-num { font-size:32px; color:var(--primary-deep); font-weight:600; margin-bottom:12px; }
+  .checklist { display:flex; flex-direction:column; gap:8px; }
+  .check-item { display:flex; align-items:center; gap:10px; font-size:14px; cursor:pointer; user-select:none; }
+  .check-box { width:17px; height:17px; border-radius:6px; border:1.5px solid var(--primary); flex-shrink:0; }
+  .check-item.checked .check-box { background:var(--primary); }
+  .check-item.checked { color:var(--muted); text-decoration:line-through; }
+
+  .save-bar { position:sticky; bottom:0; padding:14px 20px 22px; background:linear-gradient(to top,var(--bg) 60%,transparent); }
+  button.primary { width:100%; padding:15px; border:none; border-radius:14px; background:var(--primary);
+    color:white; font-size:15px; font-weight:600; cursor:pointer; }
+
+  .stat-line { font-size:12px; color:var(--muted); margin-top:10px; }
+
+  .card { background:var(--card); border-radius:18px; padding:18px; margin-bottom:14px; }
+  .entry { padding:12px 0; border-bottom:1px solid var(--line); }
+  .entry:last-child { border-bottom:none; }
+  .entry-date { font-size:11.5px; color:var(--muted); }
+  .entry-tags { display:flex; gap:6px; margin:4px 0; flex-wrap:wrap; }
+  .entry-feel { font-size:12.5px; color:var(--primary-deep); font-weight:600; }
+  .entry-trigger-type { font-size:11.5px; color:var(--muted); background:#EEF0F8; padding:2px 8px; border-radius:999px; }
+  .entry-text { font-size:14px; }
+  .locked { text-align:center; color:var(--muted); padding:36px 20px; font-size:13.5px; }
+  .heatmap { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:4px; }
+  .heat-cell { aspect-ratio:1; border-radius:4px; background:#EDF0F8; }
+  .heat-1 { background:#DCE2F5; } .heat-2 { background:#A9B7E0; } .heat-3 { background:var(--primary); }
+  .tag-row { display:flex; align-items:center; gap:8px; margin-bottom:9px; font-size:13.5px; }
+  .tag-row span:first-child { width:76px; flex-shrink:0; color:var(--muted); }
+  .tag-bar { height:7px; border-radius:4px; background:var(--primary); }
+  .tag-bar.alt { background:#B7A9D6; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="content">
+    <h1>情绪记录本</h1>
+    <div class="sub">不评判,只记录。写完就好。</div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="record">记录</div>
+      <div class="tab" data-tab="timeline">时间线</div>
+      <div class="tab" data-tab="review">回看</div>
+    </div>
+
+    <div id="view-record" class="view">
+      <textarea id="triggerText" placeholder="发生了什么?"></textarea>
+
+      <div class="chips" id="feelChips">
+        <div class="chip" data-feel="烦躁">烦躁</div>
+        <div class="chip" data-feel="焦虑">焦虑</div>
+        <div class="chip" data-feel="委屈">委屈</div>
+        <div class="chip" data-feel="愤怒">愤怒</div>
+        <div class="chip" data-feel="无力">无力</div>
+        <div class="chip" data-feel="孤独">孤独</div>
+        <div class="chip" data-feel="羞愧">羞愧</div>
+        <div class="chip" data-feel="内疚">内疚</div>
+        <div class="chip" data-feel="害怕">害怕</div>
+        <div class="chip" data-feel="说不清">说不清</div>
+      </div>
+
+      <div class="suggestion-card" id="suggestionCard">
+        <div class="suggestion-label">试试这个,不用勉强</div>
+        <div class="suggestion-text" id="suggestionText"></div>
+        <div class="interaction-area" id="interactionArea"></div>
+        <div class="why-toggle" id="whyToggle">为什么有效 ›</div>
+        <div class="why-box" id="whyBox"></div>
+      </div>
+
+      <div class="more-toggle" id="moreToggle">＋ 添加分类 / 写点别的想法</div>
+      <div class="more-panel" id="morePanel">
+        <div class="field-label">这属于哪一类?(帮你以后发现规律)</div>
+        <div class="chips" id="triggerChips">
+          <div class="chip" data-trigger="人际关系">人际关系</div>
+          <div class="chip" data-trigger="工作/求职">工作/求职</div>
+          <div class="chip" data-trigger="自我要求">自我要求</div>
+          <div class="chip" data-trigger="决策">决策</div>
+          <div class="chip" data-trigger="环境刺激">环境刺激</div>
+          <div class="chip" data-trigger="不确定的未来">不确定的未来</div>
+          <div class="chip" data-trigger="其他">其他</div>
+        </div>
+        <textarea id="copeText" placeholder="想自己写点什么也可以"></textarea>
+      </div>
+
+      <div class="stat-line">已经记录了 <span id="statCount">0</span> 条</div>
+    </div>
+
+    <div id="view-timeline" class="view" style="display:none;">
+      <div class="card" id="timelineList"></div>
+    </div>
+
+    <div id="view-review" class="view" style="display:none;">
+      <div id="reviewContent"></div>
+    </div>
+  </div>
+
+  <div class="save-bar" id="saveBar">
+    <button class="primary" id="saveBtn">记下来</button>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'hsp_emotion_log';
+  const UNLOCK_THRESHOLD = 5;
+
+  const copingSuggestions = {
+    '烦躁': [
+      { text:'4-7-8呼吸法:吸气4秒,屏息7秒,呼气8秒,重复3轮', type:'breath', inhale:4, hold:7, exhale:8, cycles:3,
+        why:'拉长呼气时间会激活迷走神经,带动副交感神经系统,降低皮质醇和心率,让身体从"应激唤醒"状态切换回平静。这是自主神经系统层面的直接调节,不需要靠"想通"。' },
+      { text:'用力抖动手脚10秒,像甩掉水一样', type:'timer', seconds:10,
+        why:'短促的大幅度肢体动作能帮身体代谢掉应激激素(肾上腺素、皮质醇)。动物应激后的"抖动释放"是一种保留下来的生理机制,人类同样适用。' },
+      { text:'喝一口凉水,专注感受它经过喉咙的感觉', type:'text',
+        why:'冷刺激会触发哺乳动物的"潜水反射"(dive reflex),迷走神经被激活后心率会短暂下降,是最快能从生理层面降低唤醒水平的方法之一。' }
+    ],
+    '焦虑': [
+      { text:'说出你现在:5样看到的、4种听到的、3种摸到的、2种闻到的、1种尝到的', type:'checklist',
+        items:['5个看到的','4个听到的','3个摸到的','2个闻到的','1个尝到的'],
+        why:'这是"5-4-3-2-1接地技术"。焦虑时前额叶容易被杏仁核的威胁警报劫持,陷入对未来的灾难化想象。强迫感官注意当下具体的细节,能把注意力拉回"此刻是安全的"这个事实,是认知行为疗法里常用的接地方法。' },
+      { text:'把手放在心口,感受心跳,数够10下', type:'timer', seconds:15,
+        why:'触觉自我安抚会促进催产素释放,专注一个规律的身体信号(心跳),能帮大脑从"警觉模式"切换到"监测但安全"的状态。' },
+      { text:'把这个念头想象成装进一个盒子,先放旁边,不用现在处理', type:'text',
+        why:'这是"认知解离"技术——不是压抑念头,而是与念头拉开一点距离。给念头一个具体的意象,研究发现能降低它对情绪的直接控制力。' }
+    ],
+    '委屈': [
+      { text:'把手放在胸口,对自己说一句"我知道这不容易"', type:'timer', seconds:10,
+        why:'自我关怀(self-compassion)研究发现,用对待朋友的语气对待自己,能降低杏仁核的应激反应,效果类似真实获得他人安慰时的生理变化。' },
+      { text:'想一下如果是朋友遇到这事,你会怎么安慰她,试着这样对自己说', type:'text',
+        why:'"第三人称视角"能拉开一点情绪距离,让大脑更容易调用理性和关怀,而不是停留在自我批判的循环里。' },
+      { text:'允许自己难受5分钟,不用急着好起来', type:'timer', seconds:20,
+        why:'压抑情绪(suppression)反而会延长应激反应、增加身体负担。给情绪一个明确的、有限的时间窗口去存在,比强迫自己立刻好起来更容易真正平复。' }
+    ],
+    '愤怒': [
+      { text:'用力握拳10秒,然后完全放松,重复5次', type:'timer', seconds:10,
+        why:'渐进式肌肉放松(progressive muscle relaxation)——先制造紧张再主动放松,这种对比感能触发身体的放松反射,降低肾上腺素水平。' },
+      { text:'去没人的地方,允许自己小声骂一句,发泄出来', type:'text',
+        why:'压抑愤怒会让身体持续处于应激状态。短暂、无害的宣泄动作能帮交感神经系统"归零",不等于失控,是给情绪一个出口。' },
+      { text:'把让你生气的那句话写下来,写完可以撕掉', type:'text',
+        why:'书写能激活前额叶皮层参与处理情绪(而不只是杏仁核在反应),"撕掉"这个动作本身也是一种仪式化的释放,心理学上叫具身认知(embodied cognition)。' }
+    ],
+    '无力': [
+      { text:'找一件1分钟内能做完的小事,做完它,证明你还能动', type:'timer', seconds:60,
+        why:'这是"行为激活"(behavioral activation)——无力感常常是先有情绪、导致不行动,再用"看,我什么都做不了"验证这个情绪。一个微小的、能完成的动作能打破这个循环,不需要先有动力才能行动。' },
+      { text:'喝一杯水,起身走动30秒', type:'timer', seconds:30,
+        why:'久坐和低血糖都会加重疲惫和无力感,一个最小限度的生理调节动作,有时比心理暗示更直接有效。' },
+      { text:'什么都不做也可以,允许自己先躺一会', type:'text',
+        why:'不是所有无力感都需要立刻被"解决"。承认当下的极限,减少"我应该振作"的自我施压,本身能降低焦虑的叠加。' }
+    ],
+    '说不清': [
+      { text:'不用分析,拿张纸乱写乱画3分钟,不用有逻辑', type:'timer', seconds:180,
+        why:'表达性书写(expressive writing)研究发现,不追求逻辑、只是把内在状态外化的过程,能降低情绪的生理唤醒水平,即使内容本身毫无条理。' },
+      { text:'试着说这个感觉更像"热的"还是"冷的"、"重的"还是"轻的"', type:'text',
+        why:'用感官比喻代替精确命名,能绕开"我该怎么形容这个情绪"的认知卡顿,很多说不清的情绪其实更容易先用身体感受来描述。' },
+      { text:'先记下"说不清",过会儿再回来看看也没关系', type:'text',
+        why:'情绪不一定需要当下立刻被命名。留一个空白,允许后续再补充,本身也是一种诚实的记录方式。' }
+    ],
+    '孤独': [
+      { text:'给一个你信任的人发一句"在想你",不用等有由头', type:'text',
+        why:'孤独感的核心不是"没人陪",是"没有被看见的联结感"。主动发起哪怕最小的联结动作就能降低孤独感——研究发现,发出消息这个动作本身就能改善情绪,不需要等对方回复。' },
+      { text:'摸一摸有质感的东西(毛毯、宠物、热水杯),专注这个触感15秒', type:'timer', seconds:15,
+        why:'触觉输入能部分替代社交联结带来的安全感。催产素的释放不完全依赖人际接触,自我拥抱或触摸温暖物体也有类似的舒缓效果。' },
+      { text:'写下此刻最想被谁理解、最想说的一句话,不用真的发出去', type:'text',
+        why:'把"想被理解"的需求具体化,能减少孤独感里那种说不清自己到底要什么的模糊感,书写本身也是一种自我陪伴。' }
+    ],
+    '羞愧': [
+      { text:'把"我很糟糕"换成"这件事没做好"——提醒自己是事没做好,不是人不好', type:'text',
+        why:'心理学区分"羞耻"(针对自我整体的否定)和"内疚"(针对具体行为)。研究发现内疚更容易被修复,羞耻更容易让人回避和恶化。把感受从"我是"转成"我做了",情绪会更好处理。' },
+      { text:'深呼吸3轮,提醒自己"人都会有做得不够好的时候"', type:'breath', inhale:4, hold:4, exhale:6, cycles:3,
+        why:'自我关怀练习能降低羞耻感激活的杏仁核反应,深呼吸本身也能打断羞耻感常伴随的身体紧缩反应。' },
+      { text:'想一想,如果是你尊重的人犯了同样的错,你会怎么看待他', type:'text',
+        why:'视角转换能减少自我攻击式的思维反刍,是认知行为疗法里常用的"去中心化"技巧。' }
+    ],
+    '内疚': [
+      { text:'问自己:这件事有没有一个具体的、可以弥补的行动?有就写下来,没有就允许自己先放下', type:'text',
+        why:'内疚感的功能本来是提示"需要修复关系或行为"。一旦超出能修复的范围,持续的内疚只是消耗,不再有实际作用。区分"有用的内疚"和"无用的反刍",能减少不必要的痛苦。' },
+      { text:'深呼吸,提醒自己:意图和结果不总是一致的,你当时的判断基于那时候拥有的信息', type:'breath', inhale:4, hold:4, exhale:6, cycles:3,
+        why:'后见之明偏差(hindsight bias)会让人高估自己"早该知道"的程度。这个呼吸练习是给大脑一个暂停,把评判先放一放。' }
+    ],
+    '害怕': [
+      { text:'环顾四周,说出"我现在是安全的",同时说出3个能证明这一点的具体事实', type:'text',
+        why:'恐惧反应常常是身体在对"想象的威胁"反应,而不是此刻真实的威胁。用具体事实校准现实,能帮前额叶重新评估、抑制杏仁核的过度反应。' },
+      { text:'双脚用力踩地,感受脚下的支撑感', type:'timer', seconds:10,
+        why:'恐惧会带来"漂浮感"或"不真实感",这是身体解离反应的一种。踩地这个动作能通过本体感觉把注意力拉回身体,重新建立"我在这里,是稳定的"这种感觉。' }
+    ]
+  };
+  let lastSuggestionIdx = -1;
+
+  function loadEntries(){ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+  function saveEntries(e){ localStorage.setItem(STORAGE_KEY, JSON.stringify(e)); }
+  function updateStatBadge(){ document.getElementById('statCount').textContent = loadEntries().length; }
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+      document.getElementById('view-' + tab.dataset.tab).style.display = 'block';
+      document.getElementById('saveBar').style.display = tab.dataset.tab === 'record' ? 'block' : 'none';
+      if (tab.dataset.tab === 'timeline') renderTimeline();
+      if (tab.dataset.tab === 'review') renderReview();
+    });
+  });
+
+  document.getElementById('moreToggle').addEventListener('click', () => {
+    const panel = document.getElementById('morePanel');
+    const open = panel.style.display === 'block';
+    panel.style.display = open ? 'none' : 'block';
+    document.getElementById('moreToggle').textContent = open ? '＋ 添加分类 / 写点别的想法' : '－ 收起';
+  });
+
+  let selectedFeel = null;
+  document.querySelectorAll('#feelChips .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#feelChips .chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      selectedFeel = chip.dataset.feel;
+      showSuggestion(selectedFeel);
+    });
+  });
+
+  let selectedTriggerType = null;
+  document.querySelectorAll('#triggerChips .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const already = chip.classList.contains('selected');
+      document.querySelectorAll('#triggerChips .chip').forEach(c => c.classList.remove('selected'));
+      if (!already) { chip.classList.add('selected'); selectedTriggerType = chip.dataset.trigger; }
+      else { selectedTriggerType = null; }
+    });
+  });
+
+  document.getElementById('whyToggle').addEventListener('click', () => {
+    const box = document.getElementById('whyBox');
+    const open = box.style.display === 'block';
+    box.style.display = open ? 'none' : 'block';
+    document.getElementById('whyToggle').textContent = open ? '为什么有效 ›' : '为什么有效 ˅';
+  });
+
+  function showSuggestion(feel) {
+    const list = copingSuggestions[feel];
+    if (!list) { document.getElementById('suggestionCard').style.display = 'none'; return; }
+    lastSuggestionIdx = Math.floor(Math.random() * list.length);
+    renderSuggestion(list[lastSuggestionIdx]);
+    document.getElementById('suggestionCard').style.display = 'block';
+  }
+
+  function renderSuggestion(sug) {
+    document.getElementById('suggestionText').textContent = sug.text;
+    document.getElementById('whyBox').textContent = sug.why;
+    document.getElementById('whyBox').style.display = 'none';
+    document.getElementById('whyToggle').textContent = '为什么有效 ›';
+    renderInteraction(sug);
+  }
+
+  function renderInteraction(sug) {
+    const c = document.getElementById('interactionArea');
+    c.innerHTML = '';
+    if (sug.type === 'breath') {
+      c.innerHTML = `<div class="breath-wrap">
+        <div class="breath-circle" id="breathCircle"><span id="breathLabel">准备好了就开始</span></div>
+        <div class="breath-btn" id="breathBtn">开始</div>
+      </div>`;
+      document.getElementById('breathBtn').addEventListener('click', () => runBreath(sug));
+    } else if (sug.type === 'timer') {
+      c.innerHTML = `<div class="timer-wrap">
+        <div class="timer-num" id="timerNum">${sug.seconds}</div>
+        <div class="timer-btn" id="timerBtn">开始</div>
+      </div>`;
+      document.getElementById('timerBtn').addEventListener('click', () => runTimer(sug.seconds));
+    } else if (sug.type === 'checklist') {
+      c.innerHTML = `<div class="checklist">${sug.items.map((item,i)=>`
+        <div class="check-item" data-i="${i}"><span class="check-box"></span>${item}</div>`).join('')}</div>`;
+      c.querySelectorAll('.check-item').forEach(el => {
+        el.addEventListener('click', () => el.classList.toggle('checked'));
+      });
+    }
+  }
+
+  function runBreath(sug) {
+    const circle = document.getElementById('breathCircle');
+    const label = document.getElementById('breathLabel');
+    const btn = document.getElementById('breathBtn');
+    btn.style.display = 'none';
+    let cycle = 0;
+    function phase() {
+      if (cycle >= sug.cycles) {
+        label.textContent = '完成了';
+        circle.style.transition = 'transform .6s ease';
+        circle.style.transform = 'scale(1)';
+        btn.style.display = 'block'; btn.textContent = '再来一轮'; cycle = 0;
+        return;
+      }
+      label.textContent = '吸气...';
+      circle.style.transition = `transform ${sug.inhale}s ease-in-out`;
+      circle.style.transform = 'scale(1.4)';
+      setTimeout(() => {
+        label.textContent = '屏息...';
+        setTimeout(() => {
+          label.textContent = '呼气...';
+          circle.style.transition = `transform ${sug.exhale}s ease-in-out`;
+          circle.style.transform = 'scale(1)';
+          setTimeout(() => { cycle++; phase(); }, sug.exhale * 1000);
+        }, sug.hold * 1000);
+      }, sug.inhale * 1000);
+    }
+    phase();
+  }
+
+  function runTimer(seconds) {
+    const numEl = document.getElementById('timerNum');
+    const btn = document.getElementById('timerBtn');
+    btn.style.display = 'none';
+    let remaining = seconds;
+    numEl.textContent = remaining;
+    const iv = setInterval(() => {
+      remaining--;
+      numEl.textContent = remaining > 0 ? remaining : '✓';
+      if (remaining <= 0) { clearInterval(iv); btn.style.display = 'block'; btn.textContent = '再来一次'; }
+    }, 1000);
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    const trigger = document.getElementById('triggerText').value.trim();
+    const cope = document.getElementById('copeText').value.trim();
+    if (!trigger && !selectedFeel) return;
+    const entries = loadEntries();
+    entries.unshift({
+      date: new Date().toISOString(),
+      trigger, feel: selectedFeel || '', triggerType: selectedTriggerType || '', cope
+    });
+    saveEntries(entries);
+    document.getElementById('triggerText').value = '';
+    document.getElementById('copeText').value = '';
+    document.querySelectorAll('#feelChips .chip').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('#triggerChips .chip').forEach(c => c.classList.remove('selected'));
+    document.getElementById('suggestionCard').style.display = 'none';
+    document.getElementById('morePanel').style.display = 'none';
+    document.getElementById('moreToggle').textContent = '＋ 添加分类 / 写点别的想法';
+    selectedFeel = null; selectedTriggerType = null;
+    updateStatBadge();
+    const btn = document.getElementById('saveBtn');
+    btn.textContent = '记下来了';
+    setTimeout(() => btn.textContent = '记下来', 1200);
+  });
+
+  function renderTimeline() {
+    const entries = loadEntries();
+    const list = document.getElementById('timelineList');
+    if (entries.length === 0) { list.innerHTML = '<div class="locked">还没有记录,写下第一条吧</div>'; return; }
+    list.innerHTML = entries.map(e => {
+      const d = new Date(e.date);
+      const dateStr = `${d.getMonth()+1}月${d.getDate()}日`;
+      return `<div class="entry">
+        <div class="entry-date">${dateStr}</div>
+        <div class="entry-tags">
+          ${e.feel ? `<span class="entry-feel">${e.feel}</span>` : ''}
+          ${e.triggerType ? `<span class="entry-trigger-type">${e.triggerType}</span>` : ''}
+        </div>
+        <div class="entry-text">${escapeHtml(e.trigger)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderReview() {
+    const entries = loadEntries();
+    const content = document.getElementById('reviewContent');
+    if (entries.length < UNLOCK_THRESHOLD) {
+      content.innerHTML = `<div class="locked">再记录 ${UNLOCK_THRESHOLD - entries.length} 条,解锁回看视图</div>`;
+      return;
+    }
+    const days = 28, counts = {};
+    entries.forEach(e => { const key = e.date.slice(0,10); counts[key] = (counts[key]||0)+1; });
+    let cells = '';
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0,10);
+      const c = counts[key] || 0;
+      const cls = c === 0 ? '' : c === 1 ? 'heat-1' : c === 2 ? 'heat-2' : 'heat-3';
+      cells += `<div class="heat-cell ${cls}"></div>`;
+    }
+
+    const feelCounts = {};
+    entries.forEach(e => { if (e.feel) feelCounts[e.feel] = (feelCounts[e.feel]||0)+1; });
+    const feelMax = Math.max(...Object.values(feelCounts), 1);
+    const feelRows = Object.entries(feelCounts).sort((a,b)=>b[1]-a[1]).map(([feel,count]) => `
+      <div class="tag-row"><span>${feel}</span>
+      <div class="tag-bar" style="width:${(count/feelMax*120)}px;"></div>
+      <span style="color:var(--muted);">${count}</span></div>`).join('');
+
+    const triggerCounts = {};
+    entries.forEach(e => { if (e.triggerType) triggerCounts[e.triggerType] = (triggerCounts[e.triggerType]||0)+1; });
+    const triggerRows = Object.keys(triggerCounts).length === 0
+      ? `<div class="locked" style="padding:16px 0;">还没标注过触发类型</div>`
+      : (() => {
+          const tMax = Math.max(...Object.values(triggerCounts), 1);
+          return Object.entries(triggerCounts).sort((a,b)=>b[1]-a[1]).map(([t,count]) => `
+            <div class="tag-row"><span>${t}</span>
+            <div class="tag-bar alt" style="width:${(count/tMax*120)}px;"></div>
+            <span style="color:var(--muted);">${count}</span></div>`).join('');
+        })();
+
+    content.innerHTML = `
+      <div class="card"><div class="sub" style="margin-bottom:14px;">最近28天,有记录的日子</div><div class="heatmap">${cells}</div></div>
+      <div class="card"><div class="sub" style="margin-bottom:14px;">常出现的感觉</div>${feelRows}</div>
+      <div class="card"><div class="sub" style="margin-bottom:14px;">常见触发类型</div>${triggerRows}</div>`;
+  }
+
+  function escapeHtml(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+
+  updateStatBadge();
+</script>
+</body>
+</html>
