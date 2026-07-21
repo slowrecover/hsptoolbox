@@ -13,61 +13,95 @@
   <link rel="icon" href="../icon-emotion.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="../icon-emotion.svg">
   <style>
-    :root{--accent:#4F9277;--ink:#2B3A35;--muted:#738079;--line:#DCE3DF;--bg:#E9EDEA;--surface:#fff}
+    :root{--accent:#4F9277;--ink:#2B3A35;--muted:#738079;--line:#DCE3DF;--bg:#E9EDEA;--surface:#fff;--soft:#F4F6F3;--warm:#AD8A50}
     *{box-sizing:border-box}
     html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans SC","Segoe UI",sans-serif}
     #tool{display:block;width:100%;height:100%;border:0;background:var(--bg)}
-    .menu-btn{position:fixed;right:16px;bottom:max(18px,env(safe-area-inset-bottom));z-index:20;width:46px;height:46px;border:0;border-radius:50%;background:var(--ink);color:#fff;font-size:22px;line-height:1;box-shadow:0 12px 28px rgba(43,58,53,.28);cursor:pointer}
-    .backdrop{position:fixed;inset:0;z-index:30;background:rgba(43,58,53,.42);display:none;align-items:flex-end;justify-content:center;padding:16px}
+    .menu-btn{
+      position:fixed;right:14px;bottom:max(92px,calc(env(safe-area-inset-bottom) + 92px));z-index:25;
+      min-width:94px;height:40px;padding:0 14px;border:0;border-radius:999px;background:var(--ink);color:#fff;
+      font:600 13px/1 inherit;box-shadow:0 12px 28px rgba(43,58,53,.3);cursor:pointer
+    }
+    .backdrop{position:fixed;inset:0;z-index:40;background:rgba(43,58,53,.44);display:none;align-items:flex-end;justify-content:center;padding:16px}
     .backdrop.open{display:flex}
-    .sheet{width:min(100%,480px);background:var(--surface);border-radius:22px;padding:20px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 22px 60px rgba(43,58,53,.3)}
-    .sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+    .sheet{width:min(100%,480px);max-height:88vh;overflow:auto;background:var(--surface);border-radius:22px;padding:20px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 22px 60px rgba(43,58,53,.3)}
+    .sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
     .sheet h2{font-size:18px;margin:0 0 4px;color:var(--ink)}
-    .sheet p{font-size:12.5px;line-height:1.55;color:var(--muted);margin:0}
+    .sheet p{font-size:12.5px;line-height:1.58;color:var(--muted);margin:0}
     .close{border:0;background:transparent;color:var(--muted);font-size:24px;cursor:pointer;padding:0 4px}
+    .status{display:none;margin:0 0 12px;padding:12px 13px;border:1px solid var(--line);border-radius:14px;background:var(--soft);color:var(--ink);font-size:13px;line-height:1.55}
+    .status.show{display:block}
+    .status strong{display:block;margin-bottom:3px}
     .actions{display:grid;gap:10px}
     .action{width:100%;border:1px solid var(--line);border-radius:14px;padding:13px 14px;background:#fff;color:var(--ink);font:inherit;font-size:14px;text-align:left;cursor:pointer}
     .action.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
-    .action small{display:block;margin-top:3px;opacity:.72;font-size:11.5px}
+    .action small{display:block;margin-top:3px;opacity:.76;font-size:11.5px;line-height:1.45}
+    .help{margin-top:12px;padding:12px 13px;border-radius:14px;background:#FFF9EF;border:1px solid #E8D9BD;color:#6E5935;font-size:12.5px;line-height:1.6}
+    .help b{color:#5C4728}
     .privacy{margin-top:14px!important;text-align:center}
     #importFile{display:none}
-    .toast{position:fixed;left:50%;bottom:78px;z-index:50;transform:translate(-50%,12px);background:var(--ink);color:#fff;border-radius:999px;padding:9px 14px;font-size:12.5px;opacity:0;pointer-events:none;transition:.18s;white-space:nowrap}
+    .toast{position:fixed;left:50%;bottom:148px;z-index:60;transform:translate(-50%,12px);background:var(--ink);color:#fff;border-radius:999px;padding:9px 14px;font-size:12.5px;opacity:0;pointer-events:none;transition:.18s;white-space:nowrap;max-width:88vw;overflow:hidden;text-overflow:ellipsis}
     .toast.show{opacity:1;transform:translate(-50%,0)}
   </style>
 </head>
 <body>
   <iframe id="tool" title="情绪记录本" src="../qingxu.html"></iframe>
-  <button class="menu-btn" id="menuBtn" aria-label="安装与备份">⋯</button>
+  <button class="menu-btn" id="menuBtn" aria-label="打开备份与安装">备份 / 安装</button>
 
   <div class="backdrop" id="backdrop" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
     <div class="sheet">
       <div class="sheet-head">
         <div>
-          <h2 id="sheetTitle">安装与备份</h2>
+          <h2 id="sheetTitle">备份与安装</h2>
           <p>记录默认保存在这台设备的浏览器中。</p>
         </div>
         <button class="close" id="closeBtn" aria-label="关闭">×</button>
       </div>
+
+      <div class="status" id="installStatus" role="status"></div>
+
       <div class="actions">
-        <button class="action primary" id="installBtn">添加到手机桌面<small>安装后可像 App 一样直接打开</small></button>
-        <button class="action" id="exportBtn">导出备份<small>下载一份 JSON 文件，可存到网盘或发送给自己</small></button>
-        <button class="action" id="importBtn">恢复备份<small>与现有记录合并，重复记录不会再次加入</small></button>
+        <button class="action primary" id="installBtn">
+          安装到手机
+          <small id="installHint">安装后可从手机应用列表或桌面打开</small>
+        </button>
+        <button class="action" id="exportBtn">
+          导出备份
+          <small>下载一份 JSON 文件，可存到网盘或发送给自己</small>
+        </button>
+        <button class="action" id="importBtn">
+          恢复备份
+          <small>与现有记录合并，重复记录不会再次加入</small>
+        </button>
       </div>
+
+      <div class="help" id="installHelp">
+        <b>安装后没在桌面看到？</b><br>
+        在手机桌面向上滑，打开“应用列表”，搜索“情绪记录本”。找到后长按图标，就可以拖到桌面。不同安卓手机不一定自动把新应用放在当前桌面页。
+      </div>
+
       <input id="importFile" type="file" accept="application/json,.json">
       <p class="privacy">不上传服务器。导入、导出和自动备份都只在本机完成。</p>
     </div>
   </div>
+
   <div class="toast" id="toast" role="status"></div>
 
 <script>
 (() => {
   const ENTRIES_KEY = 'hsp_emotion_log';
   const DRAFT_KEY = 'hsp_emotion_draft_v1';
+  const INSTALLED_KEY = 'hsp_emotion_install_seen_v1';
   const DB_NAME = 'hsp_emotion_backup';
   const DB_STORE = 'snapshots';
+
   const frame = document.getElementById('tool');
   const backdrop = document.getElementById('backdrop');
   const toast = document.getElementById('toast');
+  const installBtn = document.getElementById('installBtn');
+  const installHint = document.getElementById('installHint');
+  const installStatus = document.getElementById('installStatus');
+
   let deferredInstallPrompt = null;
   let draftTimer = null;
 
@@ -75,14 +109,25 @@
     toast.textContent = message;
     toast.classList.add('show');
     clearTimeout(showToast.timer);
-    showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
+    showToast.timer = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+
+  function showInstallStatus(title, message) {
+    installStatus.innerHTML = '<strong>' + escapeHtml(title) + '</strong>' + escapeHtml(message);
+    installStatus.classList.add('show');
+  }
+
+  function isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
   }
 
   function safeEntries() {
     try {
       const value = JSON.parse(localStorage.getItem(ENTRIES_KEY) || '[]');
       return Array.isArray(value) ? value : [];
-    } catch (_) { return []; }
+    } catch (_) {
+      return [];
+    }
   }
 
   function openDb() {
@@ -91,7 +136,9 @@
       const request = indexedDB.open(DB_NAME, 1);
       request.onupgradeneeded = () => {
         const db = request.result;
-        if (!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE, { keyPath:'key' });
+        if (!db.objectStoreNames.contains(DB_STORE)) {
+          db.createObjectStore(DB_STORE, { keyPath:'key' });
+        }
       };
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
@@ -122,7 +169,9 @@
       });
       db.close();
       return result && Array.isArray(result.entries) ? result.entries : [];
-    } catch (_) { return []; }
+    } catch (_) {
+      return [];
+    }
   }
 
   async function recoverEntriesIfNeeded() {
@@ -134,10 +183,12 @@
         if (Array.isArray(value)) parsed = value;
       }
     } catch (_) {}
+
     if (parsed && parsed.length) {
       writeBackup(parsed);
       return;
     }
+
     const backup = await readBackup();
     if (backup.length) {
       localStorage.setItem(ENTRIES_KEY, JSON.stringify(backup));
@@ -169,33 +220,45 @@
 
   function restoreDraft(doc) {
     let draft;
-    try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (_) { return; }
+    try {
+      draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+    } catch (_) {
+      return;
+    }
     if (!draft || typeof draft !== 'object') return;
+
     const trigger = doc.getElementById('triggerText');
     const cope = doc.getElementById('copeText');
     if (trigger && !trigger.value) trigger.value = draft.trigger || '';
     if (cope && !cope.value) cope.value = draft.cope || '';
 
-    const feelChip = [...doc.querySelectorAll('.chip[data-feel]')].find(el => el.dataset.feel === draft.feel);
+    const feelChip = [...doc.querySelectorAll('.chip[data-feel]')]
+      .find(el => el.dataset.feel === draft.feel);
     if (feelChip && !doc.querySelector('.chip.selected[data-feel]')) feelChip.click();
 
-    const triggerChip = [...doc.querySelectorAll('.chip[data-trigger]')].find(el => el.dataset.trigger === draft.triggerType);
+    const triggerChip = [...doc.querySelectorAll('.chip[data-trigger]')]
+      .find(el => el.dataset.trigger === draft.triggerType);
     if ((draft.cope || triggerChip) && doc.getElementById('morePanel')?.style.display !== 'block') {
       doc.getElementById('moreToggle')?.click();
     }
     if (triggerChip && !doc.querySelector('.chip.selected[data-trigger]')) triggerChip.click();
-    if (draft.trigger || draft.cope || draft.feel || draft.triggerType) showToast('已恢复上次未完成的内容');
+
+    if (draft.trigger || draft.cope || draft.feel || draft.triggerType) {
+      showToast('已恢复上次未完成的内容');
+    }
   }
 
   function bindTool() {
     const doc = frame.contentDocument;
     if (!doc || !doc.getElementById('saveBtn')) return;
+
     restoreDraft(doc);
 
     doc.addEventListener('input', () => {
       clearTimeout(draftTimer);
       draftTimer = setTimeout(() => saveDraft(doc), 250);
     });
+
     doc.addEventListener('click', () => {
       clearTimeout(draftTimer);
       draftTimer = setTimeout(() => saveDraft(doc), 0);
@@ -215,19 +278,45 @@
   }
 
   function recordSignature(entry) {
-    return [entry.date || '', entry.trigger || '', entry.feel || '', entry.triggerType || '', entry.cope || ''].join('\u0001');
+    return [
+      entry.date || '',
+      entry.trigger || '',
+      entry.feel || '',
+      entry.triggerType || '',
+      entry.cope || ''
+    ].join('\u0001');
   }
 
-  document.getElementById('menuBtn').onclick = () => backdrop.classList.add('open');
+  function escapeHtml(value) {
+    const div = document.createElement('div');
+    div.textContent = String(value ?? '');
+    return div.innerHTML;
+  }
+
+  document.getElementById('menuBtn').onclick = () => {
+    backdrop.classList.add('open');
+    refreshInstallUi();
+  };
   document.getElementById('closeBtn').onclick = () => backdrop.classList.remove('open');
-  backdrop.addEventListener('click', event => { if (event.target === backdrop) backdrop.classList.remove('open'); });
+  backdrop.addEventListener('click', event => {
+    if (event.target === backdrop) backdrop.classList.remove('open');
+  });
 
   document.getElementById('exportBtn').onclick = () => {
     const payload = {
-      app:'情绪记录本', version:1, exportedAt:new Date().toISOString(),
+      app:'情绪记录本',
+      version:1,
+      exportedAt:new Date().toISOString(),
       entries:safeEntries(),
-      draft:(() => { try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (_) { return null; } })()
+      draft:(() => {
+        try {
+          return JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+        } catch (_) {
+          return null;
+        }
+      })()
     };
+
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -239,52 +328,135 @@
     showToast(`已导出 ${payload.entries.length} 条记录`);
   };
 
-  document.getElementById('importBtn').onclick = () => document.getElementById('importFile').click();
+  document.getElementById('importBtn').onclick = () => {
+    document.getElementById('importFile').click();
+  };
+
   document.getElementById('importFile').addEventListener('change', async event => {
     const file = event.target.files?.[0];
     event.target.value = '';
     if (!file) return;
+
     try {
       const parsed = JSON.parse(await file.text());
       const incoming = Array.isArray(parsed) ? parsed : parsed.entries;
       if (!Array.isArray(incoming)) throw new Error('文件中没有记录');
+
       const current = safeEntries();
       const seen = new Set(current.map(recordSignature));
-      const added = incoming.filter(item => item && typeof item === 'object' && !seen.has(recordSignature(item)));
-      const merged = [...current, ...added].sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
+      const added = incoming.filter(item =>
+        item && typeof item === 'object' && !seen.has(recordSignature(item))
+      );
+      const merged = [...current, ...added]
+        .sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
+
       localStorage.setItem(ENTRIES_KEY, JSON.stringify(merged));
-      if (parsed.draft && typeof parsed.draft === 'object') localStorage.setItem(DRAFT_KEY, JSON.stringify(parsed.draft));
+      if (parsed.draft && typeof parsed.draft === 'object') {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(parsed.draft));
+      }
       await writeBackup(merged);
       frame.contentWindow.location.reload();
       showToast(`恢复完成，新增 ${added.length} 条`);
       backdrop.classList.remove('open');
-    } catch (error) {
+    } catch (_) {
       showToast('备份文件无法读取');
     }
   });
 
+  function refreshInstallUi() {
+    if (isStandalone()) {
+      installBtn.textContent = '已在应用模式打开';
+      installBtn.disabled = true;
+      installHint.textContent = '';
+      showInstallStatus(
+        '已经安装',
+        '如果桌面没有图标，请在手机“应用列表”搜索“情绪记录本”，再长按拖到桌面。'
+      );
+      return;
+    }
+
+    installBtn.disabled = false;
+    installBtn.innerHTML = '安装到手机<small id="installHint">安装后可从手机应用列表或桌面打开</small>';
+
+    if (deferredInstallPrompt) {
+      installBtn.querySelector('small').textContent = '点这里打开安卓安装窗口';
+      installStatus.classList.remove('show');
+    } else if (localStorage.getItem(INSTALLED_KEY) === '1') {
+      showInstallStatus(
+        '可能已经安装',
+        '请先在手机“应用列表”搜索“情绪记录本”。没有找到时，再用 Chrome 右上角菜单选择“安装应用”或“添加到主屏幕”。'
+      );
+    } else {
+      showInstallStatus(
+        '没有出现安装窗口？',
+        '请确认使用安卓 Chrome 打开，然后点浏览器右上角菜单，选择“安装应用”或“添加到主屏幕”。'
+      );
+    }
+  }
+
   window.addEventListener('beforeinstallprompt', event => {
     event.preventDefault();
     deferredInstallPrompt = event;
-    document.getElementById('installBtn').querySelector('small').textContent = '点这里安装，之后可从桌面直接打开';
+    refreshInstallUi();
   });
 
-  document.getElementById('installBtn').onclick = async () => {
-    if (deferredInstallPrompt) {
-      deferredInstallPrompt.prompt();
-      await deferredInstallPrompt.userChoice;
-      deferredInstallPrompt = null;
-      backdrop.classList.remove('open');
+  installBtn.onclick = async () => {
+    if (isStandalone()) {
+      showInstallStatus(
+        '已经安装',
+        '如果桌面没有图标，请在手机“应用列表”搜索“情绪记录本”，再长按拖到桌面。'
+      );
       return;
     }
-    alert('请打开浏览器右上角菜单，选择“添加到主屏幕”或“安装应用”。建议使用安卓 Chrome 打开。');
+
+    if (!deferredInstallPrompt) {
+      showInstallStatus(
+        '请从 Chrome 菜单安装',
+        '点浏览器右上角“⋮”，选择“安装应用”或“添加到主屏幕”。安装后在应用列表搜索“情绪记录本”。'
+      );
+      return;
+    }
+
+    const promptEvent = deferredInstallPrompt;
+    deferredInstallPrompt = null;
+    promptEvent.prompt();
+
+    const choice = await promptEvent.userChoice;
+    if (choice.outcome === 'accepted') {
+      localStorage.setItem(INSTALLED_KEY, '1');
+      showInstallStatus(
+        '系统已接受安装',
+        '请在手机“应用列表”搜索“情绪记录本”。部分安卓不会自动把图标放到当前桌面页，需要长按图标拖到桌面。'
+      );
+      showToast('安装已提交，请到应用列表查找');
+    } else {
+      showInstallStatus(
+        '这次没有完成安装',
+        '可以重新打开此页面，再从 Chrome 右上角菜单选择“安装应用”或“添加到主屏幕”。'
+      );
+      showToast('没有完成安装');
+    }
   };
 
-  window.addEventListener('appinstalled', () => showToast('情绪记录本已添加到桌面'));
+  window.addEventListener('appinstalled', () => {
+    localStorage.setItem(INSTALLED_KEY, '1');
+    showInstallStatus(
+      '安装完成',
+      '请到手机“应用列表”搜索“情绪记录本”。需要放到桌面时，长按图标拖到桌面。'
+    );
+    showToast('情绪记录本已安装');
+  });
+
   frame.addEventListener('load', bindTool);
 
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-  if (navigator.storage?.persist) navigator.storage.persist().catch(() => {});
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  if (navigator.storage?.persist) {
+    navigator.storage.persist().catch(() => {});
+  }
+
+  refreshInstallUi();
   recoverEntriesIfNeeded();
 })();
 </script>
