@@ -12,10 +12,12 @@
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     const nodes = [];
     while (walker.nextNode()) nodes.push(walker.currentNode);
+
     for (const node of nodes) {
-      let value = node.nodeValue;
-      for (const [from, to] of replacements) value = value.replaceAll(from, to);
-      node.nodeValue = value;
+      const original = node.nodeValue;
+      let next = original;
+      for (const [from, to] of replacements) next = next.replaceAll(from, to);
+      if (next !== original) node.nodeValue = next;
     }
   }
 
