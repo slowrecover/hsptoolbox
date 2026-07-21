@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#4F9277">
+  <meta name="description" content="不评判，只记录。情绪记录、时间线与回看都留在你的设备里。">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="情绪记录本">
+  <title>情绪记录本</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="../icon-emotion.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../icon-emotion.svg">
+  <style>
+    :root{--accent:#4F9277;--ink:#2B3A35;--muted:#738079;--line:#DCE3DF;--bg:#E9EDEA;--surface:#fff}
+    *{box-sizing:border-box}
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans SC","Segoe UI",sans-serif}
+    #tool{display:block;width:100%;height:100%;border:0;background:var(--bg)}
+    .menu-btn{position:fixed;right:16px;bottom:max(18px,env(safe-area-inset-bottom));z-index:20;width:46px;height:46px;border:0;border-radius:50%;background:var(--ink);color:#fff;font-size:22px;line-height:1;box-shadow:0 12px 28px rgba(43,58,53,.28);cursor:pointer}
+    .backdrop{position:fixed;inset:0;z-index:30;background:rgba(43,58,53,.42);display:none;align-items:flex-end;justify-content:center;padding:16px}
+    .backdrop.open{display:flex}
+    .sheet{width:min(100%,480px);background:var(--surface);border-radius:22px;padding:20px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 22px 60px rgba(43,58,53,.3)}
+    .sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+    .sheet h2{font-size:18px;margin:0 0 4px;color:var(--ink)}
+    .sheet p{font-size:12.5px;line-height:1.55;color:var(--muted);margin:0}
+    .close{border:0;background:transparent;color:var(--muted);font-size:24px;cursor:pointer;padding:0 4px}
+    .actions{display:grid;gap:10px}
+    .action{width:100%;border:1px solid var(--line);border-radius:14px;padding:13px 14px;background:#fff;color:var(--ink);font:inherit;font-size:14px;text-align:left;cursor:pointer}
+    .action.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+    .action small{display:block;margin-top:3px;opacity:.72;font-size:11.5px}
+    .privacy{margin-top:14px!important;text-align:center}
+    #importFile{display:none}
+    .toast{position:fixed;left:50%;bottom:78px;z-index:50;transform:translate(-50%,12px);background:var(--ink);color:#fff;border-radius:999px;padding:9px 14px;font-size:12.5px;opacity:0;pointer-events:none;transition:.18s;white-space:nowrap}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+  </style>
+</head>
+<body>
+  <iframe id="tool" title="情绪记录本" src="../qingxu.html"></iframe>
+  <button class="menu-btn" id="menuBtn" aria-label="安装与备份">⋯</button>
+
+  <div class="backdrop" id="backdrop" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <h2 id="sheetTitle">安装与备份</h2>
+          <p>记录默认保存在这台设备的浏览器中。</p>
+        </div>
+        <button class="close" id="closeBtn" aria-label="关闭">×</button>
+      </div>
+      <div class="actions">
+        <button class="action primary" id="installBtn">添加到手机桌面<small>安装后可像 App 一样直接打开</small></button>
+        <button class="action" id="exportBtn">导出备份<small>下载一份 JSON 文件，可存到网盘或发送给自己</small></button>
+        <button class="action" id="importBtn">恢复备份<small>与现有记录合并，重复记录不会再次加入</small></button>
+      </div>
+      <input id="importFile" type="file" accept="application/json,.json">
+      <p class="privacy">不上传服务器。导入、导出和自动备份都只在本机完成。</p>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+  const ENTRIES_KEY = 'hsp_emotion_log';
+  const DRAFT_KEY = 'hsp_emotion_draft_v1';
+  const DB_NAME = 'hsp_emotion_backup';
+  const DB_STORE = 'snapshots';
+  const frame = document.getElementById('tool');
+  const backdrop = document.getElementById('backdrop');
+  const toast = document.getElementById('toast');
+  let deferredInstallPrompt = null;
+  let draftTimer = null;
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  function safeEntries() {
+    try {
+      const value = JSON.parse(localStorage.getItem(ENTRIES_KEY) || '[]');
+      return Array.isArray(value) ? value : [];
+    } catch (_) { return []; }
+  }
+
+  function openDb() {
+    return new Promise((resolve, reject) => {
+      if (!('indexedDB' in window)) return reject(new Error('IndexedDB unavailable'));
+      const request = indexedDB.open(DB_NAME, 1);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE, { keyPath:'key' });
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function writeBackup(entries) {
+    try {
+      const db = await openDb();
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(DB_STORE, 'readwrite');
+        tx.objectStore(DB_STORE).put({ key:'entries', entries, updatedAt:Date.now() });
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+      db.close();
+    } catch (_) {}
+  }
+
+  async function readBackup() {
+    try {
+      const db = await openDb();
+      const result = await new Promise((resolve, reject) => {
+        const tx = db.transaction(DB_STORE, 'readonly');
+        const request = tx.objectStore(DB_STORE).get('entries');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      db.close();
+      return result && Array.isArray(result.entries) ? result.entries : [];
+    } catch (_) { return []; }
+  }
+
+  async function recoverEntriesIfNeeded() {
+    let parsed = null;
+    try {
+      const raw = localStorage.getItem(ENTRIES_KEY);
+      if (raw !== null) {
+        const value = JSON.parse(raw);
+        if (Array.isArray(value)) parsed = value;
+      }
+    } catch (_) {}
+    if (parsed && parsed.length) {
+      writeBackup(parsed);
+      return;
+    }
+    const backup = await readBackup();
+    if (backup.length) {
+      localStorage.setItem(ENTRIES_KEY, JSON.stringify(backup));
+      showToast('已从本机备份恢复记录');
+      frame.contentWindow.location.reload();
+    }
+  }
+
+  function currentDraft(doc) {
+    const feel = doc.querySelector('#feelChips .chip.selected[data-feel]');
+    const triggerType = doc.querySelector('#triggerChips .chip.selected[data-trigger]');
+    return {
+      trigger: doc.getElementById('triggerText')?.value || '',
+      cope: doc.getElementById('copeText')?.value || '',
+      feel: feel?.dataset.feel || '',
+      triggerType: triggerType?.dataset.trigger || '',
+      updatedAt: Date.now()
+    };
+  }
+
+  function saveDraft(doc) {
+    const draft = currentDraft(doc);
+    if (draft.trigger.trim() || draft.cope.trim() || draft.feel || draft.triggerType) {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    } else {
+      localStorage.removeItem(DRAFT_KEY);
+    }
+  }
+
+  function restoreDraft(doc) {
+    let draft;
+    try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (_) { return; }
+    if (!draft || typeof draft !== 'object') return;
+    const trigger = doc.getElementById('triggerText');
+    const cope = doc.getElementById('copeText');
+    if (trigger && !trigger.value) trigger.value = draft.trigger || '';
+    if (cope && !cope.value) cope.value = draft.cope || '';
+
+    const feelChip = [...doc.querySelectorAll('.chip[data-feel]')].find(el => el.dataset.feel === draft.feel);
+    if (feelChip && !doc.querySelector('.chip.selected[data-feel]')) feelChip.click();
+
+    const triggerChip = [...doc.querySelectorAll('.chip[data-trigger]')].find(el => el.dataset.trigger === draft.triggerType);
+    if ((draft.cope || triggerChip) && doc.getElementById('morePanel')?.style.display !== 'block') {
+      doc.getElementById('moreToggle')?.click();
+    }
+    if (triggerChip && !doc.querySelector('.chip.selected[data-trigger]')) triggerChip.click();
+    if (draft.trigger || draft.cope || draft.feel || draft.triggerType) showToast('已恢复上次未完成的内容');
+  }
+
+  function bindTool() {
+    const doc = frame.contentDocument;
+    if (!doc || !doc.getElementById('saveBtn')) return;
+    restoreDraft(doc);
+
+    doc.addEventListener('input', () => {
+      clearTimeout(draftTimer);
+      draftTimer = setTimeout(() => saveDraft(doc), 250);
+    });
+    doc.addEventListener('click', () => {
+      clearTimeout(draftTimer);
+      draftTimer = setTimeout(() => saveDraft(doc), 0);
+    });
+
+    const saveBtn = doc.getElementById('saveBtn');
+    saveBtn.addEventListener('click', () => {
+      const before = safeEntries().length;
+      setTimeout(() => {
+        const entries = safeEntries();
+        if (entries.length > before) {
+          localStorage.removeItem(DRAFT_KEY);
+          writeBackup(entries);
+        }
+      }, 0);
+    });
+  }
+
+  function recordSignature(entry) {
+    return [entry.date || '', entry.trigger || '', entry.feel || '', entry.triggerType || '', entry.cope || ''].join('\u0001');
+  }
+
+  document.getElementById('menuBtn').onclick = () => backdrop.classList.add('open');
+  document.getElementById('closeBtn').onclick = () => backdrop.classList.remove('open');
+  backdrop.addEventListener('click', event => { if (event.target === backdrop) backdrop.classList.remove('open'); });
+
+  document.getElementById('exportBtn').onclick = () => {
+    const payload = {
+      app:'情绪记录本', version:1, exportedAt:new Date().toISOString(),
+      entries:safeEntries(),
+      draft:(() => { try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (_) { return null; } })()
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `情绪记录本备份-${new Date().toISOString().slice(0,10)}.json`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    writeBackup(payload.entries);
+    showToast(`已导出 ${payload.entries.length} 条记录`);
+  };
+
+  document.getElementById('importBtn').onclick = () => document.getElementById('importFile').click();
+  document.getElementById('importFile').addEventListener('change', async event => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    try {
+      const parsed = JSON.parse(await file.text());
+      const incoming = Array.isArray(parsed) ? parsed : parsed.entries;
+      if (!Array.isArray(incoming)) throw new Error('文件中没有记录');
+      const current = safeEntries();
+      const seen = new Set(current.map(recordSignature));
+      const added = incoming.filter(item => item && typeof item === 'object' && !seen.has(recordSignature(item)));
+      const merged = [...current, ...added].sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
+      localStorage.setItem(ENTRIES_KEY, JSON.stringify(merged));
+      if (parsed.draft && typeof parsed.draft === 'object') localStorage.setItem(DRAFT_KEY, JSON.stringify(parsed.draft));
+      await writeBackup(merged);
+      frame.contentWindow.location.reload();
+      showToast(`恢复完成，新增 ${added.length} 条`);
+      backdrop.classList.remove('open');
+    } catch (error) {
+      showToast('备份文件无法读取');
+    }
+  });
+
+  window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    document.getElementById('installBtn').querySelector('small').textContent = '点这里安装，之后可从桌面直接打开';
+  });
+
+  document.getElementById('installBtn').onclick = async () => {
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      backdrop.classList.remove('open');
+      return;
+    }
+    alert('请打开浏览器右上角菜单，选择“添加到主屏幕”或“安装应用”。建议使用安卓 Chrome 打开。');
+  };
+
+  window.addEventListener('appinstalled', () => showToast('情绪记录本已添加到桌面'));
+  frame.addEventListener('load', bindTool);
+
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if (navigator.storage?.persist) navigator.storage.persist().catch(() => {});
+  recoverEntriesIfNeeded();
+})();
+</script>
+</body>
+</html>
