@@ -1,4 +1,4 @@
-const CACHE_NAME = 'emotion-log-v1';
+const CACHE_NAME = 'emotion-log-v2';
 const APP_ASSETS = [
   './',
   './index.html',
