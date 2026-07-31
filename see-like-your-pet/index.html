@@ -1,0 +1,1251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f3f4ef">
+  <title>See Like Your Pet</title>
+  <style>
+    :root {
+      --ink: #1e211e;
+      --muted: #6f746c;
+      --line: #dfe1d9;
+      --paper: #ffffff;
+      --canvas: #e9ebe5;
+      --bg: #f3f4ef;
+      --blue: #2f68d8;
+      --blue-soft: #e7eefc;
+      --yellow: #e0a72d;
+      --yellow-soft: #fbf1d7;
+      --shadow: 0 24px 70px rgba(37, 42, 35, 0.09);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background:
+        radial-gradient(circle at 8% 8%, rgba(47, 104, 216, .08), transparent 25rem),
+        radial-gradient(circle at 93% 20%, rgba(224, 167, 45, .11), transparent 25rem),
+        var(--bg);
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      color: inherit;
+    }
+
+    .app {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 max(30px, env(safe-area-inset-bottom));
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 44px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 760;
+      letter-spacing: .02em;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 30px;
+      height: 22px;
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      width: 19px;
+      height: 19px;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      background: var(--blue-soft);
+    }
+
+    .brand-mark::before { left: 0; }
+    .brand-mark::after {
+      right: 0;
+      background: var(--yellow-soft);
+      mix-blend-mode: multiply;
+    }
+
+    .lang-button {
+      min-width: 54px;
+      height: 38px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .72);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      transition: background .2s ease, transform .2s ease;
+    }
+
+    .lang-button:hover {
+      background: #fff;
+      transform: translateY(-1px);
+    }
+
+    .hero {
+      max-width: 760px;
+      margin: 44px auto 28px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 13px;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 820;
+      letter-spacing: .16em;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(36px, 6vw, 64px);
+      line-height: 1.02;
+      letter-spacing: -.055em;
+      text-wrap: balance;
+    }
+
+    .subtitle {
+      max-width: 570px;
+      margin: 17px auto 0;
+      color: var(--muted);
+      font-size: clamp(15px, 2vw, 18px);
+      line-height: 1.7;
+      text-wrap: balance;
+    }
+
+    .mode-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      width: min(370px, 100%);
+      margin: 26px auto 0;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .66);
+    }
+
+    .mode-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 49px;
+      border: 0;
+      border-radius: 13px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 750;
+      transition: color .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+
+    .mode-button[aria-pressed="true"] {
+      color: var(--ink);
+      background: #fff;
+      box-shadow: 0 7px 22px rgba(34, 37, 32, .09);
+    }
+
+    .mode-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 0 5px rgba(47, 104, 216, .09);
+    }
+
+    .mode-button[data-mode="cat"] .mode-dot {
+      box-shadow: 0 0 0 5px rgba(224, 167, 45, .13);
+    }
+
+    .tool-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(215, 218, 209, .9);
+      border-radius: 30px;
+      background: rgba(255, 255, 255, .92);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .tool-card.is-dragging {
+      outline: 3px solid rgba(47, 104, 216, .35);
+      outline-offset: -6px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .toolbar-left,
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .file-meta {
+      min-width: 0;
+      max-width: 270px;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 760;
+      white-space: nowrap;
+      transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+    }
+
+    .button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 7px 18px rgba(34, 37, 32, .08);
+    }
+
+    .button:disabled {
+      opacity: .42;
+      cursor: not-allowed;
+    }
+
+    .button.primary {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .button.camera {
+      display: none;
+    }
+
+    .button-icon {
+      width: 16px;
+      height: 16px;
+    }
+
+    .workspace {
+      padding: 22px;
+    }
+
+    .empty-state {
+      display: grid;
+      min-height: 370px;
+      place-items: center;
+      border: 2px dashed #d9dcd3;
+      border-radius: 22px;
+      background:
+        linear-gradient(135deg, rgba(47,104,216,.035), rgba(224,167,45,.045)),
+        #fafbf8;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color .2s ease, background .2s ease;
+    }
+
+    .empty-state:hover,
+    .empty-state:focus-visible {
+      border-color: #aeb6a7;
+      background: #f8f9f5;
+      outline: none;
+    }
+
+    .empty-inner {
+      max-width: 390px;
+      padding: 38px 24px;
+    }
+
+    .sample-colors {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 22px;
+    }
+
+    .sample-colors span {
+      width: 54px;
+      height: 54px;
+      margin: 0 -5px;
+      border: 5px solid #fafbf8;
+      border-radius: 50%;
+      box-shadow: 0 10px 24px rgba(25, 30, 23, .1);
+    }
+
+    .sample-colors .red { background: #d75543; }
+    .sample-colors .green { background: #4d9b62; }
+    .sample-colors .blue { background: #3c72d8; }
+
+    .empty-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 810;
+      letter-spacing: -.02em;
+    }
+
+    .empty-hint {
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .comparison {
+      display: none;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .has-image .empty-state { display: none; }
+    .has-image .comparison { display: grid; }
+
+    .panel {
+      min-width: 0;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 34px;
+      padding: 0 5px 8px;
+    }
+
+    .panel-label {
+      overflow: hidden;
+      font-size: 13px;
+      font-weight: 790;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .panel-tag {
+      flex: 0 0 auto;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: #f0f1ec;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 790;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .panel:last-child .panel-tag {
+      background: var(--yellow-soft);
+      color: #80580a;
+    }
+
+    .canvas-stage {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border-radius: 18px;
+      background:
+        linear-gradient(45deg, #e2e4de 25%, transparent 25%),
+        linear-gradient(-45deg, #e2e4de 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #e2e4de 75%),
+        linear-gradient(-45deg, transparent 75%, #e2e4de 75%),
+        #eceee9;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+      background-size: 16px 16px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .processing {
+      position: absolute;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: rgba(245, 246, 241, .76);
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 760;
+      backdrop-filter: blur(5px);
+    }
+
+    .is-processing .processing { display: grid; }
+
+    .controls {
+      display: none;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 22px;
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 19px;
+      background: #f6f7f3;
+    }
+
+    .has-image .controls { display: grid; }
+
+    .range-wrap {
+      min-width: 0;
+    }
+
+    .range-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 11px;
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .range-value {
+      color: var(--blue);
+      font-variant-numeric: tabular-nums;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      margin: 0;
+      border-radius: 999px;
+      appearance: none;
+      background: linear-gradient(
+        90deg,
+        var(--blue) 0,
+        var(--blue) var(--range-percent, 100%),
+        #d9ddd4 var(--range-percent, 100%),
+        #d9ddd4 100%
+      );
+      cursor: ew-resize;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      width: 24px;
+      height: 24px;
+      border: 4px solid #fff;
+      border-radius: 50%;
+      appearance: none;
+      background: var(--blue);
+      box-shadow: 0 3px 12px rgba(36, 73, 149, .28);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 17px;
+      height: 17px;
+      border: 4px solid #fff;
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 3px 12px rgba(36, 73, 149, .28);
+    }
+
+    .vision-note {
+      max-width: 390px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .privacy {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .privacy-lock {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #5d9465;
+      box-shadow: 0 0 0 4px rgba(93, 148, 101, .12);
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 30;
+      right: 20px;
+      bottom: 20px;
+      max-width: min(360px, calc(100% - 40px));
+      padding: 13px 16px;
+      border-radius: 13px;
+      background: var(--ink);
+      color: #fff;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 720px) {
+      .app {
+        width: min(100% - 22px, 1120px);
+        padding-top: 12px;
+      }
+
+      .hero {
+        margin: 27px auto 20px;
+      }
+
+      .tool-card {
+        border-radius: 23px;
+      }
+
+      .toolbar {
+        align-items: stretch;
+        padding: 13px;
+      }
+
+      .toolbar-left {
+        flex: 1 1 auto;
+      }
+
+      .file-meta { display: none; }
+
+      .toolbar-actions .button span {
+        display: none;
+      }
+
+      .button {
+        min-width: 42px;
+        padding: 0 12px;
+      }
+
+      .button.camera {
+        display: inline-flex;
+      }
+
+      .workspace { padding: 13px; }
+
+      .empty-state { min-height: 320px; }
+
+      .comparison { gap: 8px; }
+
+      .panel-head {
+        padding-inline: 3px;
+      }
+
+      .panel-tag {
+        display: none;
+      }
+
+      .canvas-stage { border-radius: 13px; }
+
+      .controls {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-top: 13px;
+        padding: 15px;
+      }
+
+      .vision-note {
+        max-width: none;
+      }
+    }
+
+    @media (max-width: 390px) {
+      h1 { font-size: 33px; }
+      .subtitle { font-size: 14px; }
+      .mode-switch { margin-top: 20px; }
+      .mode-button { height: 45px; }
+      .toolbar-actions { gap: 6px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand" aria-label="Pet Vision Lab">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>SEE LIKE YOUR PET</span>
+      </div>
+      <button id="langButton" class="lang-button" type="button" aria-label="切换到中文">中文</button>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">SEE LIKE YOUR PET</p>
+      <h1 data-i18n="title">See the world like they do</h1>
+      <p class="subtitle" data-i18n="subtitle">Upload a photo to discover how color changes through cat and dog eyes.</p>
+
+      <div class="mode-switch" role="group" aria-label="Vision mode">
+        <button class="mode-button" data-mode="dog" type="button" aria-pressed="true">
+          <span class="mode-dot" aria-hidden="true"></span>
+          <span data-i18n="dogMode">Dog vision</span>
+        </button>
+        <button class="mode-button" data-mode="cat" type="button" aria-pressed="false">
+          <span class="mode-dot" aria-hidden="true"></span>
+          <span data-i18n="catMode">Cat vision</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="toolCard" class="tool-card" aria-label="Image vision simulator">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <button id="chooseButton" class="button" type="button">
+            <svg class="button-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span data-i18n="choose">Choose photo</span>
+          </button>
+          <button id="cameraButton" class="button camera" type="button">
+            <svg class="button-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M8.5 7 10 4.8h4L15.5 7H19a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <circle cx="12" cy="13" r="3.5" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+            <span data-i18n="takePhoto">Camera</span>
+          </button>
+          <span id="fileMeta" class="file-meta" data-i18n="noPhoto">No photo selected</span>
+        </div>
+
+        <div class="toolbar-actions">
+          <button id="downloadButton" class="button primary" type="button" disabled>
+            <svg class="button-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span data-i18n="download">Download comparison</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="workspace" class="workspace">
+        <div id="emptyState" class="empty-state" role="button" tabindex="0">
+          <div class="empty-inner">
+            <div class="sample-colors" aria-hidden="true">
+              <span class="red"></span>
+              <span class="green"></span>
+              <span class="blue"></span>
+            </div>
+            <p class="empty-title" data-i18n="dropTitle">Drop a photo here</p>
+            <p class="empty-hint" data-i18n="dropHint">or tap to choose · JPG, PNG, WEBP</p>
+          </div>
+        </div>
+
+        <div id="comparison" class="comparison">
+          <article class="panel">
+            <div class="panel-head">
+              <span class="panel-label" data-i18n="original">Original</span>
+              <span class="panel-tag">HUMAN</span>
+            </div>
+            <div class="canvas-stage">
+              <canvas id="originalCanvas"></canvas>
+            </div>
+          </article>
+          <article class="panel">
+            <div class="panel-head">
+              <span id="resultLabel" class="panel-label">Dog vision</span>
+              <span id="resultTag" class="panel-tag">DOG</span>
+            </div>
+            <div class="canvas-stage">
+              <canvas id="resultCanvas"></canvas>
+              <div class="processing" data-i18n="processing">Transforming…</div>
+            </div>
+          </article>
+        </div>
+
+        <div class="controls">
+          <div class="range-wrap">
+            <div class="range-head">
+              <label for="strengthRange" data-i18n="effectStrength">Effect strength</label>
+              <span id="rangeValue" class="range-value">100%</span>
+            </div>
+            <input id="strengthRange" type="range" min="0" max="100" value="100" aria-label="Effect strength">
+          </div>
+          <div id="visionNote" class="vision-note"></div>
+        </div>
+      </div>
+    </section>
+
+    <p class="privacy">
+      <span class="privacy-lock" aria-hidden="true"></span>
+      <span data-i18n="privacy">Everything happens on your device. Your photo is never uploaded to a server.</span>
+    </p>
+  </main>
+
+  <input id="fileInput" type="file" accept="image/*" hidden>
+  <input id="cameraInput" type="file" accept="image/*" capture="environment" hidden>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const copy = {
+        zh: {
+          title: "猫狗看见的世界",
+          subtitle: "上传一张照片，看看颜色在它们眼里如何改变。",
+          dogMode: "狗视角",
+          catMode: "猫视角",
+          choose: "选择照片",
+          takePhoto: "拍照",
+          noPhoto: "还没有选择照片",
+          download: "下载对比图",
+          dropTitle: "把照片拖到这里",
+          dropHint: "或点击选择 · JPG、PNG、WEBP",
+          original: "原图",
+          processing: "正在转换…",
+          effectStrength: "效果强度",
+          privacy: "所有处理都在你的设备上完成，图片不会上传到任何服务器。",
+          dogResult: "狗看见的",
+          catResult: "猫看见的",
+          dogNote: "红色和绿色会塌陷成相近的黄褐色，蓝色基本保留；狗视角会稍亮、稍模糊。",
+          catNote: "红色和绿色会塌陷成相近的黄褐色，蓝色基本保留；猫视角更亮、更柔和，色彩也更淡。",
+          invalid: "请选择 JPG、PNG 或 WEBP 图片。",
+          loadError: "这张图片暂时无法读取，请换一张试试。",
+          downloaded: "对比图已经下载。",
+          photoReady: "照片已准备好"
+        },
+        en: {
+          title: "See the world like they do",
+          subtitle: "Upload a photo to discover how color changes through cat and dog eyes.",
+          dogMode: "Dog vision",
+          catMode: "Cat vision",
+          choose: "Choose photo",
+          takePhoto: "Camera",
+          noPhoto: "No photo selected",
+          download: "Download comparison",
+          dropTitle: "Drop a photo here",
+          dropHint: "or tap to choose · JPG, PNG, WEBP",
+          original: "Original",
+          processing: "Transforming…",
+          effectStrength: "Effect strength",
+          privacy: "Everything happens on your device. Your photo is never uploaded to a server.",
+          dogResult: "Dog vision",
+          catResult: "Cat vision",
+          dogNote: "Reds and greens collapse into similar yellow-browns while blues remain. Dog vision is slightly brighter and softer.",
+          catNote: "Reds and greens collapse into similar yellow-browns while blues remain. Cat vision is brighter, softer, and less saturated.",
+          invalid: "Please choose a JPG, PNG, or WEBP image.",
+          loadError: "This image could not be read. Please try another one.",
+          downloaded: "Your comparison image has downloaded.",
+          photoReady: "Photo ready"
+        }
+      };
+
+      let language = (navigator.language || "").toLowerCase().startsWith("zh") ? "zh" : "en";
+      let mode = "dog";
+      let sourceReady = false;
+      let strength = 100;
+      let fileName = "";
+      let fileDescription = "";
+      let toastTimer = 0;
+
+      const toolCard = document.getElementById("toolCard");
+      const workspace = document.getElementById("workspace");
+      const emptyState = document.getElementById("emptyState");
+      const chooseButton = document.getElementById("chooseButton");
+      const cameraButton = document.getElementById("cameraButton");
+      const fileInput = document.getElementById("fileInput");
+      const cameraInput = document.getElementById("cameraInput");
+      const downloadButton = document.getElementById("downloadButton");
+      const langButton = document.getElementById("langButton");
+      const fileMeta = document.getElementById("fileMeta");
+      const resultLabel = document.getElementById("resultLabel");
+      const resultTag = document.getElementById("resultTag");
+      const visionNote = document.getElementById("visionNote");
+      const strengthRange = document.getElementById("strengthRange");
+      const rangeValue = document.getElementById("rangeValue");
+      const toast = document.getElementById("toast");
+      const originalCanvas = document.getElementById("originalCanvas");
+      const resultCanvas = document.getElementById("resultCanvas");
+
+      const originalFull = document.createElement("canvas");
+      const processedFull = document.createElement("canvas");
+      const colorFull = document.createElement("canvas");
+
+      function t(key) {
+        return copy[language][key] || key;
+      }
+
+      function updateCopy() {
+        document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
+        document.title = language === "zh"
+          ? "猫狗视界 · Cat & Dog Vision"
+          : "See Like Your Pet";
+        document.querySelectorAll("[data-i18n]").forEach((node) => {
+          const key = node.getAttribute("data-i18n");
+          node.textContent = t(key);
+        });
+        langButton.textContent = language === "zh" ? "EN" : "中文";
+        langButton.setAttribute("aria-label", language === "zh" ? "Switch to English" : "切换到中文");
+        updateModeCopy();
+        fileMeta.textContent = sourceReady ? fileDescription : t("noPhoto");
+      }
+
+      function updateModeCopy() {
+        resultLabel.textContent = mode === "dog" ? t("dogResult") : t("catResult");
+        resultTag.textContent = mode.toUpperCase();
+        visionNote.textContent = mode === "dog" ? t("dogNote") : t("catNote");
+      }
+
+      function showToast(message) {
+        window.clearTimeout(toastTimer);
+        toast.textContent = message;
+        toast.classList.add("show");
+        toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2400);
+      }
+
+      function setProcessing(value) {
+        workspace.classList.toggle("is-processing", value);
+        document.querySelectorAll(".mode-button").forEach((button) => {
+          button.disabled = value;
+        });
+        downloadButton.disabled = value || !sourceReady;
+      }
+
+      function srgbToLinear(value) {
+        return value <= 0.04045
+          ? value / 12.92
+          : Math.pow((value + 0.055) / 1.055, 2.4);
+      }
+
+      function linearToSrgb(value) {
+        value = Math.max(0, Math.min(1, value));
+        return value <= 0.0031308
+          ? value * 12.92
+          : 1.055 * Math.pow(value, 1 / 2.4) - 0.055;
+      }
+
+      function processPixels() {
+        const width = originalFull.width;
+        const height = originalFull.height;
+        colorFull.width = width;
+        colorFull.height = height;
+        processedFull.width = width;
+        processedFull.height = height;
+
+        const sourceContext = originalFull.getContext("2d", { willReadFrequently: true });
+        const colorContext = colorFull.getContext("2d", { willReadFrequently: true });
+        const imageData = sourceContext.getImageData(0, 0, width, height);
+        const pixels = imageData.data;
+        const brightness = mode === "dog" ? 1.10 : 1.20;
+        const saturation = mode === "dog" ? 1 : 0.58;
+
+        for (let index = 0; index < pixels.length; index += 4) {
+          const red = srgbToLinear(pixels[index] / 255);
+          const green = srgbToLinear(pixels[index + 1] / 255);
+          const blue = srgbToLinear(pixels[index + 2] / 255);
+
+          // Linear RGB → LMS, followed by a deuteranopic projection.
+          // M is rebuilt from L and S, removing red/green discrimination.
+          const l = 17.8824 * red + 43.5161 * green + 4.11935 * blue;
+          const s = 0.0299566 * red + 0.184309 * green + 1.46709 * blue;
+          const missingM = 0.494207 * l + 1.24827 * s;
+
+          // LMS → linear RGB.
+          let outRed = 0.0809444479 * l - 0.130504409 * missingM + 0.116721066 * s;
+          let outGreen = -0.0102485335 * l + 0.0540193266 * missingM - 0.113614708 * s;
+          let outBlue = -0.0003652969 * l - 0.0041216147 * missingM + 0.693511405 * s;
+
+          // Blue is the surviving chromatic channel in dichromatic vision.
+          // Preserve blue-dominant pixels so skies and blue objects keep their identity.
+          const blueDominance = Math.max(
+            0,
+            Math.min(1, (blue - Math.max(red, green)) * 2.4)
+          );
+          const bluePreservation = blueDominance * 0.82;
+          outRed = outRed * (1 - bluePreservation) + red * bluePreservation;
+          outGreen = outGreen * (1 - bluePreservation) + green * bluePreservation;
+          outBlue = outBlue * (1 - bluePreservation) + blue * bluePreservation;
+
+          outRed *= brightness;
+          outGreen *= brightness;
+          outBlue *= brightness;
+
+          if (saturation < 1) {
+            const luminance = 0.2126 * outRed + 0.7152 * outGreen + 0.0722 * outBlue;
+            outRed = luminance + (outRed - luminance) * saturation;
+            outGreen = luminance + (outGreen - luminance) * saturation;
+            outBlue = luminance + (outBlue - luminance) * saturation;
+          }
+
+          pixels[index] = Math.round(linearToSrgb(outRed) * 255);
+          pixels[index + 1] = Math.round(linearToSrgb(outGreen) * 255);
+          pixels[index + 2] = Math.round(linearToSrgb(outBlue) * 255);
+        }
+
+        colorContext.putImageData(imageData, 0, 0);
+
+        const processedContext = processedFull.getContext("2d");
+        const baseBlur = mode === "dog" ? 2 : 3;
+        const scaledBlur = Math.min(baseBlur * 2.2, Math.max(baseBlur, width / 950 * baseBlur));
+        processedContext.clearRect(0, 0, width, height);
+        processedContext.filter = `blur(${scaledBlur.toFixed(2)}px)`;
+        processedContext.drawImage(colorFull, 0, 0);
+        processedContext.filter = "none";
+      }
+
+      function fitRect(sourceWidth, sourceHeight, targetWidth, targetHeight, padding = 0) {
+        const availableWidth = targetWidth - padding * 2;
+        const availableHeight = targetHeight - padding * 2;
+        const scale = Math.min(availableWidth / sourceWidth, availableHeight / sourceHeight);
+        const width = sourceWidth * scale;
+        const height = sourceHeight * scale;
+        return {
+          x: (targetWidth - width) / 2,
+          y: (targetHeight - height) / 2,
+          width,
+          height
+        };
+      }
+
+      function sizeDisplayCanvas(canvas) {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const width = Math.max(1, Math.round(rect.width * dpr));
+        const height = Math.max(1, Math.round(rect.height * dpr));
+        if (canvas.width !== width || canvas.height !== height) {
+          canvas.width = width;
+          canvas.height = height;
+        }
+      }
+
+      function paintDisplay() {
+        if (!sourceReady) return;
+        [originalCanvas, resultCanvas].forEach(sizeDisplayCanvas);
+
+        const originalContext = originalCanvas.getContext("2d");
+        const resultContext = resultCanvas.getContext("2d");
+        const originalRect = fitRect(
+          originalFull.width,
+          originalFull.height,
+          originalCanvas.width,
+          originalCanvas.height
+        );
+        const resultRect = fitRect(
+          originalFull.width,
+          originalFull.height,
+          resultCanvas.width,
+          resultCanvas.height
+        );
+
+        originalContext.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
+        originalContext.drawImage(
+          originalFull,
+          originalRect.x,
+          originalRect.y,
+          originalRect.width,
+          originalRect.height
+        );
+
+        resultContext.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
+        resultContext.drawImage(
+          originalFull,
+          resultRect.x,
+          resultRect.y,
+          resultRect.width,
+          resultRect.height
+        );
+        resultContext.globalAlpha = strength / 100;
+        resultContext.drawImage(
+          processedFull,
+          resultRect.x,
+          resultRect.y,
+          resultRect.width,
+          resultRect.height
+        );
+        resultContext.globalAlpha = 1;
+      }
+
+      async function transformCurrentImage() {
+        if (!sourceReady) return;
+        setProcessing(true);
+        updateModeCopy();
+        await new Promise((resolve) => window.setTimeout(resolve, 24));
+        try {
+          processPixels();
+          paintDisplay();
+        } finally {
+          setProcessing(false);
+        }
+      }
+
+      async function decodeFile(file) {
+        if ("createImageBitmap" in window) {
+          try {
+            return await createImageBitmap(file, { imageOrientation: "from-image" });
+          } catch (_) {
+            // Fall through to the image element path.
+          }
+        }
+
+        const url = URL.createObjectURL(file);
+        const image = new Image();
+        image.src = url;
+        await image.decode();
+        URL.revokeObjectURL(url);
+        return image;
+      }
+
+      async function handleFile(file) {
+        if (!file || !file.type.startsWith("image/")) {
+          showToast(t("invalid"));
+          return;
+        }
+
+        setProcessing(true);
+        try {
+          const image = await decodeFile(file);
+          const sourceWidth = image.width || image.naturalWidth;
+          const sourceHeight = image.height || image.naturalHeight;
+          const maxDimension = 2400;
+          const scale = Math.min(1, maxDimension / Math.max(sourceWidth, sourceHeight));
+          const width = Math.max(1, Math.round(sourceWidth * scale));
+          const height = Math.max(1, Math.round(sourceHeight * scale));
+
+          originalFull.width = width;
+          originalFull.height = height;
+          const context = originalFull.getContext("2d");
+          context.imageSmoothingEnabled = true;
+          context.imageSmoothingQuality = "high";
+          context.drawImage(image, 0, 0, width, height);
+          if (typeof image.close === "function") image.close();
+
+          fileName = file.name || "photo";
+          fileDescription = `${fileName} · ${sourceWidth}×${sourceHeight}`;
+          sourceReady = true;
+          workspace.classList.add("has-image");
+          downloadButton.disabled = false;
+          fileMeta.textContent = fileDescription;
+
+          const visualRatio = Math.max(0.72, Math.min(1.35, width / height));
+          document.querySelectorAll(".canvas-stage").forEach((stage) => {
+            stage.style.aspectRatio = String(visualRatio);
+          });
+
+          await transformCurrentImage();
+          showToast(t("photoReady"));
+        } catch (error) {
+          console.error(error);
+          showToast(t("loadError"));
+          setProcessing(false);
+        }
+      }
+
+      function drawContained(context, source, area, alpha = 1, paintBackground = true) {
+        const rect = fitRect(source.width, source.height, area.width, area.height, 22);
+        context.save();
+        context.beginPath();
+        context.roundRect(area.x, area.y, area.width, area.height, 26);
+        context.clip();
+        if (paintBackground) {
+          context.fillStyle = "#e9ebe5";
+          context.fillRect(area.x, area.y, area.width, area.height);
+        }
+        context.globalAlpha = alpha;
+        context.drawImage(
+          source,
+          area.x + rect.x,
+          area.y + rect.y,
+          rect.width,
+          rect.height
+        );
+        context.restore();
+      }
+
+      function drawPill(context, text, x, y, background, color) {
+        context.save();
+        context.font = '700 24px ui-sans-serif, -apple-system, "Segoe UI", sans-serif';
+        const width = context.measureText(text).width + 42;
+        context.fillStyle = background;
+        context.beginPath();
+        context.roundRect(x, y, width, 48, 24);
+        context.fill();
+        context.fillStyle = color;
+        context.fillText(text, x + 21, y + 32);
+        context.restore();
+      }
+
+      function downloadComparison() {
+        if (!sourceReady) return;
+
+        const output = document.createElement("canvas");
+        output.width = 1600;
+        output.height = 1200;
+        const context = output.getContext("2d");
+        context.fillStyle = "#f3f4ef";
+        context.fillRect(0, 0, output.width, output.height);
+
+        context.fillStyle = "#1e211e";
+        context.font = '800 48px ui-sans-serif, -apple-system, "Segoe UI", sans-serif';
+        context.fillText(
+          mode === "dog"
+            ? "DOG VISION  ·  狗视角"
+            : "CAT VISION  ·  猫视角",
+          70,
+          82
+        );
+
+        const leftArea = { x: 70, y: 150, width: 710, height: 930 };
+        const rightArea = { x: 820, y: 150, width: 710, height: 930 };
+        drawContained(context, originalFull, leftArea, 1);
+        drawContained(context, originalFull, rightArea, 1);
+        drawContained(context, processedFull, rightArea, strength / 100, false);
+        drawPill(context, language === "zh" ? "原图" : "ORIGINAL", 92, 172, "rgba(255,255,255,.90)", "#1e211e");
+        drawPill(
+          context,
+          mode === "dog"
+            ? (language === "zh" ? "狗看见的" : "DOG VISION")
+            : (language === "zh" ? "猫看见的" : "CAT VISION"),
+          842,
+          172,
+          "rgba(251,241,215,.94)",
+          "#80580a"
+        );
+
+        context.fillStyle = "#6f746c";
+        context.font = '500 20px ui-sans-serif, -apple-system, "Segoe UI", sans-serif';
+        context.fillText("SEE LIKE YOUR PET", 70, 1148);
+
+        output.toBlob((blob) => {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          const safeMode = mode === "dog" ? "dog" : "cat";
+          link.href = url;
+          link.download = `pet-vision-${safeMode}-comparison.jpg`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+          showToast(t("downloaded"));
+        }, "image/jpeg", 0.93);
+      }
+
+      document.querySelectorAll(".mode-button").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const nextMode = button.getAttribute("data-mode");
+          if (nextMode === mode) return;
+          mode = nextMode;
+          document.querySelectorAll(".mode-button").forEach((item) => {
+            item.setAttribute("aria-pressed", String(item === button));
+          });
+          updateModeCopy();
+          await transformCurrentImage();
+        });
+      });
+
+      chooseButton.addEventListener("click", () => fileInput.click());
+      cameraButton.addEventListener("click", () => cameraInput.click());
+      emptyState.addEventListener("click", () => fileInput.click());
+      emptyState.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          fileInput.click();
+        }
+      });
+
+      [fileInput, cameraInput].forEach((input) => {
+        input.addEventListener("change", () => {
+          if (input.files && input.files[0]) handleFile(input.files[0]);
+          input.value = "";
+        });
+      });
+
+      ["dragenter", "dragover"].forEach((eventName) => {
+        toolCard.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          toolCard.classList.add("is-dragging");
+        });
+      });
+
+      ["dragleave", "drop"].forEach((eventName) => {
+        toolCard.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          toolCard.classList.remove("is-dragging");
+        });
+      });
+
+      toolCard.addEventListener("drop", (event) => {
+        const file = event.dataTransfer && event.dataTransfer.files[0];
+        if (file) handleFile(file);
+      });
+
+      strengthRange.addEventListener("input", () => {
+        strength = Number(strengthRange.value);
+        rangeValue.textContent = `${strength}%`;
+        strengthRange.style.setProperty("--range-percent", `${strength}%`);
+        paintDisplay();
+      });
+
+      downloadButton.addEventListener("click", downloadComparison);
+      langButton.addEventListener("click", () => {
+        language = language === "zh" ? "en" : "zh";
+        updateCopy();
+      });
+
+      const resizeObserver = new ResizeObserver(() => paintDisplay());
+      resizeObserver.observe(originalCanvas);
+      resizeObserver.observe(resultCanvas);
+
+      updateCopy();
+    })();
+  </script>
+</body>
+</html>
