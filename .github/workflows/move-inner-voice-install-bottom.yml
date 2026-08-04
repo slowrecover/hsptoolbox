@@ -1,0 +1,43 @@
+name: Move Inner Voice install prompt to bottom
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/move-inner-voice-install-bottom.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update-page:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Move install prompt without changing other features
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('inner-voice/index.html')
+          html = path.read_text(encoding='utf-8')
+          pattern = re.compile(r'\n?<section class="desktop-install-prompt" data-inner-voice-install-prompt>.*?</section>\n?', re.S)
+          matches = pattern.findall(html)
+          if len(matches) != 1:
+              raise SystemExit(f'Expected exactly one install prompt, found {len(matches)}')
+          block = matches[0].strip()
+          html = pattern.sub('\n', html, count=1)
+          if '</main>' not in html:
+              raise SystemExit('Missing </main>')
+          html = html.replace('</main>', f'\n{block}\n</main>', 1)
+          path.write_text(html, encoding='utf-8')
+          PY
+      - name: Remove this one-time workflow and commit
+        run: |
+          rm .github/workflows/move-inner-voice-install-bottom.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add inner-voice/index.html .github/workflows/move-inner-voice-install-bottom.yml
+          git commit -m "Move Inner Voice install prompt to page bottom [skip ci]"
+          git push
