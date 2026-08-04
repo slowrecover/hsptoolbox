@@ -89,9 +89,24 @@ footer{margin-top:28px;color:var(--muted);font-size:12px;line-height:1.75;text-a
 @media(max-width:620px){.grid2{grid-template-columns:1fr}.topbar{margin-bottom:40px}.card{border-radius:22px}.btn{flex:1 1 auto}.hero h1{font-size:44px}}
 @media(prefers-reduced-motion:no-preference){.card{animation:arrive .24s ease-out both}@keyframes arrive{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}}
 </style>
+
+<style data-inner-voice-install-style>
+.desktop-install-prompt{margin:0 0 18px;padding:16px 18px;border:1px solid #ddd5c7;border-radius:18px;background:rgba(255,253,248,.92);box-shadow:0 12px 36px rgba(48,42,31,.06);line-height:1.65}
+.desktop-install-prompt strong{display:block;margin-bottom:5px;color:#24231f}
+.desktop-install-prompt p{margin:0;color:#6f6b62;font-size:14px}
+.desktop-install-prompt a{display:inline-block;margin-top:8px;color:#2e6552;font-size:14px;font-weight:800;text-decoration:none}
+</style>
+
 </head>
 <body>
 <main class="shell">
+
+<section class="desktop-install-prompt" data-inner-voice-install-prompt>
+  <strong>把这个工具放到手机桌面</strong>
+  <p><b>iPhone：</b>用 Safari 打开，点“分享” → “添加到主屏幕”。<br><b>Android：</b>用 Chrome 打开，点右上角菜单 → “安装应用”或“添加到主屏幕”。</p>
+  <a href="./install.html">查看详细步骤 →</a>
+</section>
+
   <div class="topbar"><p class="brand">INNER VOICE · 内心话显微镜</p><span class="version">V2 · 本地运行</span></div>
 
   <header class="hero">
