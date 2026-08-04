@@ -1,0 +1,19 @@
+{
+  "name": "Inner Voice · 内心话显微镜",
+  "short_name": "Inner Voice",
+  "description": "把一句自我判决拆成事实、解释和未知，再写回更准确的话。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f0e7",
+  "theme_color": "#2e6552",
+  "icons": [
+    {
+      "src": "../icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
