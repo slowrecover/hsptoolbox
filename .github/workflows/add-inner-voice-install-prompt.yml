@@ -1,0 +1,67 @@
+name: Add Inner Voice install prompt
+
+on:
+  push:
+    paths:
+      - ".github/workflows/add-inner-voice-install-prompt.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch-page:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add visible install instructions to the first page
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("inner-voice/index.html")
+          html = path.read_text(encoding="utf-8")
+          marker = "data-inner-voice-install-prompt"
+
+          if marker in html:
+              print("Install prompt already present; no change needed.")
+              raise SystemExit(0)
+
+          styles = r'''
+          <style data-inner-voice-install-style>
+          .desktop-install-prompt{margin:0 0 18px;padding:16px 18px;border:1px solid #ddd5c7;border-radius:18px;background:rgba(255,253,248,.92);box-shadow:0 12px 36px rgba(48,42,31,.06);line-height:1.65}
+          .desktop-install-prompt strong{display:block;margin-bottom:5px;color:#24231f}
+          .desktop-install-prompt p{margin:0;color:#6f6b62;font-size:14px}
+          .desktop-install-prompt a{display:inline-block;margin-top:8px;color:#2e6552;font-size:14px;font-weight:800;text-decoration:none}
+          </style>
+          '''
+
+          prompt = r'''
+          <section class="desktop-install-prompt" data-inner-voice-install-prompt>
+            <strong>把这个工具放到手机桌面</strong>
+            <p><b>iPhone：</b>用 Safari 打开，点“分享” → “添加到主屏幕”。<br><b>Android：</b>用 Chrome 打开，点右上角菜单 → “安装应用”或“添加到主屏幕”。</p>
+            <a href="./install.html">查看详细步骤 →</a>
+          </section>
+          '''
+
+          if "</head>" not in html or '<main class="shell">' not in html:
+              raise RuntimeError("Expected Inner Voice page structure was not found; refusing to change other content.")
+
+          html = html.replace("</head>", styles + "\n</head>", 1)
+          html = html.replace('<main class="shell">', '<main class="shell">\n' + prompt, 1)
+          path.write_text(html, encoding="utf-8")
+          PY
+
+      - name: Commit only the page prompt
+        shell: bash
+        run: |
+          if git diff --quiet -- inner-voice/index.html; then
+            echo "No change to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add inner-voice/index.html
+          git commit -m "Add visible desktop install prompt to Inner Voice [skip ci]"
+          git push
