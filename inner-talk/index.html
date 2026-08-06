@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A private bilingual tool that turns harsh inner talk into more accurate language without forced positivity.">
+  <title>Inner Talk Translator · 内心话翻译器</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <div class="eyebrow">INNER TALK TRANSLATOR · 内心话翻译器</div>
+      <h1>Not positive.<br><span>Just more accurate.</span></h1>
+      <p class="intro">把“我就是很没用”拆开：感受是什么，事实是什么，解释又是什么。<br>Separate the feeling, the facts, and the story your mind added.</p>
+    </header>
+
+    <section class="workspace" aria-label="Inner talk translator">
+      <form id="translatorForm">
+        <label for="innerTalk">写下脑子里最刺耳的那句话。<span>Write the harsh sentence exactly as it appears.</span></label>
+        <textarea id="innerTalk" maxlength="2000" rows="6" placeholder="例如：别人都已经走那么远了，我还是一事无成。&#10;Example: Everyone is moving forward and I am still a failure."></textarea>
+        <div class="examples" aria-label="Examples">
+          <button type="button" data-example="别人都已经走那么远了，我还是一事无成。">中文示例</button>
+          <button type="button" data-example="Everyone is moving forward and I am still a failure.">English example</button>
+        </div>
+        <button class="translate" type="submit">翻译这句话 <span>Translate this thought</span></button>
+      </form>
+      <div class="privacy" id="privacyState">Nothing has left this page / 内容没有离开此页面</div>
+    </section>
+
+    <aside id="crisis" class="crisis" hidden>
+      <strong>这句话可能涉及即时安全风险。</strong> 这个工具不能处理危机。如果你可能马上伤害自己，请立即联系当地急救服务、危机热线，或一个能来到你身边的人。<br>
+      <strong>This may involve immediate danger.</strong> Please contact local emergency services, a crisis line, or someone who can stay with you now.
+    </aside>
+
+    <section id="output" class="output" aria-live="polite" hidden></section>
+
+    <footer>
+      <p>No account. No analytics. No database. The text is processed locally in your browser and is cleared when the page closes.</p>
+      <p>无需账号、没有统计、没有数据库。原文只在浏览器内处理，关闭页面即消失。</p>
+      <p class="fineprint">This is a reflection tool, not medical diagnosis or therapy. / 这是语言整理工具，不是医疗诊断或心理治疗。</p>
+    </footer>
+  </main>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
