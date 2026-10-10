@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HSP Toolbox: Free Tools for Highly Sensitive People</title>
+<meta name="description" content="Small, free browser tools for highly sensitive people and overthinkers: start a task you're stuck on, choose what matters today, get through a low-energy day. No sign-up.">
+<link rel="canonical" href="https://slowrecover.github.io/hsptoolbox/en/">
+<link rel="alternate" hreflang="en" href="https://slowrecover.github.io/hsptoolbox/en/">
+<link rel="alternate" hreflang="zh" href="https://slowrecover.github.io/hsptoolbox/">
+<meta property="og:title" content="HSP Toolbox: Free Tools for Highly Sensitive People">
+<meta property="og:description" content="Small, free browser tools for highly sensitive people and overthinkers. No sign-up, no tracking.">
+<meta property="og:url" content="https://slowrecover.github.io/hsptoolbox/en/">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#4F9277">
+<link rel="icon" href="../icon.svg">
+<style>
+/* Same visual system as the Chinese home page: soft sage paper, white cards, one green accent. */
+:root{
+  --bg:#E9EDEA; --surface:#FFFFFF; --surface-soft:#F4F6F3;
+  --ink:#2B3A35; --muted:#6F7F77; --line:#DCE3DF;
+  --accent:#4F9277; --accent-soft:#E2EFE8;
+  --radius:20px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;line-height:1.6;padding-inline:20px;padding-block:44px 40px}
+.wrap{max-width:520px;margin:0 auto}
+.head{margin-bottom:30px}
+.mark{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:9px;font-size:.82rem;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.lang{font-size:.78rem;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:5px 11px}
+h1{font-size:1.75rem;line-height:1.25;margin:0 0 10px;letter-spacing:-.005em;text-wrap:balance}
+.tag{color:var(--muted);font-size:.98rem;margin:0}
+.cards{display:flex;flex-direction:column;gap:14px}
+.card{display:block;text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;box-shadow:0 12px 34px -26px rgba(43,58,53,.55);transition:transform .14s ease,box-shadow .14s ease,border-color .14s}
+.card:hover{transform:translateY(-2px);border-color:var(--accent)}
+.card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.card h2{font-size:1.12rem;margin:0 0 5px}
+.card p{color:var(--muted);font-size:.93rem;margin:0 0 12px}
+.cta{color:var(--accent);font-weight:600;font-size:.9rem}
+.card .lang-note{display:inline-block;margin-left:8px;font-size:.72rem;color:var(--muted);background:var(--surface-soft);border:1px solid var(--line);border-radius:999px;padding:2px 9px;font-weight:600;vertical-align:middle}
+.about{margin-top:38px;display:grid;gap:14px}
+.about h2{font-size:1.15rem;margin:10px 0 0}
+.about p{margin:0}
+.about ul{margin:0;padding-left:20px}
+.about li{margin-bottom:6px}
+.foot{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.8rem;line-height:1.7}
+.foot a{color:var(--accent)}
+.foot p{margin:0 0 8px}
+@media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div class="mark"><span class="brand"><span class="dot"></span>HSP Toolbox</span><a class="lang" href="../" hreflang="zh">中文</a></div>
+    <h1>Small tools for the moments you get stuck</h1>
+    <p class="tag">Free tools for highly sensitive people and overthinkers. No sign-up, no tracking, nothing to install.</p>
+  </header>
+
+  <main class="cards">
+    <a class="card" href="make-it-tiny/">
+      <h2>Make It Tiny</h2>
+      <p>Can't start something you care about? Shrink it to one step you can do in ten minutes.</p>
+      <span class="cta">Open tool →</span>
+    </a>
+    <a class="card" href="main-thing/">
+      <h2>Find the Main Thing</h2>
+      <p>Everything feels urgent? Four questions help you pick the one thing that matters most today.</p>
+      <span class="cta">Open tool →</span>
+    </a>
+    <a class="card" href="low-energy/">
+      <h2>Low-Energy System</h2>
+      <p>Running on empty? Six basics, each with a floor version that still counts.</p>
+      <span class="cta">Open tool →</span>
+    </a>
+    <a class="card" href="../inner-talk/">
+      <h2>Inner Talk Translator <span class="lang-note">English + 中文</span></h2>
+      <p>A harsh voice in your head? Split it into feelings, facts and interpretations, without forced positivity.</p>
+      <span class="cta">Open tool →</span>
+    </a>
+    <a class="card" href="../dare-to-cringe/">
+      <h2>Dare to Cringe</h2>
+      <p>Avoiding something because it might feel awkward? Turn the fear into one small, safe action, then compare what you expected with what happened.</p>
+      <span class="cta">Open tool →</span>
+    </a>
+  </main>
+
+  <section class="about" aria-labelledby="about-hsp">
+    <h2 id="about-hsp">What does "highly sensitive" mean?</h2>
+    <p>High sensitivity, also called sensory processing sensitivity, is a temperament trait first described by psychologist Elaine Aron in the 1990s. Highly sensitive people tend to process things deeply, and can be overwhelmed more easily by noise, pressure or a packed schedule. It is a trait, not a disorder.</p>
+    <p>These tools are built for the moments that trait can make harder: starting, choosing, and talking to yourself kindly when things go wrong.</p>
+    <h2>How the tools are different</h2>
+    <ul>
+      <li><strong>Private by design.</strong> What you write stays on your device. There are no accounts and nothing is uploaded.</li>
+      <li><strong>One problem each.</strong> Every tool does a single job and takes a minute or two.</li>
+      <li><strong>No forced positivity.</strong> The tools help you look at a thought or a task more clearly. They don't tell you how to feel.</li>
+    </ul>
+  </section>
+
+  <footer class="foot">
+    <p>Built by someone who knows these moments firsthand. Open source on <a href="https://github.com/slowrecover/hsptoolbox">GitHub</a>. <a href="../" hreflang="zh">中文版工具箱</a> has more tools in Chinese.</p>
+    <p>These tools are for everyday overwhelm. They are not a substitute for professional care. If you are struggling to stay safe, you can find a free, confidential helpline in your country at <a href="https://findahelpline.com">findahelpline.com</a>.</p>
+  </footer>
+</div>
+</body>
+</html>
