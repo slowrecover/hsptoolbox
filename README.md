@@ -27,16 +27,16 @@ The homepage is organized by **what is happening right now**, not by tool name. 
 
 | Situation | Tools |
 |---|---|
-| I can't move at all | 陪你迈出那一步 (step-with-me, zh) · Low-Energy System |
+| I can't move at all | 陪你迈出那一步 / One Step With You · Low-Energy System |
 | I know what to do but can't start | 砍小器 / Make It Tiny · Unstuck |
 | Too much on my mind | 主要矛盾 / Find the Main Thing |
-| Re-deciding the same thing every day | 闭眼冲 (zh) |
+| Re-deciding the same thing every day | 闭眼冲 / Decide Once |
 | I don't want to go out | Out the Door |
 | I can't stop wanting to eat | Storm Brake |
 | Harsh on myself | Inner Talk Translator · Dandelion |
-| A feeling is stuck | Evening Breeze · 情绪记录本 (zh) |
+| A feeling is stuck | Evening Breeze · 情绪记录本 / Emotion Notebook |
 | Avoiding something awkward | Dare to Cringe |
-| Too many new ideas | 想法停机坪 (zh) |
+| Too many new ideas | 想法停机坪 / Idea Runway |
 | Can't put the phone down at night | INFP Sleep |
 
 ## Run locally

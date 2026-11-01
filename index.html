@@ -26,8 +26,11 @@ min-height:100vh;display:flex;justify-content:center;padding:40px 16px 40px}
 .brand{font-size:.82rem;letter-spacing:.06em;color:var(--muted);font-weight:600}
 .lang{margin-left:auto;font-size:.8rem;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:5px 12px}
 .lang:hover{color:var(--accent);border-color:var(--accent)}
-h1{font-size:2rem;line-height:1.25;margin:0 0 10px;letter-spacing:.01em}
-.sub{color:var(--muted);margin:0 0 26px;font-size:.98rem}
+h1{font-size:1.85rem;line-height:1.25;margin:0 0 10px;letter-spacing:.01em}
+.sub{color:var(--muted);margin:0 0 14px;font-size:.98rem}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 30px}
+.pills span{font-size:.76rem;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:4px 11px}
+.ask{font-size:1.15rem;margin:0 0 12px}
 .list{display:flex;flex-direction:column;gap:10px}
 .sit{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
 box-shadow:0 10px 30px -26px rgba(43,58,53,.6)}
@@ -61,8 +64,10 @@ border-radius:14px;padding:14px 40px 14px 16px;transition:border-color .14s,tran
 <body>
 <main class="wrap">
   <div class="top"><span class="dot"></span><span class="brand">自救工具箱</span><a class="lang" href="en/" hreflang="en">English</a></div>
-  <h1>此刻的你，<br>是哪一种？</h1>
-  <p class="sub">点一下，只给你一个下一步。</p>
+  <h1>卡住的时候，<br>点一下就有下一步</h1>
+  <p class="sub">给高敏感、想太多的人的免费自救小工具。选你现在的情况，马上给你一个能做的小动作。</p>
+  <div class="pills"><span>免费</span><span>不用注册</span><span>不上传</span></div>
+  <h2 class="ask">你现在是哪一种？</h2>
   <div class="list">
 <details class="sit"><summary><span class="num">01</span><span class="label">我完全动不了，什么都不想做</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="step-with-me/"><span class="tag">先用这个</span><span class="tname">陪你迈出那一步</span><span class="tdesc">先说出来，再感受身体被支撑着，握一下拳、呼吸两次，最后只做一个动作。</span><span class="go" aria-hidden="true">→</span></a><a class="tool" href="low-energy/"><span class="tag">也可以试试</span><span class="tname">低电量清单</span><span class="tdesc">六件基本小事，每件都有一个电量见底也能做的「保底版」。</span><span class="go" aria-hidden="true">→</span></a></div></details>
 <details class="sit"><summary><span class="num">02</span><span class="label">知道该做，就是开始不了</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="kanxiaoqi.html"><span class="tag">先用这个</span><span class="tname">砍小器</span><span class="tdesc">把大到动不了的事，砍成十分钟能做的一步。</span><span class="go" aria-hidden="true">→</span></a><a class="tool" href="unstuck/"><span class="tag">也可以试试</span><span class="tname">解耦执行</span><span class="tdesc">知道该做却不想动？五步，把「卡住」拆开。</span><span class="go" aria-hidden="true">→</span></a></div></details>

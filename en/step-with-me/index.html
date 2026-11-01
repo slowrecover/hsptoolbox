@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>One Step With You · For when you can't move</title>
+  <meta name="description" content="When you can't move at all: say it out loud, feel your body being held up, clench a fist, breathe twice, then do one tiny thing. Free, nothing saved." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="One Step" />
+  <meta name="theme-color" content="#FAF7F2" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    :root {
+      --bg:#FAF7F2; --text:#3D3530;
+      --warm:#8C6B52; --light:#C4A882; --muted:#D9CFC7;
+    }
+    body {
+      background:radial-gradient(ellipse at 60% 20%, #F5EDE0, #FAF7F2 55%, #EDE8E2);
+      color:var(--text); font-family:'Noto Serif SC',serif;
+      min-height:100dvh; display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+      padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    body::before {
+      content:''; position:fixed; inset:0; pointer-events:none;
+      background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23C4A882' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .card-container { width:100%; max-width:430px; padding:0 clamp(24px,8vw,44px); position:relative; z-index:1; }
+
+    /* ── 卡片动画 ── */
+    .card { display:none; flex-direction:column; align-items:center; text-align:center; }
+    .card.active  { display:flex; animation:fadeUp .75s cubic-bezier(.22,1,.36,1); }
+    .card.leaving { animation:fadeOut .38s ease forwards; }
+    @keyframes fadeUp  { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(-14px)} }
+
+    /* ── 开场 ── */
+    .opening-circle {
+      width:clamp(64px,16vw,80px); height:clamp(64px,16vw,80px);
+      border-radius:50%; border:1.5px solid var(--light);
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:28px; opacity:.7;
+    }
+    .opening-circle-inner {
+      width:clamp(38px,9vw,46px); height:clamp(38px,9vw,46px);
+      border-radius:50%;
+      background:radial-gradient(circle at 40% 35%, #EDD8BF, #C9A07A);
+      opacity:.7;
+    }
+    .opening-title {
+      font-size:clamp(1.6rem,6vw,2rem); font-weight:300;
+      line-height:1.6; margin-bottom:14px;
+    }
+    .opening-sub {
+      font-size:clamp(.78rem,3vw,.88rem); color:var(--light);
+      letter-spacing:.08em; margin-bottom:clamp(36px,8vw,52px);
+    }
+    .btn-stack { display:flex; flex-direction:column; gap:14px; width:100%; }
+    .btn-secondary {
+      background:rgba(196,168,130,0.15);
+      border:1px solid rgba(196,168,130,0.4);
+      color:var(--warm); font-family:'Noto Serif SC',serif;
+      font-size:clamp(.82rem,3vw,.92rem); font-weight:300;
+      padding:clamp(13px,3.5vw,16px) clamp(36px,10vw,54px);
+      border-radius:100px; cursor:pointer; letter-spacing:.1em;
+      transition:all .3s; min-height:48px; touch-action:manipulation;
+      position:relative; overflow:hidden; z-index:0;
+    }
+    .btn-secondary:hover { background:rgba(196,168,130,0.3); }
+    .btn-secondary:active { transform:scale(.95); }
+
+    /* ── 进度 / 标签 ── */
+    .progress { display:flex; gap:8px; margin-bottom:clamp(36px,7vw,52px); }
+    .dot { width:5px; height:5px; border-radius:50%; background:var(--muted); transition:all .45s; }
+    .dot.done    { background:var(--light); transform:scale(1.1); }
+    .dot.current { background:var(--warm);  transform:scale(1.35); }
+    .card-label { font-size:.68rem; letter-spacing:.22em; color:var(--light); margin-bottom:20px; }
+    .divider    { width:36px; height:1px; background:var(--muted); margin:0 auto 32px; }
+
+    /* ── 文字 ── */
+    .card-text { font-size:clamp(1.2rem,4.5vw,1.48rem); font-weight:300; line-height:2.15; color:var(--text); margin-bottom:clamp(36px,8vw,52px); white-space:pre-line; }
+    .card-text em { font-style:normal; color:var(--warm); }
+
+    /* ── 树洞 ── */
+    .treehole-wrap { width:100%; position:relative; margin-bottom:clamp(24px,5vw,36px); }
+    #treehole-input {
+      width:100%; min-height:clamp(140px,35vw,190px);
+      background:rgba(196,168,130,.08);
+      border:1px solid rgba(196,168,130,.3);
+      border-radius:16px; padding:20px;
+      font-family:'Noto Serif SC',serif;
+      font-size:clamp(1rem,3.5vw,1.1rem); font-weight:300;
+      color:var(--text); line-height:1.9;
+      resize:none; outline:none;
+      transition:border-color .3s;
+    }
+    #treehole-input::placeholder { color:var(--muted); }
+    #treehole-input:focus { border-color:rgba(196,168,130,.6); }
+
+    #treehole-release {
+      position:absolute; inset:0; padding:20px;
+      font-size:clamp(1rem,3.5vw,1.1rem); font-weight:300;
+      line-height:1.9; color:var(--text);
+      pointer-events:none;
+      display:flex; flex-direction:column; gap:2px;
+    }
+    @keyframes floatAway {
+      0%   { opacity:1; transform:translateY(0) scale(1); filter:blur(0); }
+      60%  { opacity:.5; filter:blur(1px); }
+      100% { opacity:0; transform:translateY(-50px) scale(.95); filter:blur(4px); }
+    }
+    .float-line { animation:floatAway .9s ease forwards; }
+
+    /* ── 按钮 ── */
+    .btn {
+      background:transparent; border:1px solid var(--light); color:var(--warm);
+      font-family:'Noto Serif SC',serif;
+      font-size:clamp(.82rem,3vw,.92rem); font-weight:300;
+      padding:clamp(13px,3.5vw,16px) clamp(36px,10vw,54px);
+      border-radius:100px; cursor:pointer; letter-spacing:.1em;
+      transition:color .3s,border-color .3s,transform .12s;
+      position:relative; overflow:hidden; z-index:0;
+      min-height:48px; touch-action:manipulation;
+    }
+    .btn::after {
+      content:''; position:absolute; inset:0;
+      background:var(--warm); transform:scaleX(0); transform-origin:left;
+      transition:transform .35s ease; z-index:-1;
+    }
+    .btn:hover { color:#FAF7F2; border-color:var(--warm); }
+    .btn:hover::after { transform:scaleX(1); }
+    .btn:active { transform:scale(.95); }
+    .ripple {
+      position:absolute; border-radius:50%;
+      background:rgba(140,107,82,.18); transform:scale(0);
+      animation:rippleAnim .55s linear; pointer-events:none;
+    }
+    @keyframes rippleAnim { to{transform:scale(4);opacity:0} }
+
+    /* ── 选择 ── */
+    .choice-row { display:flex; gap:14px; width:100%; }
+    .choice-btn {
+      flex:1; background:transparent; border:1px solid var(--light); color:var(--warm);
+      font-family:'Noto Serif SC',serif;
+      font-size:clamp(.8rem,3vw,.88rem); font-weight:300;
+      padding:14px 0; border-radius:100px; cursor:pointer; letter-spacing:.06em;
+      transition:all .3s; position:relative; overflow:hidden; z-index:0;
+      min-height:48px; touch-action:manipulation;
+    }
+    .choice-btn::after { content:''; position:absolute; inset:0; background:var(--warm); transform:scaleX(0); transform-origin:left; transition:transform .35s ease; z-index:-1; }
+    .choice-btn:hover { color:#FAF7F2; border-color:var(--warm); }
+    .choice-btn:hover::after { transform:scaleX(1); }
+    .choice-btn:active { transform:scale(.95); }
+
+    /* ── 呼吸 ── */
+    .breath-hint {
+      font-size:.72rem; letter-spacing:.12em; color:var(--light);
+      margin-bottom:20px;
+      animation:hintFade 3.5s ease forwards;
+    }
+    @keyframes hintFade { 0%{opacity:1} 60%{opacity:1} 100%{opacity:0} }
+
+    .breath-wrapper {
+      position:relative;
+      width:clamp(160px,46vw,210px); height:clamp(160px,46vw,210px);
+      margin-bottom:clamp(28px,6vw,40px);
+    }
+    .breath-ring { position:absolute; inset:0; border-radius:50%; border:1px solid var(--light); opacity:.25; }
+    .breath-circle {
+      position:absolute; inset:16px; border-radius:50%;
+      background:radial-gradient(circle at 40% 35%, #EDD8BF, #C9A07A);
+      opacity:.55; transform:scale(.72);
+      transition:transform 4s cubic-bezier(.4,0,.2,1), opacity 4s ease;
+    }
+    .breath-circle.inhale { transform:scale(1);    opacity:.85; transition:transform 4s cubic-bezier(.4,0,.2,1),opacity 4s ease; }
+    .breath-circle.exhale { transform:scale(.58);  opacity:.38; transition:transform 6s cubic-bezier(.4,0,.2,1),opacity 6s ease; }
+    .breath-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; }
+    .breath-word  { font-size:clamp(.82rem,3vw,.95rem); font-weight:300; color:#6B4F3A; letter-spacing:.12em; }
+    .breath-count { font-size:clamp(1.9rem,7vw,2.4rem); font-weight:300; color:var(--warm); line-height:1; font-variant-numeric:tabular-nums; }
+
+    /* ── 收尾 ── */
+    .ending-icon  { font-size:1.4rem; color:var(--light); margin-bottom:30px; opacity:.55; }
+    .ending-text  { font-size:clamp(1.3rem,4.5vw,1.55rem); font-weight:300; line-height:2.3; }
+    .ending-small { margin-top:34px; font-size:.78rem; color:var(--light); letter-spacing:.18em; }
+  </style>
+</head>
+<body>
+<div class="card-container">
+
+  <!-- 开场 -->
+  <div class="card active" id="card-opening">
+    <div class="opening-circle"><div class="opening-circle-inner"></div></div>
+    <div class="opening-title">One step,<br>with you</div>
+    <div class="opening-sub">You showed up. That is enough.</div>
+    <div class="btn-stack">
+      <button class="btn" onclick="go('opening','treehole')">Say it out loud first</button>
+      <button class="btn-secondary" onclick="go('opening','1')">Just start</button>
+    </div>
+  </div>
+
+  <!-- 树洞 -->
+  <div class="card" id="card-treehole">
+    <div class="card-label">Safe space</div>
+    <div class="divider"></div>
+    <div class="card-text" style="margin-bottom:20px;">No one will ever see this.
+Go ahead.</div>
+    <div class="treehole-wrap">
+      <textarea id="treehole-input" placeholder="You can say anything here…"></textarea>
+      <div id="treehole-release"></div>
+    </div>
+    <button class="btn" id="treehole-btn" onclick="releaseText()">Done. Let it go.</button>
+  </div>
+
+  <!-- 卡片 1 -->
+  <div class="card" id="card-1">
+    <div class="progress">
+      <div class="dot current"></div>
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+    <div class="card-label">Ground</div><div class="divider"></div>
+    <div class="card-text">You're here.
+
+Now notice
+your back, your legs, your feet —
+what is <em>holding them up</em> right now.</div>
+    <button class="btn" onclick="go('1','2')">Okay, I can feel it</button>
+  </div>
+
+  <!-- 卡片 2 -->
+  <div class="card" id="card-2">
+    <div class="progress">
+      <div class="dot done"></div><div class="dot current"></div>
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+    <div class="card-label">Body</div><div class="divider"></div>
+    <div class="card-text">Make a fist. Squeeze <em>hard</em>.
+
+Now slowly let go.
+
+That's it.</div>
+    <button class="btn" onclick="go('2','3')">Done</button>
+  </div>
+
+  <!-- 卡片 3：呼吸（直接出圆） -->
+  <div class="card" id="card-3">
+    <div class="progress">
+      <div class="dot done"></div><div class="dot done"></div>
+      <div class="dot current"></div>
+      <div class="dot"></div><div class="dot"></div>
+    </div>
+    <div class="card-label">Breathe</div><div class="divider"></div>
+    <div class="breath-hint" id="breathHint">In for 4 &nbsp;·&nbsp; out for 6 &nbsp;·&nbsp; 2 rounds</div>
+    <div class="breath-wrapper">
+      <div class="breath-ring"></div>
+      <div class="breath-circle" id="breathCircle"></div>
+      <div class="breath-center">
+        <div class="breath-word" id="breathWord"></div>
+        <div class="breath-count" id="breathCount"></div>
+      </div>
+    </div>
+    <button class="btn" id="breathDoneBtn" style="display:none" onclick="go('3','checkin')">Done</button>
+  </div>
+
+  <!-- Check-in -->
+  <div class="card" id="card-checkin">
+    <div class="progress">
+      <div class="dot done"></div><div class="dot done"></div>
+      <div class="dot done"></div><div class="dot current"></div><div class="dot"></div>
+    </div>
+    <div class="card-label">Right now</div><div class="divider"></div>
+    <div class="card-text" style="margin-bottom:36px;">Does anything feel
+even a little different?</div>
+    <div class="choice-row">
+      <button class="choice-btn" onclick="setMood('better')">A little</button>
+      <button class="choice-btn" onclick="setMood('same')">Still really hard</button>
+    </div>
+  </div>
+
+  <!-- 卡片 4 -->
+  <div class="card" id="card-4">
+    <div class="progress">
+      <div class="dot done"></div><div class="dot done"></div>
+      <div class="dot done"></div><div class="dot done"></div><div class="dot current"></div>
+    </div>
+    <div class="card-label">Move</div><div class="divider"></div>
+    <div class="card-text" id="card4text"></div>
+    <button class="btn" onclick="go('4','5')">Okay</button>
+  </div>
+
+  <!-- 卡片 5 -->
+  <div class="card" id="card-5">
+    <div class="progress">
+      <div class="dot done"></div><div class="dot done"></div>
+      <div class="dot done"></div><div class="dot done"></div><div class="dot done"></div>
+    </div>
+    <div class="card-label">With you</div><div class="divider"></div>
+    <div class="card-text" id="card5text"></div>
+    <button class="btn" onclick="go('5','6')">Continue</button>
+  </div>
+
+  <!-- 收尾 -->
+  <div class="card" id="card-6">
+    <div class="progress">
+      <div class="dot done"></div><div class="dot done"></div>
+      <div class="dot done"></div><div class="dot done"></div><div class="dot done"></div>
+    </div>
+    <div class="ending-icon">◇</div>
+    <div class="ending-text">You showed up today.
+
+That already counts for a lot.</div>
+    <div class="ending-small">Rest well.</div>
+    <button class="btn-secondary" style="margin-top:44px" onclick="restart()">Go again</button>
+  </div>
+
+</div>
+<script>
+  /* 波纹 */
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.btn,.choice-btn');
+    if (!btn) return;
+    const r = document.createElement('span');
+    r.className = 'ripple';
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+    btn.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+  });
+
+  /* 卡片切换 */
+  function go(fromId, toId) {
+    const cur = document.getElementById('card-' + fromId);
+    cur.classList.add('leaving');
+    setTimeout(() => {
+      cur.classList.remove('active','leaving');
+      const nxt = document.getElementById('card-' + toId);
+      if (nxt) nxt.classList.add('active');
+      if (toId === '3') setTimeout(startBreath, 500);
+    }, 380);
+  }
+
+  /* 树洞消失动画 */
+  function releaseText() {
+    const textarea = document.getElementById('treehole-input');
+    const text = textarea.value.trim();
+    if (!text) { go('treehole','1'); return; }
+
+    const release = document.getElementById('treehole-release');
+    const btn     = document.getElementById('treehole-btn');
+    textarea.style.opacity = '0';
+    textarea.style.transition = 'opacity .3s';
+    btn.style.display = 'none';
+
+    const lines = text.split('\n').filter(l => l.trim()).length
+      ? text.split('\n').filter(l => l.trim())
+      : [text];
+
+    release.innerHTML = '';
+    lines.forEach((line, i) => {
+      const div = document.createElement('div');
+      div.className = 'float-line';
+      div.textContent = line;
+      div.style.animationDelay = (i * 0.18) + 's';
+      release.appendChild(div);
+    });
+
+    const totalMs = (lines.length * 180 + 900);
+    setTimeout(() => go('treehole','1'), totalMs);
+  }
+
+  /* 心情分支 */
+  const texts = {
+    better: {
+      card4: `You moved.\nThat is enough.\n\nOne more small thing —\nhave a sip of water, or tidy one thing within reach.`,
+      card5: `You are a lot <em>stronger</em>\nthan you think.\n\nGo slowly. No rush.`
+    },
+    same: {
+      card4: `That's okay.\nYou've already done a lot.\n\nIf you want,\njust have one more sip of water.`,
+      card5: `You don't have to feel better today.\n\nYou only need to <em>be here</em>.\nThat is enough.`
+    }
+  };
+
+  function setMood(m) {
+    document.getElementById('card4text').innerHTML = texts[m].card4;
+    document.getElementById('card5text').innerHTML = texts[m].card5;
+    const cur = document.getElementById('card-checkin');
+    cur.classList.add('leaving');
+    setTimeout(() => {
+      cur.classList.remove('active','leaving');
+      document.getElementById('card-4').classList.add('active');
+    }, 380);
+  }
+
+  /* 呼吸 */
+  let breathTimer, totalRounds = 2, currentRound = 0;
+
+  function startBreath() { currentRound = 0; doInhale(); }
+
+  function doInhale() {
+    if (currentRound >= totalRounds) { finishBreath(); return; }
+    document.getElementById('breathWord').textContent = 'Breathe in';
+    document.getElementById('breathCircle').className = 'breath-circle inhale';
+    let t = 4;
+    document.getElementById('breathCount').textContent = t;
+    breathTimer = setInterval(() => {
+      t--;
+      if (t <= 0) { clearInterval(breathTimer); doExhale(); }
+      else document.getElementById('breathCount').textContent = t;
+    }, 1000);
+  }
+
+  function doExhale() {
+    document.getElementById('breathWord').textContent = 'Breathe out';
+    document.getElementById('breathCircle').className = 'breath-circle exhale';
+    let t = 6;
+    document.getElementById('breathCount').textContent = t;
+    breathTimer = setInterval(() => {
+      t--;
+      if (t <= 0) { clearInterval(breathTimer); currentRound++; doInhale(); }
+      else document.getElementById('breathCount').textContent = t;
+    }, 1000);
+  }
+
+  function restart() {
+    const all = document.querySelectorAll('.card');
+    all.forEach(c => c.classList.remove('active','leaving'));
+    // 重置树洞
+    document.getElementById('treehole-input').value = '';
+    document.getElementById('treehole-input').style.opacity = '1';
+    document.getElementById('treehole-release').innerHTML = '';
+    document.getElementById('treehole-btn').style.display = 'inline-block';
+    // 重置呼吸
+    clearInterval(breathTimer);
+    currentRound = 0;
+    document.getElementById('breathDoneBtn').style.display = 'none';
+    document.getElementById('breathCircle').className = 'breath-circle';
+    document.getElementById('breathWord').textContent = '';
+    document.getElementById('breathCount').textContent = '';
+    // 回到开场
+    document.getElementById('card-opening').classList.add('active');
+  }
+
+  function finishBreath() {
+    document.getElementById('breathCircle').className = 'breath-circle';
+    document.getElementById('breathWord').textContent  = 'Well done';
+    document.getElementById('breathCount').textContent = '';
+    setTimeout(() => {
+      document.getElementById('breathDoneBtn').style.display = 'inline-block';
+    }, 1000);
+  }
+</script>
+</body>
+</html>

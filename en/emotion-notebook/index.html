@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emotion Notebook · Name it, get one small thing to do</title>
+<meta name="description" content="No judging, just noting. Pick what you feel and get one small, science-backed thing you can do right now. Timeline and patterns stay on your device.">
+<style>
+  :root {
+    --bg:#E9EDEA; --surface:#FFFFFF; --surface-soft:#F4F6F3;
+    --ink:#2B3A35; --muted:#9AA8A1; --line:#DCE3DF;
+    --accent:#4F9277; --accent-press:#447F68; --accent-soft:#E2EFE8; --accent-mid:#9FC3AE;
+    --warm:#AD8A50; --plum:#8F6F94; --cool:#4F7C9A;
+    --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans SC","Segoe UI",sans-serif;
+  }
+  * { box-sizing:border-box; }
+  html,body { height:100%; }
+  body { margin:0; font-family:var(--font);
+    background:var(--bg); color:var(--ink); }
+  .app { max-width:480px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; }
+  .content { flex:1; padding:28px 20px 100px; }
+
+  .home-link { display:inline-block; font-size:.78rem; color:var(--muted); text-decoration:none; margin-bottom:16px; }
+  .home-link:hover { color:var(--accent); }
+  h1 { font-size:19px; margin:0 0 2px; font-weight:600; letter-spacing:-.1px; }
+  .sub { color:var(--muted); font-size:12.5px; margin-bottom:24px; }
+
+  .tabs { display:flex; gap:4px; margin-bottom:28px; background:var(--surface-soft); padding:4px; border-radius:14px; }
+  .tab { flex:1; text-align:center; padding:10px 0; font-size:13.5px; color:var(--muted); cursor:pointer;
+    user-select:none; border-radius:10px; }
+  .tab.active { background:var(--surface); color:var(--ink); font-weight:600; box-shadow:0 1px 5px rgba(43,58,53,.14); }
+
+  textarea { width:100%; border:none; border-radius:0; padding:0; font-size:17px; line-height:1.5;
+    font-family:inherit; resize:none; background:transparent; color:var(--ink); }
+  textarea::placeholder { color:#B7C2BC; }
+  textarea:focus { outline:none; }
+  #triggerText { min-height:64px; margin-bottom:20px; }
+
+  .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { padding:7px 14px; border-radius:999px; background:var(--surface); color:var(--ink);
+    font-size:13.5px; font-weight:500; cursor:pointer; border:1px solid var(--line); transition:.15s; }
+  .chip.selected { color:white; }
+  .chip.more { background:var(--surface-soft); color:var(--muted); border-style:dashed; font-weight:400; }
+
+  .more-toggle { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--accent-press);
+    background:var(--accent-soft); padding:9px 16px; border-radius:999px; cursor:pointer; user-select:none;
+    margin:20px 0 4px; }
+  .more-panel { display:none; margin-top:14px; padding-top:16px; border-top:1px solid var(--line); }
+  .more-panel .field-label { font-size:12px; color:var(--muted); margin-bottom:8px; }
+  .more-panel textarea { border:1px solid var(--line); border-radius:12px; padding:12px; font-size:14px;
+    background:var(--surface-soft); min-height:44px; margin-top:16px; }
+
+  .suggestion-card { display:none; margin-top:20px; padding:16px 0 4px; border-top:1px solid var(--line); }
+  .suggestion-label { font-size:11.5px; color:var(--accent); font-weight:600; letter-spacing:.4px; margin-bottom:8px; }
+  .suggestion-text { font-size:15px; line-height:1.6; margin-bottom:14px; }
+  .why-toggle { display:inline-flex; align-items:center; gap:4px; font-size:12px; color:var(--accent-press);
+    background:var(--accent-soft); padding:7px 13px; border-radius:999px; cursor:pointer; user-select:none;
+    margin-top:12px; }
+  .why-box { display:none; font-size:13px; line-height:1.6; color:var(--muted); margin-top:10px; }
+
+  .interaction-area { margin-top:4px; }
+  .breath-wrap { display:flex; flex-direction:column; align-items:center; padding:12px 0 4px; }
+  .breath-circle { width:100px; height:100px; border-radius:50%; background:var(--accent-soft);
+    display:flex; align-items:center; justify-content:center; transform:scale(1); transition:transform 1s ease-in-out;
+    margin-bottom:14px; }
+  .breath-circle span { font-size:12.5px; color:var(--accent-press); text-align:center; padding:0 10px; }
+  .breath-btn, .timer-btn { padding:7px 18px; background:var(--accent); color:white; border-radius:999px;
+    font-size:12.5px; cursor:pointer; user-select:none; }
+  .timer-wrap { display:flex; flex-direction:column; align-items:center; padding:8px 0 4px; }
+  .timer-num { font-size:32px; color:var(--accent-press); font-weight:600; margin-bottom:12px; }
+  .checklist { display:flex; flex-direction:column; gap:8px; }
+  .check-item { display:flex; align-items:center; gap:10px; font-size:14px; cursor:pointer; user-select:none; }
+  .check-box { width:17px; height:17px; border-radius:6px; border:1.5px solid var(--accent); flex-shrink:0; }
+  .check-item.checked .check-box { background:var(--accent); }
+  .check-item.checked { color:var(--muted); text-decoration:line-through; }
+
+  .save-bar { position:sticky; bottom:0; padding:14px 20px 22px; background:linear-gradient(to top,var(--bg) 60%,transparent); }
+  button.primary { width:100%; padding:15px; border:none; border-radius:14px; background:var(--accent);
+    color:white; font-size:15px; font-weight:600; cursor:pointer; }
+
+  .stat-line { font-size:12px; color:var(--muted); margin-top:10px; }
+
+  .card { background:var(--surface); border-radius:18px; padding:18px; margin-bottom:14px; }
+  .entry { padding:12px 0; border-bottom:1px solid var(--line); }
+  .entry:last-child { border-bottom:none; }
+  .entry-date { font-size:11.5px; color:var(--muted); }
+  .entry-tags { display:flex; gap:6px; margin:4px 0; flex-wrap:wrap; }
+  .entry-feel { font-size:12.5px; font-weight:600; }
+  .entry-trigger-type { font-size:11.5px; color:var(--muted); background:var(--surface-soft); padding:2px 8px; border-radius:999px; }
+  .entry-text { font-size:14px; }
+  .locked { text-align:center; color:var(--muted); padding:36px 20px; font-size:13.5px; }
+  .heatmap { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:4px; }
+  .heat-cell { aspect-ratio:1; border-radius:4px; background:var(--surface-soft); }
+  .heat-1 { background:var(--accent-soft); } .heat-2 { background:var(--accent-mid); } .heat-3 { background:var(--accent); }
+  .tag-row { display:flex; align-items:center; gap:8px; margin-bottom:9px; font-size:13.5px; }
+  .tag-row span:first-child { width:76px; flex-shrink:0; color:var(--muted); }
+  .tag-bar { height:7px; border-radius:4px; background:var(--accent); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="content">
+    <a class="home-link" href="../">‹ Home</a>
+    <h1>Emotion Notebook</h1>
+    <div class="sub">No judging, just noting. Write it and you're done.</div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="record">Note</div>
+      <div class="tab" data-tab="timeline">Timeline</div>
+      <div class="tab" data-tab="review">Patterns</div>
+    </div>
+
+    <div id="view-record" class="view">
+      <textarea id="triggerText" placeholder="What happened?"></textarea>
+
+      <div class="chips" id="feelChips">
+        <div class="chip" data-feel="Irritated" data-group="warm">Irritated</div>
+        <div class="chip" data-feel="Anxious" data-group="warm">Anxious</div>
+        <div class="chip" data-feel="Hurt" data-group="plum">Hurt</div>
+        <div class="chip" data-feel="Angry" data-group="warm">Angry</div>
+        <div class="chip" data-feel="Powerless" data-group="cool">Powerless</div>
+        <div class="chip more" id="feelMoreToggle">Something else ⋯</div>
+        <div id="feelChipsMore" style="display:none">
+          <div class="chip" data-feel="Lonely" data-group="cool">Lonely</div>
+          <div class="chip" data-feel="Ashamed" data-group="plum">Ashamed</div>
+          <div class="chip" data-feel="Guilty" data-group="plum">Guilty</div>
+          <div class="chip" data-feel="Scared" data-group="warm">Scared</div>
+          <div class="chip" data-feel="Not sure" data-group="cool">Not sure</div>
+        </div>
+      </div>
+
+      <div class="suggestion-card" id="suggestionCard">
+        <div class="suggestion-label">Try this. No pressure.</div>
+        <div class="suggestion-text" id="suggestionText"></div>
+        <div class="interaction-area" id="interactionArea"></div>
+        <div class="why-toggle" id="whyToggle">Why it works ›</div>
+        <div class="why-box" id="whyBox"></div>
+      </div>
+
+      <div class="more-toggle" id="moreToggle">＋ Add a category / write more</div>
+      <div class="more-panel" id="morePanel">
+        <div class="field-label">What kind of thing was it? (helps you spot patterns later)</div>
+        <div class="chips" id="triggerChips">
+          <div class="chip" data-trigger="Relationships">Relationships</div>
+          <div class="chip" data-trigger="Work / job search">Work / job search</div>
+          <div class="chip" data-trigger="Self-expectations">Self-expectations</div>
+          <div class="chip" data-trigger="Decisions">Decisions</div>
+          <div class="chip" data-trigger="Sensory overload">Sensory overload</div>
+          <div class="chip" data-trigger="Uncertain future">Uncertain future</div>
+          <div class="chip" data-trigger="Other">Other</div>
+        </div>
+        <textarea id="copeText" placeholder="Write anything else you want"></textarea>
+      </div>
+
+      <div class="stat-line"><span id="statCount">0</span> notes so far</div>
+    </div>
+
+    <div id="view-timeline" class="view" style="display:none;">
+      <div class="card" id="timelineList"></div>
+    </div>
+
+    <div id="view-review" class="view" style="display:none;">
+      <div id="reviewContent"></div>
+    </div>
+  </div>
+
+  <div class="save-bar" id="saveBar">
+    <button class="primary" id="saveBtn">Save it</button>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'hsp_emotion_log_en';
+  const UNLOCK_THRESHOLD = 5;
+
+  const FEEL_GROUP = {
+    'Irritated':'warm', 'Anxious':'warm', 'Angry':'warm', 'Scared':'warm',
+    'Hurt':'plum', 'Ashamed':'plum', 'Guilty':'plum',
+    'Powerless':'cool', 'Lonely':'cool', 'Not sure':'cool'
+  };
+
+  const copingSuggestions = {
+    'Irritated': [
+      { text:'4-7-8 breathing: in for 4, hold for 7, out for 8. Three rounds.', type:'breath', inhale:4, hold:7, exhale:8, cycles:3,
+        why:'A longer out-breath activates the vagus nerve and the parasympathetic system, lowering heart rate and stress hormones so the body shifts out of alarm. It works at the nervous-system level. You don\'t have to think your way there.' },
+      { text:'Shake your hands and feet hard for 10 seconds, like shaking off water', type:'timer', seconds:10,
+        why:'Short, big movements help the body burn off stress hormones like adrenaline. Animals shake after a scare. The same mechanism works for people.' },
+      { text:'Take a sip of cold water and notice it going down your throat', type:'text',
+        why:'Cold triggers the mammalian dive reflex: the vagus nerve kicks in and heart rate briefly drops. It is one of the fastest physical ways to calm down.' }
+    ],
+    'Anxious': [
+      { text:'Name 5 things you see, 4 you hear, 3 you can touch, 2 you smell, 1 you taste', type:'checklist',
+        items:['5 things I see','4 things I hear','3 things I can touch','2 things I smell','1 thing I taste'],
+        why:'This is the 5-4-3-2-1 grounding technique. Anxiety lets the brain\'s alarm hijack your thinking toward worst-case futures. Pointing your senses at concrete details pulls attention back to the fact that right now, you are safe. It is a common CBT grounding method.' },
+      { text:'Put a hand on your chest, feel your heartbeat, count 10 beats', type:'timer', seconds:15,
+        why:'Soothing touch releases oxytocin, and focusing on a steady body signal helps the brain move from alarm to watchful but safe.' },
+      { text:'Imagine putting this thought in a box and setting it aside. You don\'t have to deal with it now.', type:'text',
+        why:'This is cognitive defusion: not pushing the thought away, just stepping back from it. Giving a thought a concrete image weakens its grip on your feelings.' }
+    ],
+    'Hurt': [
+      { text:'Hand on your chest. Say to yourself: "I know this is hard."', type:'timer', seconds:10,
+        why:'Self-compassion research shows that talking to yourself like a friend calms the stress response, much like being comforted by someone else.' },
+      { text:'Think of what you would say to a friend in this situation. Say it to yourself.', type:'text',
+        why:'An outside view adds a little distance, making it easier to reach for reason and care instead of looping in self-criticism.' },
+      { text:'Let yourself feel bad for a little while. No rush to be okay.', type:'timer', seconds:20,
+        why:'Suppressing a feeling makes the stress response last longer. Giving it a clear, limited window to exist helps it settle more than forcing yourself to be fine.' }
+    ],
+    'Angry': [
+      { text:'Clench your fists hard for 10 seconds, then fully let go. Repeat 5 times.', type:'timer', seconds:10,
+        why:'Progressive muscle relaxation: tensing then releasing triggers the body\'s relaxation reflex and brings adrenaline down.' },
+      { text:'Go somewhere private and let yourself swear once, quietly. Let it out.', type:'text',
+        why:'Holding anger in keeps the body on alert. A short, harmless release helps reset the nervous system. It isn\'t losing control, it is giving the feeling an exit.' },
+      { text:'Write down the thing that made you angry. Then you can tear it up.', type:'text',
+        why:'Writing brings the thinking brain into processing the feeling. Tearing it up is a small ritual of release, an idea psychology calls embodied cognition.' }
+    ],
+    'Powerless': [
+      { text:'Find something you can finish in 1 minute. Do it. Proof that you can still move.', type:'timer', seconds:60,
+        why:'This is behavioral activation. Feeling powerless leads to not acting, which then "proves" you can\'t do anything. One tiny finished action breaks the loop. You don\'t need motivation first.' },
+      { text:'Drink a glass of water and walk around for 30 seconds', type:'timer', seconds:30,
+        why:'Sitting too long and low blood sugar both make exhaustion worse. A tiny physical reset can work better than any pep talk.' },
+      { text:'Doing nothing is okay too. Let yourself lie down for a bit.', type:'text',
+        why:'Not every low moment needs fixing right away. Accepting your limit, and dropping the "I should snap out of it" pressure, keeps anxiety from piling on.' }
+    ],
+    'Not sure': [
+      { text:'Don\'t analyze. Scribble or write anything on paper for 3 minutes. No logic needed.', type:'timer', seconds:180,
+        why:'Research on expressive writing shows that just getting your inner state onto paper lowers physical arousal, even if what you write makes no sense.' },
+      { text:'Is this feeling more hot or cold? Heavy or light?', type:'text',
+        why:'Using body words instead of exact names gets around being stuck on "what do I call this". Many unclear feelings are easier to describe through the body first.' },
+      { text:'Just note "not sure" for now. You can come back later.', type:'text',
+        why:'A feeling doesn\'t need a name right away. Leaving a blank to fill in later is an honest way to record it.' }
+    ],
+    'Lonely': [
+      { text:'Send someone you trust a quick "thinking of you". No reason needed.', type:'text',
+        why:'Loneliness is less about being alone and more about not feeling seen. Even the smallest reach-out helps. Sending the message itself can lift your mood, before any reply.' },
+      { text:'Touch something with texture (a blanket, a pet, a warm mug) and focus on it for 15 seconds', type:'timer', seconds:15,
+        why:'Touch can partly stand in for the safety of connection. Hugging yourself or holding something warm also releases calming oxytocin.' },
+      { text:'Write who you most want to understand you right now, and the one thing you\'d tell them. You don\'t have to send it.', type:'text',
+        why:'Making the wish to be understood concrete clears up the fog of not knowing what you need. Writing is a way of keeping yourself company.' }
+    ],
+    'Ashamed': [
+      { text:'Swap "I am terrible" for "this didn\'t go well". The thing went wrong, not you.', type:'text',
+        why:'Psychology separates shame ("I am bad") from guilt ("I did something bad"). Guilt is easier to repair; shame tends to make people hide. Moving from "I am" to "I did" makes the feeling easier to handle.' },
+      { text:'Three deep breaths. Remind yourself: everyone gets things wrong sometimes.', type:'breath', inhale:4, hold:4, exhale:6, cycles:3,
+        why:'Self-compassion calms the alarm that shame sets off, and deep breathing loosens the physical tightening that comes with it.' },
+      { text:'If someone you respect made the same mistake, how would you see them?', type:'text',
+        why:'Shifting perspective reduces self-attacking rumination. It is a common CBT technique called decentering.' }
+    ],
+    'Guilty': [
+      { text:'Ask: is there one concrete thing I can do to make it right? If yes, write it down. If not, let yourself put it down for now.', type:'text',
+        why:'Guilt exists to signal that something needs repair. Beyond what you can repair, it only drains you. Telling useful guilt from useless rumination saves needless pain.' },
+      { text:'Breathe. Remind yourself: intentions and outcomes don\'t always match, and you decided with what you knew then.', type:'breath', inhale:4, hold:4, exhale:6, cycles:3,
+        why:'Hindsight bias makes us overestimate what we "should have known". This breath gives your brain a pause from judging.' }
+    ],
+    'Scared': [
+      { text:'Look around. Say "I am safe right now" and name 3 concrete facts that prove it.', type:'text',
+        why:'Fear often reacts to an imagined threat, not a real one in this moment. Checking concrete facts helps the thinking brain re-assess and quiet the alarm.' },
+      { text:'Press your feet hard into the floor. Feel it holding you up.', type:'timer', seconds:10,
+        why:'Fear can make you feel floaty or unreal. Pressing into the floor brings attention back into your body: I am here, and I am steady.' }
+    ]
+  };
+  let lastSuggestionIdx = -1;
+
+  function loadEntries(){ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+  function saveEntries(e){ localStorage.setItem(STORAGE_KEY, JSON.stringify(e)); }
+  function updateStatBadge(){ document.getElementById('statCount').textContent = loadEntries().length; }
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+      document.getElementById('view-' + tab.dataset.tab).style.display = 'block';
+      document.getElementById('saveBar').style.display = tab.dataset.tab === 'record' ? 'block' : 'none';
+      if (tab.dataset.tab === 'timeline') renderTimeline();
+      if (tab.dataset.tab === 'review') renderReview();
+    });
+  });
+
+  document.getElementById('moreToggle').addEventListener('click', () => {
+    const panel = document.getElementById('morePanel');
+    const open = panel.style.display === 'block';
+    panel.style.display = open ? 'none' : 'block';
+    document.getElementById('moreToggle').textContent = open ? '＋ Add a category / write more' : '－ Hide';
+  });
+
+  document.getElementById('feelMoreToggle').addEventListener('click', () => {
+    const box = document.getElementById('feelChipsMore');
+    const open = box.style.display === 'contents';
+    box.style.display = open ? 'none' : 'contents';
+    document.getElementById('feelMoreToggle').textContent = open ? 'Something else ⋯' : 'Fewer ‹';
+    bindFeelChip(box.querySelectorAll('.chip[data-feel]'));
+  });
+
+  let selectedFeel = null;
+  function clearFeelSelection() {
+    document.querySelectorAll('#feelChips .chip[data-feel]').forEach(c => {
+      c.classList.remove('selected'); c.style.background = ''; c.style.borderColor = '';
+    });
+  }
+  function bindFeelChip(chips) {
+    chips.forEach(chip => {
+      if (chip.dataset.bound) return;
+      chip.dataset.bound = '1';
+      chip.addEventListener('click', () => {
+        clearFeelSelection();
+        chip.classList.add('selected');
+        chip.style.background = 'var(--' + chip.dataset.group + ')';
+        chip.style.borderColor = 'var(--' + chip.dataset.group + ')';
+        selectedFeel = chip.dataset.feel;
+        showSuggestion(selectedFeel);
+      });
+    });
+  }
+  bindFeelChip(document.querySelectorAll('#feelChips .chip[data-feel]'));
+
+  let selectedTriggerType = null;
+  document.querySelectorAll('#triggerChips .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const already = chip.classList.contains('selected');
+      document.querySelectorAll('#triggerChips .chip').forEach(c => { c.classList.remove('selected'); c.style.background=''; c.style.borderColor=''; });
+      if (!already) {
+        chip.classList.add('selected'); chip.style.background = 'var(--accent)'; chip.style.borderColor = 'var(--accent)';
+        selectedTriggerType = chip.dataset.trigger;
+      } else { selectedTriggerType = null; }
+    });
+  });
+
+  document.getElementById('whyToggle').addEventListener('click', () => {
+    const box = document.getElementById('whyBox');
+    const open = box.style.display === 'block';
+    box.style.display = open ? 'none' : 'block';
+    document.getElementById('whyToggle').textContent = open ? 'Why it works ›' : 'Why it works ˅';
+  });
+
+  function showSuggestion(feel) {
+    const list = copingSuggestions[feel];
+    if (!list) { document.getElementById('suggestionCard').style.display = 'none'; return; }
+    lastSuggestionIdx = Math.floor(Math.random() * list.length);
+    renderSuggestion(list[lastSuggestionIdx]);
+    document.getElementById('suggestionCard').style.display = 'block';
+  }
+
+  function renderSuggestion(sug) {
+    document.getElementById('suggestionText').textContent = sug.text;
+    document.getElementById('whyBox').textContent = sug.why;
+    document.getElementById('whyBox').style.display = 'none';
+    document.getElementById('whyToggle').textContent = 'Why it works ›';
+    renderInteraction(sug);
+  }
+
+  function renderInteraction(sug) {
+    const c = document.getElementById('interactionArea');
+    c.innerHTML = '';
+    if (sug.type === 'breath') {
+      c.innerHTML = `<div class="breath-wrap">
+        <div class="breath-circle" id="breathCircle"><span id="breathLabel">Start when ready</span></div>
+        <div class="breath-btn" id="breathBtn">Start</div>
+      </div>`;
+      document.getElementById('breathBtn').addEventListener('click', () => runBreath(sug));
+    } else if (sug.type === 'timer') {
+      c.innerHTML = `<div class="timer-wrap">
+        <div class="timer-num" id="timerNum">${sug.seconds}</div>
+        <div class="timer-btn" id="timerBtn">Start</div>
+      </div>`;
+      document.getElementById('timerBtn').addEventListener('click', () => runTimer(sug.seconds));
+    } else if (sug.type === 'checklist') {
+      c.innerHTML = `<div class="checklist">${sug.items.map((item,i)=>`
+        <div class="check-item" data-i="${i}"><span class="check-box"></span>${item}</div>`).join('')}</div>`;
+      c.querySelectorAll('.check-item').forEach(el => {
+        el.addEventListener('click', () => el.classList.toggle('checked'));
+      });
+    }
+  }
+
+  function runBreath(sug) {
+    const circle = document.getElementById('breathCircle');
+    const label = document.getElementById('breathLabel');
+    const btn = document.getElementById('breathBtn');
+    btn.style.display = 'none';
+    let cycle = 0;
+    function phase() {
+      if (cycle >= sug.cycles) {
+        label.textContent = 'Done';
+        circle.style.transition = 'transform .6s ease';
+        circle.style.transform = 'scale(1)';
+        btn.style.display = 'block'; btn.textContent = 'Another round'; cycle = 0;
+        return;
+      }
+      label.textContent = 'Breathe in...';
+      circle.style.transition = `transform ${sug.inhale}s ease-in-out`;
+      circle.style.transform = 'scale(1.4)';
+      setTimeout(() => {
+        label.textContent = 'Hold...';
+        setTimeout(() => {
+          label.textContent = 'Breathe out...';
+          circle.style.transition = `transform ${sug.exhale}s ease-in-out`;
+          circle.style.transform = 'scale(1)';
+          setTimeout(() => { cycle++; phase(); }, sug.exhale * 1000);
+        }, sug.hold * 1000);
+      }, sug.inhale * 1000);
+    }
+    phase();
+  }
+
+  function runTimer(seconds) {
+    const numEl = document.getElementById('timerNum');
+    const btn = document.getElementById('timerBtn');
+    btn.style.display = 'none';
+    let remaining = seconds;
+    numEl.textContent = remaining;
+    const iv = setInterval(() => {
+      remaining--;
+      numEl.textContent = remaining > 0 ? remaining : '✓';
+      if (remaining <= 0) { clearInterval(iv); btn.style.display = 'block'; btn.textContent = 'Again'; }
+    }, 1000);
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    const trigger = document.getElementById('triggerText').value.trim();
+    const cope = document.getElementById('copeText').value.trim();
+    if (!trigger && !selectedFeel) return;
+    const entries = loadEntries();
+    entries.unshift({
+      date: new Date().toISOString(),
+      trigger, feel: selectedFeel || '', triggerType: selectedTriggerType || '', cope
+    });
+    saveEntries(entries);
+    document.getElementById('triggerText').value = '';
+    document.getElementById('copeText').value = '';
+    clearFeelSelection();
+    document.getElementById('feelChipsMore').style.display = 'none';
+    document.getElementById('feelMoreToggle').textContent = 'Something else ⋯';
+    document.querySelectorAll('#triggerChips .chip').forEach(c => { c.classList.remove('selected'); c.style.background=''; c.style.borderColor=''; });
+    document.getElementById('suggestionCard').style.display = 'none';
+    document.getElementById('morePanel').style.display = 'none';
+    document.getElementById('moreToggle').textContent = '＋ Add a category / write more';
+    selectedFeel = null; selectedTriggerType = null;
+    updateStatBadge();
+    const btn = document.getElementById('saveBtn');
+    btn.textContent = 'Saved';
+    setTimeout(() => btn.textContent = 'Save it', 1200);
+  });
+
+  function renderTimeline() {
+    const entries = loadEntries();
+    const list = document.getElementById('timelineList');
+    if (entries.length === 0) { list.innerHTML = '<div class="locked">Nothing yet. Write your first note.</div>'; return; }
+    list.innerHTML = entries.map(e => {
+      const d = new Date(e.date);
+      const dateStr = d.toLocaleDateString('en',{month:'short',day:'numeric'});
+      const feelColor = FEEL_GROUP[e.feel] ? `var(--${FEEL_GROUP[e.feel]})` : 'var(--accent-press)';
+      return `<div class="entry">
+        <div class="entry-date">${dateStr}</div>
+        <div class="entry-tags">
+          ${e.feel ? `<span class="entry-feel" style="color:${feelColor}">${e.feel}</span>` : ''}
+          ${e.triggerType ? `<span class="entry-trigger-type">${e.triggerType}</span>` : ''}
+        </div>
+        <div class="entry-text">${escapeHtml(e.trigger)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderReview() {
+    const entries = loadEntries();
+    const content = document.getElementById('reviewContent');
+    if (entries.length < UNLOCK_THRESHOLD) {
+      content.innerHTML = `<div class="locked">${UNLOCK_THRESHOLD - entries.length} more notes to unlock your patterns</div>`;
+      return;
+    }
+    const days = 28, counts = {};
+    entries.forEach(e => { const key = e.date.slice(0,10); counts[key] = (counts[key]||0)+1; });
+    let cells = '';
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0,10);
+      const c = counts[key] || 0;
+      const cls = c === 0 ? '' : c === 1 ? 'heat-1' : c === 2 ? 'heat-2' : 'heat-3';
+      cells += `<div class="heat-cell ${cls}"></div>`;
+    }
+
+    const feelCounts = {};
+    entries.forEach(e => { if (e.feel) feelCounts[e.feel] = (feelCounts[e.feel]||0)+1; });
+    const feelMax = Math.max(...Object.values(feelCounts), 1);
+    const feelRows = Object.entries(feelCounts).sort((a,b)=>b[1]-a[1]).map(([feel,count]) => `
+      <div class="tag-row"><span>${feel}</span>
+      <div class="tag-bar" style="width:${(count/feelMax*120)}px; background:${FEEL_GROUP[feel] ? 'var(--'+FEEL_GROUP[feel]+')' : 'var(--accent)'};"></div>
+      <span style="color:var(--muted);">${count}</span></div>`).join('');
+
+    const triggerCounts = {};
+    entries.forEach(e => { if (e.triggerType) triggerCounts[e.triggerType] = (triggerCounts[e.triggerType]||0)+1; });
+    const triggerRows = Object.keys(triggerCounts).length === 0
+      ? `<div class="locked" style="padding:16px 0;">No categories tagged yet</div>`
+      : (() => {
+          const tMax = Math.max(...Object.values(triggerCounts), 1);
+          return Object.entries(triggerCounts).sort((a,b)=>b[1]-a[1]).map(([t,count]) => `
+            <div class="tag-row"><span>${t}</span>
+            <div class="tag-bar" style="width:${(count/tMax*120)}px;"></div>
+            <span style="color:var(--muted);">${count}</span></div>`).join('');
+        })();
+
+    content.innerHTML = `
+      <div class="card"><div class="sub" style="margin-bottom:14px;">Days with notes, last 28 days</div><div class="heatmap">${cells}</div></div>
+      <div class="card"><div class="sub" style="margin-bottom:14px;">Feelings that show up most</div>${feelRows}</div>
+      <div class="card"><div class="sub" style="margin-bottom:14px;">Most common triggers</div>${triggerRows}</div>`;
+  }
+
+  function escapeHtml(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+
+  updateStatBadge();
+</script>
+</body>
+</html>
