@@ -27,7 +27,7 @@ The homepage is organized by **what is happening right now**, not by tool name. 
 
 | Situation | Tools |
 |---|---|
-| I can't move at all | 陪你迈出那一步 / One Step With You · Low-Energy System |
+| I can't move at all | 黑狗来了 / The Black Dog Is Here · Low-Energy System |
 | I know what to do but can't start | 砍小器 / Make It Tiny · Unstuck |
 | Too much on my mind | 主要矛盾 / Find the Main Thing |
 | Re-deciding the same thing every day | 闭眼冲 / Decide Once |
