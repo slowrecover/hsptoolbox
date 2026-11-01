@@ -1,0 +1,78 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>低电量清单 · 没电的日子也能做的小事</title>
+<div id="app"></div>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;600&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#1a1a2e;color:#e0ddd5;font-family:"Noto Sans SC",sans-serif;font-weight:300;min-height:100vh;line-height:1.8;}
+  #app{max-width:520px;margin:0 auto;padding:48px 20px 100px;}
+  h1{font-family:"Noto Serif SC",serif;font-size:1.6rem;text-align:center;letter-spacing:.2em;font-weight:600;}
+  .sub{text-align:center;color:#e8b86d;font-size:.88rem;margin-top:6px;letter-spacing:.06em;}
+  .intro{margin:28px 0;padding:20px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;font-size:.88rem;color:#7a7786;line-height:2;}
+  .intro b{color:#e8b86d;font-weight:400;}
+  .head{display:flex;justify-content:space-between;align-items:center;margin:28px 0 14px;}
+  .head h2{font-family:"Noto Serif SC",serif;font-size:1.1rem;font-weight:400;}
+  .score{font-size:.88rem;color:#7a7786;} .score em{color:#7ec89b;font-style:normal;font-weight:500;}
+  .item{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px 18px;margin-bottom:10px;cursor:pointer;-webkit-user-select:none;user-select:none;transition:all .3s;}
+  .item:active{transform:scale(0.98);}
+  .item.done{border-color:rgba(126,200,155,0.3);background:rgba(126,200,155,0.12);}
+  .row{display:flex;align-items:center;gap:12px;}
+  .ck{width:22px;height:22px;border-radius:50%;border:2px solid #7a7786;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .3s;}
+  .item.done .ck{border-color:#7ec89b;background:#7ec89b;}
+  .ck svg{width:14px;height:14px;opacity:0;transition:opacity .2s;}
+  .item.done .ck svg{opacity:1;}
+  .nm{font-size:1rem;flex:1;} .item.done .nm{color:#7ec89b;}
+  .fl{font-size:.82rem;color:#7a7786;margin-top:6px;margin-left:34px;} .item.done .fl{color:rgba(126,200,155,0.6);}
+  .foot{text-align:center;font-size:.72rem;color:rgba(122,119,134,.4);margin-top:40px;letter-spacing:.06em;line-height:2;}
+</style>
+<script>
+var items = [
+  {id:'d1',name:'起床',floor:'脚落地,坐起来30秒',done:false},
+  {id:'d2',name:'出门走',floor:'穿鞋到楼下,回来也行',done:false},
+  {id:'d3',name:'做饭',floor:'烧水煮个蛋',done:false},
+  {id:'d4',name:'看书',floor:'翻开,看一页',done:false},
+  {id:'d5',name:'学习',floor:'打开材料,看3分钟',done:false},
+  {id:'d6',name:'远离手机',floor:'放到另一个房间10分钟',done:false}
+];
+
+function esc(s){return s.replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+
+function render(){
+  var done = items.filter(function(x){return x.done;}).length;
+  var d = new Date();
+  var wk = ['日','一','二','三','四','五','六'];
+  var html = '';
+  html += '<h1>低能量系统</h1>';
+  html += '<p class="sub">不思考,直接做</p>';
+  html += '<div class="intro">';
+  html += '清单上的事,都是<b>不需要思考、一定对你有好处</b>的事。';
+  html += '每一项都有<b>地板版本</b>——低到没力气也能做到。';
+  html += '规则只有一条:<b>不问要不要做,直接做。</b>做到了点一下。';
+  html += '<br>免费 · 不注册 · 不登录 · 数据只在你自己设备上。';
+  html += '</div>';
+  html += '<div class="head"><h2>'+(d.getMonth()+1)+'月'+d.getDate()+'日 周'+wk[d.getDay()]+'</h2>';
+  html += '<div class="score">碰到地板 <em>'+done+'</em> / '+items.length+'</div></div>';
+
+  for(var i=0;i<items.length;i++){
+    var it = items[i];
+    html += '<div class="item'+(it.done?' done':'')+'" onclick="toggle(\''+it.id+'\')">';
+    html += '<div class="row"><div class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>';
+    html += '<div class="nm">'+esc(it.name)+'</div></div>';
+    html += '<div class="fl">地板:'+esc(it.floor)+'</div></div>';
+  }
+
+  html += '<p class="foot">低能量系统 · 为高敏感者而做<br>一个不需要意志力的清单</p>';
+  document.getElementById('app').innerHTML = html;
+}
+
+function toggle(id){
+  for(var i=0;i<items.length;i++){
+    if(items[i].id===id) items[i].done = !items[i].done;
+  }
+  render();
+}
+
+render();
+</script>

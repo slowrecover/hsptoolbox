@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="出门">
+<meta name="theme-color" content="#FDF8EC">
+<title>夏天 · 出门小推车 | Summer · Out the Door</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FDF8EC; --ink:#4A4440; --ele:#AEC6DD; --ele2:#95B3D2; --deep:#6f93bb;
+    --bow:#F4A7BC; --amber:#F2A65A; --moss:#A9C48F; --moon:#F6D36B;
+    --wobble:255px 18px 225px 18px/18px 225px 18px 255px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:'ZCOOL KuaiLe',"PingFang SC","Microsoft YaHei",sans-serif;
+    min-height:100vh; display:flex; justify-content:center;
+    background-image:radial-gradient(#efe6cf 1.2px, transparent 1.2px); background-size:26px 26px;
+  }
+  .app{width:100%;max-width:430px;padding:26px 20px 40px;display:flex;flex-direction:column;align-items:center;position:relative}
+  .lang{position:absolute;top:14px;right:16px;width:auto;font-size:14px;color:var(--ink);
+    background:#fff;border:2.5px solid var(--ink);border-radius:14px 6px 12px 7px;padding:5px 12px;cursor:pointer;font-family:inherit}
+  .screen{display:none;width:100%;flex-direction:column;align-items:center;animation:pop .35s ease}
+  .screen.on{display:flex}
+  @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  h1{font-size:25px;font-weight:400;text-align:center;line-height:1.4;margin:12px 0 6px}
+  .sub{font-size:15px;color:#8a8272;text-align:center;line-height:1.7;margin-bottom:16px;max-width:335px}
+  .say{font-size:16px;color:var(--ink);text-align:center;line-height:1.85;margin:2px 0 16px;max-width:325px;min-height:26px}
+  .card{background:#fff;border:3px solid var(--ink);border-radius:var(--wobble);padding:18px 20px;width:100%;margin-bottom:14px;line-height:1.9;font-size:15px}
+  .sci{background:#fff;border:2.5px solid var(--ele2);border-radius:18px 7px 16px 8px;padding:13px 16px;width:100%;margin-bottom:14px;font-size:13.5px;line-height:1.75;color:#5f6b7a;text-align:left}
+  .sci b{color:var(--deep)}
+  button{font-family:inherit;color:var(--ink);cursor:pointer;border:3px solid var(--ink);border-radius:var(--wobble);
+    background:#fff;font-size:18px;padding:15px 18px;width:100%;margin-bottom:11px;transition:transform .1s;line-height:1.5}
+  button:active{transform:scale(.97) rotate(-.5deg)}
+  .big{background:var(--bow);font-size:21px;padding:19px}
+  .soft{background:var(--ele)} .ghost{border-style:dashed;background:transparent;font-size:15px;color:#8a8272}
+  .moss{background:var(--moss)} .moon{background:var(--moon)}
+  .check{display:flex;align-items:center;gap:14px;text-align:left}
+  .box{width:30px;height:30px;border:3px solid var(--ink);border-radius:9px 4px 8px 5px;flex:none;display:flex;align-items:center;justify-content:center;font-size:20px;background:#fff}
+  .check.done{background:var(--moss)} .check.done .box::after{content:"✓"}
+  .counter{font-size:14px;color:#8a8272;margin-top:4px;text-align:center;line-height:1.7}
+  .foot{font-size:12.5px;color:#a89f8c;text-align:center;line-height:1.7;margin-top:20px;max-width:335px}
+  .trophy{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0 12px;max-width:300px}
+  .trophy span{font-size:22px;line-height:1}
+  /* 呼吸门：出发前的3次深呼吸，门随呼吸开合 */
+  .doorWrap{width:100%;height:170px;position:relative;display:flex;align-items:center;justify-content:center;margin:6px 0 2px}
+  #breathRing{width:118px;height:118px;border-radius:50%;border:3px solid var(--ele2);
+    display:flex;align-items:center;justify-content:center;transition:transform 1s linear;color:var(--deep);font-size:16px;letter-spacing:2px}
+  .bcount{font-size:13px;color:#a89f8c;text-align:center;margin-bottom:8px}
+  /* 出门计时 */
+  .clock{font-size:44px;text-align:center;letter-spacing:2px;margin:8px 0 2px}
+  .moodRow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:6px 0 14px}
+  .moodRow button{width:auto;flex:none;padding:10px 15px;margin:0;font-size:18px;border-radius:14px 7px 12px 8px}
+  .moodRow button.sel{background:var(--moon)}
+  .savor{width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:#fff;
+    border:2.5px dashed var(--ele2);border-radius:16px 7px 14px 8px;padding:12px 14px;margin:2px 0 14px;text-align:center}
+  .savor::placeholder{color:#b3ab99}
+  .groundCard{background:#fff;border:2.5px solid var(--ele2);border-radius:18px 7px 16px 8px;padding:12px 15px;width:100%;
+    margin:4px 0 12px;font-size:13.5px;line-height:1.8;color:#5f6b7a;text-align:left;display:none}
+  .planRow button.sel{background:var(--moon)}
+  @media (prefers-reduced-motion:reduce){.screen{animation:none}#breathRing{transition:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <button class="lang" id="langBtn" onclick="flip()">EN</button>
+
+  <svg id="ele" width="150" height="132" viewBox="0 -14 300 274" role="img" aria-label="小象夏天 Summer the Elephant">
+    <defs><filter id="cr" x="-15%" y="-15%" width="130%" height="130%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" seed="11" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="6"/></filter></defs>
+    <g filter="url(#cr)" stroke-linecap="round" stroke-linejoin="round">
+      <text id="eleName" x="150" y="26" text-anchor="middle" font-size="30" fill="#e0894a" transform="rotate(-3 150 26)" style="font-family:'ZCOOL KuaiLe','PingFang SC',sans-serif">夏天</text>
+      <path d="M150 52 q 0 -20 12 -26" fill="none" stroke="#5b544f" stroke-width="5"/>
+      <path d="M162 26 l 16 -9 -2 17 z M162 26 l -15 10 16 6 z" fill="#F4A7BC" stroke="#5b544f" stroke-width="4"/>
+      <ellipse cx="76" cy="112" rx="34" ry="42" fill="#95B3D2" fill-opacity=".85" stroke="#5b544f" stroke-width="6"/>
+      <ellipse cx="224" cy="112" rx="34" ry="42" fill="#95B3D2" fill-opacity=".85" stroke="#5b544f" stroke-width="6"/>
+      <ellipse cx="150" cy="198" rx="74" ry="46" fill="#AEC6DD" fill-opacity=".9" stroke="#5b544f" stroke-width="6"/>
+      <rect x="112" y="222" width="26" height="28" rx="10" fill="#AEC6DD" fill-opacity=".9" stroke="#5b544f" stroke-width="5"/>
+      <rect x="162" y="222" width="26" height="28" rx="10" fill="#AEC6DD" fill-opacity=".9" stroke="#5b544f" stroke-width="5"/>
+      <circle cx="150" cy="118" r="68" fill="#AEC6DD" fill-opacity=".95" stroke="#5b544f" stroke-width="6"/>
+      <path d="M150 150 q -3 30 2 48 q 3 10 13 6" fill="none" stroke="#5b544f" stroke-width="19"/>
+      <path d="M150 150 q -3 30 2 48 q 3 10 13 6" fill="none" stroke="#AEC6DD" stroke-width="11"/>
+      <path id="eye" d="M108 110 q 9 9 18 0 M174 110 q 9 9 18 0" fill="none" stroke="#5b544f" stroke-width="5.5"/>
+      <ellipse cx="100" cy="136" rx="11" ry="7" fill="#F4A7BC" opacity=".8"/>
+      <ellipse cx="200" cy="136" rx="11" ry="7" fill="#F4A7BC" opacity=".8"/>
+      <g transform="translate(180 188) rotate(-5)">
+        <rect x="0" y="0" width="40" height="22" rx="4" fill="#FFFDF7" stroke="#5b544f" stroke-width="4"/>
+        <rect x="40" y="7" width="5" height="8" rx="2" fill="#5b544f"/>
+        <rect x="4" y="4" width="8" height="14" rx="2" fill="#F2A65A"/></g>
+    </g>
+  </svg>
+
+  <div class="screen on" id="s-home">
+    <h1 data-i="t_home"></h1>
+    <p class="sub" data-i="s_home"></p>
+    <button class="big" onclick="go('s-why')" data-i="b_big"></button>
+    <div class="trophy" id="trophy"></div>
+    <p class="counter" id="count"></p>
+    <p class="counter" id="planLine" style="color:#6f93bb"></p>
+    <p class="foot" data-i="foot"></p>
+  </div>
+
+  <!-- 先分辨：为什么动不了 -->
+  <div class="screen" id="s-why">
+    <h1 data-i="t_why"></h1>
+    <p class="say" data-i="say_why"></p>
+    <button class="soft" onclick="setWhy('tired')" data-i="w1"></button>
+    <button class="soft" onclick="setWhy('anx')" data-i="w2"></button>
+    <button class="soft" onclick="setWhy('low')" data-i="w3"></button>
+    <button class="ghost" onclick="go('s-home')" data-i="back"></button>
+  </div>
+
+  <!-- 解读：此刻大脑发生什么 -->
+  <div class="screen" id="s-decode">
+    <h1 id="decTitle"></h1>
+    <p class="say" id="decSay"></p>
+    <div class="sci" id="decSci"></div>
+    <button class="moss" onclick="go('s-shrink')" id="decBtn"></button>
+    <button class="ghost" onclick="go('s-why')" data-i="back"></button>
+  </div>
+
+  <!-- 缩小任务：按原因给不同的第一步 -->
+  <div class="screen" id="s-shrink">
+    <h1 data-i="t_shrink"></h1>
+    <p class="say" id="shrinkSay"></p>
+    <div id="taskList"></div>
+    <button class="moon" onclick="pickReal()" data-i="m_real"></button>
+    <button class="ghost" onclick="go('s-decode')" data-i="back"></button>
+  </div>
+
+  <!-- 三件套 -->
+  <div class="screen" id="s-pack">
+    <h1 data-i="t_pack"></h1>
+    <p class="say" id="mission"></p>
+    <button class="check" onclick="tickItem(this)"><span class="box"></span><span data-i="i1"></span></button>
+    <button class="check" onclick="tickItem(this)"><span class="box"></span><span data-i="i2"></span></button>
+    <button class="check" onclick="tickItem(this)"><span class="box"></span><span data-i="i3"></span></button>
+    <button class="moss" id="readyBtn" onclick="go('s-moodPre')" disabled style="opacity:.4" data-i="b_ready"></button>
+  </div>
+
+  <!-- 出门前心情打分 -->
+  <div class="screen" id="s-moodPre">
+    <h1 data-i="t_moodPre"></h1>
+    <p class="say" data-i="say_moodPre"></p>
+    <div class="moodRow" id="moodPreRow"></div>
+    <button class="moss" id="moodPreBtn" onclick="go('s-breath')" disabled style="opacity:.4" data-i="b_moodPre"></button>
+  </div>
+
+  <!-- 呼吸门：3次深呼吸，把神经系统从"警报"切到"可以动" -->
+  <div class="screen" id="s-breath">
+    <h1 data-i="t_breath"></h1>
+    <p class="bcount" id="bcount"></p>
+    <div class="doorWrap"><div id="breathRing"><span id="breathWord"></span></div></div>
+    <p class="say" data-i="say_breath"></p>
+    <button class="ghost" onclick="skipBreath()" data-i="b_skip"></button>
+  </div>
+
+  <!-- 出发倒数 -->
+  <div class="screen" id="s-count">
+    <h1 data-i="t_count"></h1>
+    <div class="clock" id="num" style="font-size:74px">5</div>
+    <p class="say" data-i="s_count"></p>
+  </div>
+
+  <!-- 出门中 -->
+  <div class="screen" id="s-out">
+    <h1 data-i="t_out"></h1>
+    <p class="say" id="missionOut"></p>
+    <div class="clock" id="clock">0:00</div>
+    <div class="groundCard" id="groundTip"></div>
+    <p class="sub" data-i="s_out"></p>
+    <button class="moss" onclick="askMood()" data-i="b_back"></button>
+  </div>
+
+  <!-- 回来打卡：心情前后对比（行为激活核心：看见做完真的变好） -->
+  <div class="screen" id="s-mood">
+    <h1 data-i="t_mood"></h1>
+    <p class="say" data-i="say_mood"></p>
+    <div class="moodRow" id="moodRow"></div>
+    <input class="savor" id="savor" maxlength="40" data-ph="savorPh">
+    <button class="moss" id="moodBtn" onclick="win()" disabled style="opacity:.4" data-i="b_mood"></button>
+  </div>
+
+  <!-- 胜利 -->
+  <div class="screen" id="s-win">
+    <h1 data-i="t_win"></h1>
+    <div class="card" id="stamp"></div>
+    <p class="say" data-i="say_win"></p>
+    <p class="say" data-i="t_next" style="margin-top:2px"></p>
+    <div class="planRow" id="nextBox" style="width:100%"></div>
+    <button class="soft" onclick="go('s-home')" data-i="b_home"></button>
+  </div>
+</div>
+<script>
+  var T={
+    zh:{
+      t_home:'出门小推车',
+      s_home:'想出门，但身体像灌了铅？不用逼自己"振作"。夏天负责把门，变近一点点。',
+      b_big:'我想出门，但动不了',
+      foot:'走到门口又折返，也算一次胜利。这里只记赢，不记输。',
+      t_why:'先别怪自己，问一句',
+      say_why:'"动不了"不是懒。<br>先分清楚：此刻把你按在原地的，是哪一种？',
+      w1:'没电了，身体是真的累',w2:'有点怕出去 / 心里发紧',w3:'提不起劲，觉得没意思',back:'先回去',
+      t_shrink:'那就把"出门"拆到最小',
+      m_real:'我其实有正事，直接推我出门',
+      t_pack:'捡三样东西就好',
+      i1:'手机',i2:'钥匙',i3:'耳机或一瓶水',b_ready:'都拿了，去门口',
+      t_moodPre:'出发前，记一笔现在的心情',
+      say_moodPre:'现在，还没出门，心情几分？<br>（1最沉，10最轻。等回来我们再看一眼。）',
+      b_moodPre:'记下了，继续',
+      t_breath:'出门前，先陪我呼吸三次',
+      say_breath:'不是拖延——长呼气会按下身体的"安全开关"，<br>让腿没那么重。跟着圈圈就好。',
+      b_skip:'我不用呼吸，直接走',
+      t_count:'不许想，跟着数',
+      s_count:'数到1的瞬间，手放到门把上。<br>腿先走，脑子后到——这是对的顺序。',gogo:'走！',
+      t_out:'门开了！',
+      s_out:'这是你在外面的时间。随时回来都可以，出了门就已经赢了。',
+      b_back:'我回来啦',
+      t_mood:'回来啦，先别急着走',
+      say_mood:'出门这一趟，现在心情几分？<br>（1最沉，10最轻）',
+      b_mood:'盖章',
+      t_win:'你赢过沙发了',
+      say_win:'你没等"想动"才动，<br>你是先动了，然后身体才跟上来。<br>这个顺序，你今天亲手证明了一次。',
+      b_home:'回到夏天身边',
+      bIn:'吸 气',bHold:'停',bOut:'呼 —— 气',
+      ground5:'<b>落地小练习(焦虑的解药):</b>边走边轻轻说出——你看到的<b>5</b>样东西、听到的<b>4</b>种声音、能摸到的<b>3</b>种质感、闻到的<b>2</b>种气味、和<b>1</b>个此刻的念头。说完,警报会安静很多。',
+      savorPh:'路上有哪个小瞬间让你多看了一眼?(可不填)',
+      savorLine:'路上的小收获:',
+      t_next:'趁热,跟明天定个最小的约——',
+      planPrefix:'明天的约定:',
+      nextSaved:' ✓ 夏天帮你记着',
+      stamp:function(m,t,b,a){var arrow='心情 '+b+' → '+a+(a>b?'  ↑ 轻了一点':(a<b?' ':' '));return '任务：'+m+'<br>在外面待了 '+t+'<br>'+arrow+'<br>夏天给你盖了一个大象脚印章。'},
+      cnt:function(n){return '你已经成功出门 '+n+' 次'}
+    },
+    en:{
+      t_home:'Out the door',
+      s_home:'Want to go out but your body feels like lead? No need to pull yourself together. Summer just makes the door a little closer.',
+      b_big:'I want to go out but cannot move',
+      foot:'Reaching the door and turning back still counts as a win. We only record wins here.',
+      t_why:'Do not blame yourself — just ask',
+      say_why:'"Cannot move" is not laziness.<br>First, which one is pinning you down right now?',
+      w1:'No battery — my body is truly tired',w2:'A bit scared to go out / tense',w3:'No drive — it all feels pointless',back:'Go back',
+      t_shrink:'Then shrink "going out" to the smallest thing',
+      m_real:'I actually have errands — push me out',
+      t_pack:'Just grab three things',
+      i1:'Phone',i2:'Keys',i3:'Earphones or water',b_ready:'Got them — to the door',
+      t_moodPre:'Before you go, note how you feel now',
+      say_moodPre:'Right now, before stepping out — how do you feel?<br>(1 heaviest, 10 lightest. We will check again when you are back.)',
+      b_moodPre:'Noted — continue',
+      t_breath:'Before you go, breathe with me three times',
+      say_breath:'Not stalling — a long exhale flips your "safe" switch,<br>so your legs feel lighter. Just follow the circle.',
+      b_skip:'Skip breathing, just go',
+      t_count:'Do not think, just count',
+      s_count:'When it hits 1, hand on the door handle.<br>Legs first, brain later — that is the right order.',gogo:'Go!',
+      t_out:'The door is open!',
+      s_out:'This is your time outside. Come back anytime — stepping out already means you won.',
+      b_back:'I am back',
+      t_mood:'Welcome back — wait one sec',
+      say_mood:'That trip outside — how do you feel now?<br>(1 heaviest, 10 lightest)',
+      b_mood:'Stamp it',
+      t_win:'You beat the sofa',
+      say_win:'You did not wait to "feel like it" —<br>you moved first, and your body caught up after.<br>Today you proved that order, with your own hands.',
+      b_home:'Back to Summer',
+      bIn:'breathe in',bHold:'hold',bOut:'breathe out',
+      ground5:'<b>Grounding (the antidote to anxiety):</b> as you walk, softly name — <b>5</b> things you can see, <b>4</b> sounds you can hear, <b>3</b> textures you can touch, <b>2</b> smells, and <b>1</b> thought passing by. The alarm quiets down.',
+      savorPh:'One small moment outside that caught your eye? (optional)',
+      savorLine:'Small find on the way: ',
+      t_next:'While it is warm — make the smallest date with tomorrow:',
+      planPrefix:'Tomorrow\'s pact: ',
+      nextSaved:' ✓ Summer remembers',
+      stamp:function(m,t,b,a){var arrow='mood '+b+' → '+a+(a>b?'  ↑ a little lighter':' ');return 'Task: '+m+'<br>Time outside: '+t+'<br>'+arrow+'<br>Summer stamps it with an elephant footprint.'},
+      cnt:function(n){return 'You have made it out '+n+' times'}
+    }
+  };
+
+  // 三种"卡住"的原因，走不同的解读 + 不同的第一步
+  var WHY={
+    tired:{
+      zh:{title:'是身体没电，不是你不行',
+        say:'累到动不了，是身体在喊"我没能量了"。<br>这时候硬逼自己"正常出门"，只会更挫败。',
+        sci:'<b>发生了什么：</b>疲劳本身就会削弱行动力，这是生理，不是意志力问题。行为激活的原则是——<b>任务要小到"再糟的日子也能做"</b>，从最小的一步开始，动起来之后能量反而常常跟上来。',
+        shrink:'今天不追求"出门"，只做这些里最小的一个：',
+        tasks:['只穿上鞋，站到门口，就够','下楼扔个垃圾，马上回来','到楼下晒30秒太阳就回']},
+      en:{title:'Your body is out of battery — not you failing',
+        say:'Too tired to move means your body is shouting "no energy left."<br>Forcing a "normal outing" now only deepens the defeat.',
+        sci:'<b>What is happening:</b> fatigue itself weakens drive — physiology, not weak will. Behavioral activation says <b>make the task small enough to do on your worst day</b>. Start with the tiniest step; energy often catches up once you move.',
+        shrink:'No "going out" today — just the smallest of these:',
+        tasks:['Just put shoes on, stand at the door','Take the trash down, come right back','Get 30 seconds of sun downstairs, then back']}
+    },
+    anx:{
+      zh:{title:'是警报响了，不是真的有危险',
+        say:'"怕出去"是身体的警报器误触发了——它以为门外有威胁，其实没有。<br>先把警报调小，再迈步。',
+        sci:'<b>发生了什么：</b>焦虑会让神经系统进入"战或逃"，腿发沉、心发紧都是它的手笔。<b>长呼气能直接安抚它。</b>而回避会让警报越来越灵敏，所以"迈出很小的一步"本身就是在教大脑：门外是安全的。',
+        shrink:'不用"出远门"，先做一个小到不吓人的暴露：',
+        tasks:['开门，在门口站10秒，感受一下就回','走到楼道尽头，再走回来','戴上耳机（像有个保护罩）到楼下走一圈']},
+      en:{title:'The alarm went off — there is no real danger',
+        say:'"Scared to go out" is a false alarm — it thinks there is a threat outside; there is not.<br>Turn the alarm down first, then step.',
+        sci:'<b>What is happening:</b> anxiety flips your nervous system into fight-or-flight — heavy legs, tight chest are its doing. <b>A long exhale calms it directly.</b> Avoidance makes the alarm more sensitive, so one tiny step teaches the brain: outside is safe.',
+        shrink:'No far trips — start with an exposure too small to scare you:',
+        tasks:['Open the door, stand there 10 seconds, come back','Walk to the end of the hall and back','Earphones on (like a shield), one loop downstairs']}
+    },
+    low:{
+      zh:{title:'是"没意思"，先别信它',
+        say:'觉得干什么都没意义，是低落时大脑的谎——它让你等"有动力"再动，但动力不会自己来。<br>顺序反过来才对：先动，意义随后到。',
+        sci:'<b>发生了什么：</b>低落会掉进"越不动→越没奖赏→越没劲"的循环。<b>行为激活的关键洞察：行动先于动机。</b>先给神经系统一个新的输入（哪怕只是走到门口），奖赏和心情往往在动作之后才补上，而不是之前。',
+        shrink:'别等有劲，现在就做一个最小的动作：',
+        tasks:['只穿鞋走到门口，什么都不为，就走','下楼绕一小圈，看能不能碰到一点点新鲜','去做一件"做完会有点点成就感"的小事']},
+      en:{title:'It is "pointless" talking — do not believe it yet',
+        say:'Feeling nothing matters is a lie your low mood tells — it says wait for motivation, but motivation will not just arrive.<br>Reverse the order: move first, meaning follows.',
+        sci:'<b>What is happening:</b> low mood traps you in "less action → less reward → less drive." <b>The key insight of behavioral activation: action comes before motivation.</b> Give your nervous system a new input (even just reaching the door); reward and mood usually arrive after the movement, not before.',
+        shrink:'Do not wait for drive — do one smallest action now:',
+        tasks:['Shoes on, walk to the door, for no reason at all','A small loop downstairs, see if anything feels fresh','One tiny thing that gives a bit of "done it" feeling']}
+    }
+  };
+
+  var lang=(/[?&]lang=en/.test(location.search)?'en':'zh'),why='tired',mIdx=0,taskLabel='',wins=0,timer=null,sec=0;
+  var nextPlan='';
+  var moodBefore=0,moodAfter=0;
+  var bStart=0,bRAF=null,bDone=0,BREATHS=3,CYCLE=10000,INH=4000,HOLD=1000;
+
+  function applyLang(){
+    document.querySelectorAll('[data-i]').forEach(function(el){var v=T[lang][el.getAttribute('data-i')];if(typeof v==='string')el.innerHTML=v;});
+    document.getElementById('langBtn').textContent=lang==='zh'?'EN':'中';
+    var nm=document.getElementById('eleName');if(nm)nm.textContent=lang==='zh'?'夏天':'Summer';
+    paint();
+    var sv=document.getElementById('savor');if(sv)sv.placeholder=T[lang].savorPh;
+    paintPlan();
+    if(document.getElementById('s-decode').classList.contains('on'))fillDecode();
+    if(document.getElementById('s-shrink').classList.contains('on'))fillShrink();
+  }
+  function flip(){lang=lang==='zh'?'en':'zh';try{if(window.storage)window.storage.set('lang',lang)}catch(e){}applyLang()}
+  function fmt(s){return Math.floor(s/60)+":"+("0"+s%60).slice(-2)}
+  function go(id){
+    document.querySelectorAll('.screen').forEach(function(x){x.classList.remove('on')});
+    document.getElementById(id).classList.add('on');
+    var eye=document.getElementById('eye');
+    if(id==='s-win'||id==='s-out'||id==='s-mood'){eye.setAttribute('d','M108 114 q 9 -9 18 0 M174 114 q 9 -9 18 0')}
+    else{eye.setAttribute('d','M108 110 q 9 9 18 0 M174 110 q 9 9 18 0')}
+    if(id==='s-decode')fillDecode();
+    if(id==='s-shrink')fillShrink();
+    if(id==='s-breath')startBreath();else stopBreath();
+    if(id==='s-moodPre')buildMoodPre();
+    if(id==='s-count')countdown();
+    if(id==='s-mood')buildMood();
+  }
+  function setWhy(w){why=w;go('s-decode');}
+  function fillDecode(){
+    var d=WHY[why][lang];
+    document.getElementById('decTitle').textContent=d.title;
+    document.getElementById('decSay').innerHTML=d.say;
+    document.getElementById('decSci').innerHTML=d.sci;
+    document.getElementById('decBtn').textContent=lang==='zh'?'好，把出门拆小':'Okay, shrink it down';
+  }
+  function fillShrink(){
+    var d=WHY[why][lang];
+    document.getElementById('shrinkSay').innerHTML=d.shrink;
+    var box=document.getElementById('taskList');box.innerHTML='';
+    d.tasks.forEach(function(t,i){var b=document.createElement('button');b.className='soft';b.textContent=t;b.onclick=function(){pickTask(t)};box.appendChild(b);});
+  }
+  function pickTask(label){taskLabel=label;setMission();go('s-pack');}
+  function pickReal(){taskLabel=(lang==='zh'?'去办我本来要办的事':'go do the errand I actually have');setMission();go('s-pack');}
+  function setMission(){
+    var pre=lang==='zh'?'任务：':'Task: ';var suf=lang==='zh'?'。就这么多，不许加码。':'. That is all — no adding more.';
+    document.getElementById('mission').textContent=pre+taskLabel+suf;
+    document.getElementById('missionOut').textContent=pre+taskLabel;
+    document.querySelectorAll('.check').forEach(function(c){c.classList.remove('done')});
+    var b=document.getElementById('readyBtn');b.disabled=true;b.style.opacity=.4;
+  }
+  function tickItem(el){
+    el.classList.toggle('done');
+    var all=document.querySelectorAll('.check').length===document.querySelectorAll('.check.done').length;
+    var b=document.getElementById('readyBtn');b.disabled=!all;b.style.opacity=all?1:.4;
+  }
+  // 呼吸门
+  function startBreath(){stopBreath();bStart=0;bDone=0;bRAF=requestAnimationFrame(breathLoop);}
+  function stopBreath(){if(bRAF){cancelAnimationFrame(bRAF);bRAF=null}}
+  function breathLoop(ts){
+    if(!bStart)bStart=ts;var t=ts-bStart;
+    var cyc=Math.floor(t/CYCLE);
+    document.getElementById('bcount').textContent=(lang==='zh'?('第 '+Math.min(cyc+1,BREATHS)+' / '+BREATHS+' 次'):('breath '+Math.min(cyc+1,BREATHS)+' / '+BREATHS));
+    if(cyc>=BREATHS){stopBreath();go('s-count');return;}
+    var m=t%CYCLE, k,r;
+    if(m<INH){k='in';r=m/INH;} else if(m<INH+HOLD){k='hold';r=1;} else {k='out';r=1-(m-INH-HOLD)/(CYCLE-INH-HOLD);}
+    var ease=0.5-0.5*Math.cos(r*Math.PI);
+    var sc=k==='hold'?1.32:(0.8+ease*0.52);
+    var ring=document.getElementById('breathRing'),word=document.getElementById('breathWord');
+    ring.style.transform='scale('+sc.toFixed(3)+')';
+    word.textContent=k==='in'?T[lang].bIn:k==='hold'?T[lang].bHold:T[lang].bOut;
+    bRAF=requestAnimationFrame(breathLoop);
+  }
+  function skipBreath(){stopBreath();go('s-count');}
+  function countdown(){
+    var n=5,el=document.getElementById('num');el.textContent=n;
+    var t=setInterval(function(){n--;if(n>0){el.textContent=n;}else{clearInterval(t);el.textContent=T[lang].gogo;setTimeout(function(){startOut()},700);}},1000);
+  }
+  function startOut(){
+    sec=0;go('s-out');
+    var g=document.getElementById('groundTip');
+    if(why==='anx'){g.innerHTML=T[lang].ground5;g.style.display='block';}else{g.style.display='none';}
+    if(timer)clearInterval(timer);
+    timer=setInterval(function(){sec++;document.getElementById('clock').textContent=fmt(sec)},1000);
+  }
+  function askMood(){if(timer){clearInterval(timer);timer=null;}go('s-mood');}
+  function buildMoodPre(){
+    moodBefore=0;
+    var row=document.getElementById('moodPreRow');row.innerHTML='';
+    for(var i=1;i<=10;i++){(function(v){var b=document.createElement('button');b.textContent=v;b.onclick=function(){moodBefore=v;[].forEach.call(row.children,function(c){c.classList.remove('sel')});b.classList.add('sel');var mb=document.getElementById('moodPreBtn');mb.disabled=false;mb.style.opacity=1;};row.appendChild(b);})(i);}
+    var mb=document.getElementById('moodPreBtn');mb.disabled=true;mb.style.opacity=.4;
+  }
+  function buildMood(){
+    moodAfter=0;
+    var sv=document.getElementById('savor');if(sv){sv.value='';sv.placeholder=T[lang].savorPh;}
+    var row=document.getElementById('moodRow');row.innerHTML='';
+    for(var i=1;i<=10;i++){(function(v){var b=document.createElement('button');b.textContent=v;b.onclick=function(){moodAfter=v;[].forEach.call(row.children,function(c){c.classList.remove('sel')});b.classList.add('sel');var mb=document.getElementById('moodBtn');mb.disabled=false;mb.style.opacity=1;};row.appendChild(b);})(i);}
+    var mb=document.getElementById('moodBtn');mb.disabled=true;mb.style.opacity=.4;
+  }
+  function win(){
+    wins++;save();paint();
+    var sv=document.getElementById('savor'),extra='';
+    if(sv&&sv.value.trim()){extra='<br>'+T[lang].savorLine+sv.value.trim();}
+    document.getElementById('stamp').innerHTML=T[lang].stamp(taskLabel,fmt(sec),moodBefore||('—'),moodAfter)+extra;
+    fillNext();
+    go('s-win');
+  }
+  function fillNext(){
+    var box=document.getElementById('nextBox');box.innerHTML='';
+    WHY[why][lang].tasks.forEach(function(t){
+      var b=document.createElement('button');b.className='soft';b.textContent=t;
+      b.onclick=function(){nextPlan=t;[].forEach.call(box.children,function(c){c.classList.remove('sel')});b.classList.add('sel');
+        try{if(window.storage)window.storage.set('out-plan',t)}catch(e){}
+        b.textContent=t+T[lang].nextSaved;paintPlan();};
+      box.appendChild(b);
+    });
+  }
+  function paintPlan(){
+    var el=document.getElementById('planLine');if(!el)return;
+    el.textContent = nextPlan ? (T[lang].planPrefix+'\u300c'+nextPlan+'\u300d') : '';
+  }
+  function paint(){
+    var c=document.getElementById('count');if(c)c.textContent=wins>0?T[lang].cnt(wins):'';
+    var tr=document.getElementById('trophy');if(tr){tr.innerHTML='';for(var i=0;i<Math.min(wins,24);i++){var s=document.createElement('span');s.textContent='🐾';tr.appendChild(s);}}
+  }
+  function save(){try{if(window.storage)window.storage.set('out-wins',String(wins))}catch(e){}}
+  (function(){applyLang();try{if(window.storage){
+    window.storage.get('out-wins').then(function(r){if(r&&r.value){wins=parseInt(r.value)||0;paint()}}).catch(function(){});
+    window.storage.get('lang').then(function(r){if(r&&r.value&&T[r.value]){lang=r.value;applyLang()}}).catch(function(){});
+    window.storage.get('out-plan').then(function(r){if(r&&r.value){nextPlan=r.value;paintPlan()}}).catch(function(){});
+  }}catch(e){}})();
+</script>
+</body>
+</html>

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="急刹车">
+<meta name="theme-color" content="#FDF8EC">
+<title>夏天 · 暴风雨急刹车 | Summer · Storm Brake</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FDF8EC; --ink:#4A4440; --ele:#AEC6DD; --ele2:#95B3D2; --deep:#6f93bb;
+    --bow:#F4A7BC; --amber:#F2A65A; --moss:#A9C48F; --moon:#F6D36B;
+    --wobble:255px 18px 225px 18px/18px 225px 18px 255px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:'ZCOOL KuaiLe',"PingFang SC","Microsoft YaHei",sans-serif;
+    min-height:100vh; display:flex; justify-content:center;
+    background-image:radial-gradient(#efe6cf 1.2px, transparent 1.2px); background-size:26px 26px;
+  }
+  .app{width:100%;max-width:430px;padding:26px 20px 40px;display:flex;flex-direction:column;align-items:center;position:relative}
+  .lang{position:absolute;top:14px;right:16px;width:auto;font-size:14px;color:var(--ink);
+    background:#fff;border:2.5px solid var(--ink);border-radius:14px 6px 12px 7px;padding:5px 12px;cursor:pointer;font-family:inherit}
+  .screen{display:none;width:100%;flex-direction:column;align-items:center;animation:pop .35s ease}
+  .screen.on{display:flex}
+  @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  h1{font-size:25px;font-weight:400;text-align:center;line-height:1.4;margin:12px 0 6px}
+  .sub{font-size:15px;color:#8a8272;text-align:center;line-height:1.7;margin-bottom:16px;max-width:335px}
+  .say{font-size:16px;color:var(--ink);text-align:center;line-height:1.85;margin:2px 0 16px;max-width:325px;min-height:30px}
+  .card{background:#fff;border:3px solid var(--ink);border-radius:var(--wobble);padding:18px 20px;width:100%;margin-bottom:14px}
+  .sci{background:#fff;border:2.5px solid var(--ele2);border-radius:18px 7px 16px 8px;padding:13px 16px;width:100%;margin-bottom:14px;font-size:13.5px;line-height:1.75;color:#5f6b7a;text-align:left}
+  .sci b{color:var(--deep)}
+  button{font-family:inherit;color:var(--ink);cursor:pointer;border:3px solid var(--ink);border-radius:var(--wobble);
+    background:#fff;font-size:18px;padding:15px 18px;width:100%;margin-bottom:11px;transition:transform .1s;line-height:1.5}
+  button:active{transform:scale(.97) rotate(-.5deg)}
+  .big{background:var(--bow);font-size:21px;padding:19px}
+  .soft{background:var(--ele)} .ghost{border-style:dashed;background:transparent;font-size:15px;color:#8a8272}
+  .moss{background:var(--moss)} .moon{background:var(--moon)} .bodybtn{background:#fff}
+  .act{background:#fff;text-align:left;font-size:16px;line-height:1.5}
+  .counter{font-size:14px;color:#8a8272;margin-top:4px;text-align:center;line-height:1.7}
+  .waveBox{width:100%;height:150px;border:3px solid var(--ink);border-radius:24px 9px 22px 11px;overflow:hidden;position:relative;background:#eef5fb;margin:10px 0 4px}
+  #breathRing{position:absolute;left:50%;top:44%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;
+    border:3px solid rgba(255,255,255,.9);box-shadow:0 0 0 6px rgba(255,255,255,.25);z-index:2;pointer-events:none;
+    transition:transform 1s linear, opacity 1s linear;opacity:.85}
+  #breathWord{position:absolute;left:0;right:0;top:44%;margin-top:-11px;text-align:center;color:#fff;font-size:17px;
+    letter-spacing:3px;z-index:3;pointer-events:none;text-shadow:0 1px 3px rgba(90,110,140,.5);transition:opacity .6s}
+  .clock{font-size:40px;text-align:center;letter-spacing:2px;margin:6px 0 0}
+  .phase{font-size:13px;color:#a89f8c;text-align:center;margin-bottom:6px;min-height:18px}
+  .stamp{font-size:15px;line-height:1.95}
+  .foot{font-size:12.5px;color:#a89f8c;text-align:center;line-height:1.7;margin-top:20px;max-width:335px}
+  .trophy{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0 12px;max-width:300px}
+  .trophy span{font-size:22px;line-height:1}
+  .moodRow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:4px 0 12px}
+  .moodRow button{width:auto;flex:none;padding:10px 15px;margin:0;font-size:18px;border-radius:14px 7px 12px 8px}
+  .moodRow button.sel{background:var(--moon)}
+  .deltaLine{font-size:14.5px;color:#6f93bb;text-align:center;min-height:22px;margin-bottom:10px;line-height:1.6}
+  .sighWrap{width:100%;height:170px;display:flex;align-items:center;justify-content:center;margin:6px 0 2px}
+  #sighRing{width:112px;height:112px;border-radius:50%;border:3px solid var(--ele2);display:flex;align-items:center;justify-content:center;
+    color:var(--deep);font-size:15px;letter-spacing:2px;transition:transform .9s linear;text-align:center;line-height:1.4}
+  .planRow button.sel{background:var(--moon)}
+  @media (prefers-reduced-motion:reduce){.screen{animation:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <button class="lang" id="langBtn" onclick="flip()">EN</button>
+
+  <svg id="ele" width="150" height="132" viewBox="0 -14 300 274" role="img" aria-label="小象夏天 Summer the Elephant">
+    <defs><filter id="cr" x="-15%" y="-15%" width="130%" height="130%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" seed="11" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="6"/></filter></defs>
+    <g filter="url(#cr)" stroke-linecap="round" stroke-linejoin="round">
+      <text id="eleName" x="150" y="26" text-anchor="middle" font-size="30" fill="#e0894a" transform="rotate(-3 150 26)" style="font-family:'ZCOOL KuaiLe','PingFang SC',sans-serif">夏天</text>
+      <path d="M150 52 q 0 -20 12 -26" fill="none" stroke="#5b544f" stroke-width="5"/>
+      <path d="M162 26 l 16 -9 -2 17 z M162 26 l -15 10 16 6 z" fill="#F4A7BC" stroke="#5b544f" stroke-width="4"/>
+      <ellipse cx="76" cy="112" rx="34" ry="42" fill="#95B3D2" fill-opacity=".85" stroke="#5b544f" stroke-width="6"/>
+      <ellipse cx="224" cy="112" rx="34" ry="42" fill="#95B3D2" fill-opacity=".85" stroke="#5b544f" stroke-width="6"/>
+      <ellipse cx="150" cy="198" rx="74" ry="46" fill="#AEC6DD" fill-opacity=".9" stroke="#5b544f" stroke-width="6"/>
+      <rect x="112" y="222" width="26" height="28" rx="10" fill="#AEC6DD" fill-opacity=".9" stroke="#5b544f" stroke-width="5"/>
+      <rect x="162" y="222" width="26" height="28" rx="10" fill="#AEC6DD" fill-opacity=".9" stroke="#5b544f" stroke-width="5"/>
+      <circle cx="150" cy="118" r="68" fill="#AEC6DD" fill-opacity=".95" stroke="#5b544f" stroke-width="6"/>
+      <path d="M150 150 q -3 30 2 48 q 3 10 13 6" fill="none" stroke="#5b544f" stroke-width="19"/>
+      <path d="M150 150 q -3 30 2 48 q 3 10 13 6" fill="none" stroke="#AEC6DD" stroke-width="11"/>
+      <path id="eye" d="M108 110 q 9 9 18 0 M174 110 q 9 9 18 0" fill="none" stroke="#5b544f" stroke-width="5.5"/>
+      <ellipse cx="100" cy="136" rx="11" ry="7" fill="#F4A7BC" opacity=".8"/>
+      <ellipse cx="200" cy="136" rx="11" ry="7" fill="#F4A7BC" opacity=".8"/>
+      <g transform="translate(180 188) rotate(-5)">
+        <rect x="0" y="0" width="40" height="22" rx="4" fill="#FFFDF7" stroke="#5b544f" stroke-width="4"/>
+        <rect x="40" y="7" width="5" height="8" rx="2" fill="#5b544f"/>
+        <rect x="4" y="4" width="8" height="14" rx="2" fill="#F2A65A"/></g>
+    </g>
+  </svg>
+
+  <div class="screen on" id="s-home">
+    <h1 data-i="t_home"></h1>
+    <p class="sub" data-i="s_home"></p>
+    <button class="big" onclick="go('s-feel')" data-i="b_big"></button>
+    <div class="trophy" id="trophy"></div>
+    <p class="counter" id="count"></p>
+    <p class="counter" id="planLine" style="color:#6f93bb"></p>
+    <p class="foot" data-i="foot"></p>
+  </div>
+
+  <div class="screen" id="s-feel">
+    <h1 data-i="t_feel"></h1>
+    <p class="say" data-i="say_feel"></p>
+    <button class="soft" onclick="setEmo('tired')" data-i="f1"></button>
+    <button class="soft" onclick="setEmo('stress')" data-i="f2"></button>
+    <button class="soft" onclick="setEmo('empty')" data-i="f3"></button>
+    <button class="soft" onclick="setEmo('lonely')" data-i="f4"></button>
+    <button class="moon" onclick="go('s-hungry')" data-i="f5"></button>
+    <button class="ghost" onclick="go('s-home')" data-i="back"></button>
+  </div>
+
+  <!-- 情绪解读：告诉你此刻大脑在发生什么 -->
+  <div class="screen" id="s-decode">
+    <h1 id="decodeTitle"></h1>
+    <p class="say" id="decodeSay"></p>
+    <div class="sci" id="decodeSci"></div>
+    <button class="moss" onclick="go('s-rate1')" id="decodeBtn"></button>
+    <button class="ghost" onclick="go('s-feel')" data-i="back"></button>
+  </div>
+
+  <!-- 冲浪前:给冲动打个分(CBT证据生成) -->
+  <div class="screen" id="s-rate1">
+    <h1 data-i="t_rate1"></h1>
+    <p class="say" data-i="say_rate1"></p>
+    <div class="moodRow" id="rate1Row"></div>
+    <button class="moss" id="rate1Btn" onclick="go('s-wave')" disabled style="opacity:.4" data-i="b_rate1"></button>
+    <button class="ghost" onclick="go('s-sigh')" data-i="b_sigh"></button>
+  </div>
+
+  <!-- 生理叹息:太猛时的30秒急救(斯坦福验证的最快呼吸法) -->
+  <div class="screen" id="s-sigh">
+    <h1 data-i="t_sigh"></h1>
+    <p class="bcount" id="sighCount" style="font-size:13px;color:#a89f8c;text-align:center;margin-bottom:6px"></p>
+    <div class="sighWrap"><div id="sighRing"><span id="sighWord"></span></div></div>
+    <p class="say" data-i="say_sigh"></p>
+    <button class="ghost" onclick="skipSigh()" data-i="b_skipsigh"></button>
+  </div>
+
+  <div class="screen" id="s-wave">
+    <h1 data-i="t_wave"></h1>
+    <div class="waveBox">
+      <svg id="seaSvg" width="100%" height="150" viewBox="0 0 400 150" preserveAspectRatio="none" aria-hidden="true">
+        <path id="sea1" fill="#95B3D2" fill-opacity="0.5" d=""></path>
+        <path id="sea2" fill="#AEC6DD" fill-opacity="0.9" d=""></path>
+      </svg>
+      <div id="breathRing"></div>
+      <div id="breathWord"></div>
+    </div>
+    <div class="clock" id="clock">3:00</div>
+    <div class="phase" id="phase"></div>
+    <p class="say" id="waveSay"></p>
+    <button class="ghost" onclick="endWave()" data-i="g_wave"></button>
+  </div>
+
+  <div class="screen" id="s-check">
+    <h1 data-i="t_check"></h1>
+    <p class="say" id="rate2Say"></p>
+    <div class="moodRow" id="rate2Row"></div>
+    <div class="deltaLine" id="deltaLine"></div>
+    <button class="moss" onclick="go('s-act')" data-i="c1"></button>
+    <button class="soft" onclick="go('s-wave')" data-i="c2"></button>
+    <button class="moon" onclick="go('s-eat')" data-i="c3"></button>
+  </div>
+
+  <!-- 按情绪给不同的替代行动 -->
+  <div class="screen" id="s-act">
+    <h1 data-i="t_act"></h1>
+    <p class="say" id="actSay"></p>
+    <div id="actList"></div>
+    <button class="moss" onclick="win()" data-i="b_act"></button>
+  </div>
+
+  <div class="screen" id="s-hungry">
+    <h1 data-i="t_hungry"></h1>
+    <p class="sub" data-i="s_hungry"></p>
+    <button class="moss" onclick="go('s-home')" data-i="b_hungry"></button>
+  </div>
+
+  <div class="screen" id="s-eat">
+    <h1 data-i="t_eat"></h1>
+    <p class="sub" data-i="s_eat"></p>
+    <button class="moss" onclick="go('s-home')" data-i="b_eat"></button>
+  </div>
+
+  <div class="screen" id="s-win">
+    <h1 data-i="t_win"></h1>
+    <div class="deltaLine" id="deltaStamp"></div>
+    <div class="card stamp" data-i="stamp"></div>
+    <p class="say" data-i="say_win"></p>
+    <p class="say" data-i="t_plan" style="margin-top:4px"></p>
+    <div class="planRow" style="width:100%">
+      <button class="soft" onclick="pickPlan(0,this)" data-i="p1"></button>
+      <button class="soft" onclick="pickPlan(1,this)" data-i="p2"></button>
+      <button class="soft" onclick="pickPlan(2,this)" data-i="p3"></button>
+    </div>
+    <p class="sub" data-i="s_win"></p>
+    <button class="soft" onclick="go('s-home')" data-i="b_home"></button>
+  </div>
+</div>
+<script>
+  var T={
+    zh:{
+      t_home:'暴风雨急刹车',
+      s_home:'很想很想吃东西的那个瞬间，先来找夏天待一会儿。这里不数卡路里，也没有人骂你。',
+      b_big:'我现在特别想吃',
+      foot:'好好吃饭永远不是错。这个工具只管"情绪掀起的暴风雨"。如果暴食经常发生、让你很痛苦，去找医生或心理咨询师聊聊，是很勇敢的一步。',
+      t_feel:'先别动，抱一下自己',
+      say_feel:'想吃东西一点都不丢人。<br>先轻轻问一句：这一刻，肚子底下装的，其实是哪一种？',
+      f1:'好累好累，撑不住了',f2:'烦躁 / 压力顶到嗓子眼',f3:'空落落的 / 好无聊',f4:'孤独 / 有点委屈',f5:'就是饿，是真的饿',back:'先回去',
+      t_wave:'好，我们一起看着这道浪',
+      g_wave:'我觉得浪退了',
+      t_check:'那道浪，退了一些了吗？',
+      c1:'退了，我缓过来一点了',c2:'还在，再陪它一会儿',c3:'还是很想吃',
+      t_hungry:'那就去吃呀！',
+      s_hungry:'饿了吃饭是天经地义的事。坐下来，慢慢吃，选你真正想吃的那一样，一丝罪恶感都不要带。夏天在这儿等你回来。',
+      b_hungry:'好，我去好好吃饭',
+      t_eat:'那就好好地、选择去吃',
+      s_eat:'听夏天说一句：吃了，也绝对不是失败。只温柔地做三件小事——坐下来吃、慢一点吃、选你真正想吃的那一样。吃完回来打个卡就好，夏天不会说你，只会给你一个抱抱。',
+      b_eat:'谢谢你，我知道了',
+      t_act:'那，给它一个更对的东西',
+      b_act:'我试了一个，打卡',
+      t_win:'你看，浪真的退了',
+      say_win:'你刚刚没有被冲动推着走，<br>你选择了先陪自己待一会儿。<br>这件事，比你以为的更了不起。',
+      stamp:'你刚刚做的，不只是"忍住"：<br>你先看懂了自己缺什么，<br>再给了它对的东西。<br>大脑会记住这条新路——<br>下一次，它会更容易找到。',
+      s_win:'今天这一次，你替自己做了对的选择。',
+      b_home:'回到夏天身边',
+      bin:'轻轻吸气…… 1、2、3、4',bout:'慢慢呼气…… 1、2、3、4',
+      phRise:'浪在往上涨…… 别怕，这很正常',phPeak:'到最高点了…… 你还稳稳站着',phFall:'看，它开始退了……',
+      bIn:'吸 气',bHold:'停',bOut:'呼 —— 气',
+      t_rate1:'先给这股冲动打个分',
+      say_rate1:'凭直觉就好:此刻它有多猛?<br>(1是微风,10是滔天大浪)',
+      b_rate1:'记下了,去看浪',
+      b_sigh:'太猛了,等不及——先做30秒急救呼吸',
+      t_sigh:'生理叹息 · 30秒急救',
+      say_sigh:'吸一口,再补吸一小口,然后长长地叹出去。<br>这是被验证过的、最快让身体冷静的呼吸。',
+      b_skipsigh:'好了,去看浪',
+      sIn:'吸——',sIn2:'再补一小口',sOut:'长长叹出去………',
+      sighN:function(n,total){return '第 '+n+' / '+total+' 次'},
+      say_rate2:function(x){return '先记一下:刚才是 '+x+' 分,现在这股劲儿还有几分?'},
+      say_rate2b:'先记一下:现在这股劲儿还有几分猛?',
+      deltaDown:function(a,b){return '从 '+a+' 到 '+b+' —— 你亲眼看着它退了 ↓'},
+      deltaFlat:'还没怎么退也没关系,有些浪要多陪一会儿。',
+      t_plan:'趁现在头脑清醒,跟自己定个预案——<br>下次冲动来的时候,我会先:',
+      p1:'先来找夏天,看一道浪',p2:'先喝一大杯温水',p3:'先离开厨房,去窗边站一分钟',
+      planPrefix:'和自己的约定:下次冲动来时,我会',
+      planSaved:'约定好了,夏天帮你记着 ✓',
+      urgeStamp:function(a,b){return '冲动强度 '+a+' → '+b},
+      decBtn:'好，陪我看这道浪'
+    },
+    en:{
+      t_home:'Storm brake',
+      s_home:'That moment when you really, really want to eat — come sit with Summer first. No calorie counting. No one scolding you.',
+      b_big:'I really want to eat right now',
+      foot:'Eating well is never wrong. This tool only handles the storms your feelings stir up. If bingeing happens often and hurts, talking to a doctor or therapist is a brave step.',
+      t_feel:'Hold on — give yourself a hug first',
+      say_feel:'Wanting to eat is nothing to be ashamed of.<br>Gently ask: which one is really underneath this, right now?',
+      f1:'So tired, running on empty',f2:'Stressed / at my limit',f3:'Empty / so bored',f4:'Lonely / a little hurt',f5:'Just hungry — actually hungry',back:'Go back',
+      t_wave:'Okay. We will watch this wave together',
+      g_wave:'I think the wave has passed',
+      t_check:'Has the wave eased off a little?',
+      c1:'Yes, I feel a bit calmer',c2:'Still here — stay with it',c3:'I still really want to eat',
+      t_hungry:'Then go eat!',
+      s_hungry:'Being hungry means you eat — that is just how bodies work. Sit down, eat slowly, pick what you truly want, with zero guilt. Summer will wait right here.',
+      b_hungry:'Okay, off to eat well',
+      t_eat:'Then gently choose to eat',
+      s_eat:'One thing from Summer: eating is absolutely not failure. Just three gentle things — sit down, slow down, pick the one thing you truly want. Come check in after. No lectures — only a hug.',
+      b_eat:'Thank you. I got it',
+      t_act:'So — give it the right thing instead',
+      b_act:'I tried one — check in',
+      t_win:'See — the wave really did pass',
+      say_win:'You were not pushed around by the urge.<br>You chose to sit with yourself first.<br>That is a bigger deal than you think.',
+      stamp:'What you just did was more than "resisting":<br>you first understood what you were missing,<br>then gave it the right thing.<br>Your brain remembers this new path —<br>next time, it finds it more easily.',
+      s_win:'Today, this once, you made the right choice for yourself.',
+      b_home:'Back to Summer',
+      bin:'Breathe in gently\u2026 1, 2, 3, 4',bout:'Breathe out slowly\u2026 1, 2, 3, 4',
+      phRise:'The wave is rising\u2026 do not be afraid, this is normal',phPeak:'At the peak\u2026 you are still standing',phFall:'See — it is starting to fall\u2026',
+      bIn:'breathe in',bHold:'hold',bOut:'breathe out',
+      t_rate1:'First, rate this urge',
+      say_rate1:'Just gut feeling: how fierce is it right now?<br>(1 a breeze, 10 a tidal wave)',
+      b_rate1:'Noted — to the wave',
+      b_sigh:'Too fierce to wait — 30s rescue breathing first',
+      t_sigh:'Physiological sigh · 30s rescue',
+      say_sigh:'Inhale, top it up with a second small inhale, then sigh it all out, long.<br>The fastest proven way to calm the body down.',
+      b_skipsigh:'Okay — to the wave',
+      sIn:'inhale—',sIn2:'top-up sip',sOut:'long sigh out………',
+      sighN:function(n,total){return 'sigh '+n+' / '+total},
+      say_rate2:function(x){return 'Quick note: it was '+x+' before — how fierce is it now?'},
+      say_rate2b:'Quick note: how fierce is it now?',
+      deltaDown:function(a,b){return 'From '+a+' to '+b+' — you watched it fall ↓'},
+      deltaFlat:'Not much lower yet? That is okay — some waves need more company.',
+      t_plan:'While your head is clear, make a pact —<br>next time the urge comes, I will first:',
+      p1:'Come watch a wave with Summer',p2:'Drink a big glass of water',p3:'Leave the kitchen, stand by a window',
+      planPrefix:'Pact with yourself: next urge, I will ',
+      planSaved:'Pact saved — Summer remembers ✓',
+      urgeStamp:function(a,b){return 'Urge intensity '+a+' → '+b},
+      decBtn:'Okay, watch the wave with me'
+    }
+  };
+
+  // 每种情绪：解读 + 神经科学 + 退浪陪伴话 + 替代行动。全部不同。
+  var EMO={
+    tired:{
+      zh:{title:'原来是"累"在喊饿',
+        say:'你不是嘴馋，是身体没电了。<br>累的时候，大脑会把"缺能量"翻译成"想吃甜的、想吃碳水"——它想抄近路快速充电。',
+        sci:'<b>发生了什么：</b>疲劳会打乱身体的能量调节，让大脑更倾向于寻找快速糖分和碳水来救急。这不是意志力薄弱，是生理信号。<b>所以：</b>真正缺的是"休息"和"缓释的能量"，一块糖只能骗大脑几分钟。',
+        wave:['我知道你很累，先靠着我一会儿。','累会让"想吃"的信号被放大，但它一样会退。','你现在需要的其实是喘口气，不是硬扛。','做得好，就这样歇着，让浪自己走。','快退了…… 累的浪，退下去你会想睡，而不是想吃。'],
+        actSay:'你缺的是能量和休息，那就直接给它这个——',
+        acts:['喝一大杯温水（脱水常伪装成饿）','躺平或靠着，把眼睛闭上3分钟','如果真要吃，选一小份带蛋白/坚果的，缓释能量比糖更救你']},
+      en:{title:'It was "tired" calling it hunger',
+        say:'You are not greedy — your battery is flat.<br>When tired, the brain translates "low energy" into "want sugar, want carbs" — it wants a shortcut to recharge.',
+        sci:'<b>What is happening:</b> fatigue disrupts energy regulation, nudging the brain to seek fast sugar and carbs for a quick fix. This is physiology, not weak willpower. <b>So:</b> what you actually lack is rest and slow-release energy — candy only fools the brain for minutes.',
+        wave:['I know you are worn out. Lean on me a while.','Tiredness amplifies the "eat" signal — but it still passes.','What you need now is a breath, not to push through.','Well done. Just rest like this, let the wave leave.','Almost gone… once the tired-wave falls, you will want sleep, not food.'],
+        actSay:'You lack energy and rest — so give it exactly that:',
+        acts:['Drink a big glass of warm water (thirst often masks as hunger)','Lie down or lean back, close your eyes for 3 minutes','If you must eat, a small protein/nut portion — slow energy beats sugar']}
+    },
+    stress:{
+      zh:{title:'是压力在拉警报',
+        say:'烦躁和压力上来时，身体在冒"压力激素"，它会特别指定要高油高糖——因为那是身体记忆里最快的安抚。',
+        sci:'<b>发生了什么：</b>慢性压力会升高皮质醇，直接推高对高热量食物的渴望。有意思的是，研究发现只有"烦躁/易怒"这种情绪，吃完后真的会短暂缓解——所以你的大脑学会了"烦→吃"这条捷径。<b>所以：</b>真正要泄的是那股压力，而不是喂饱它。',
+        wave:['我在。你可以把气先呼给我。','压力像高压锅，需要的是放气阀，不是加料。','长长地呼气，比吸气更能按下你的压力键。','你正在做的，就是给身体一个别的出口。','快退了…… 压力的浪一退，你会松一口气。'],
+        actSay:'你要泄的是压力，那就给身体一个放气阀——',
+        acts:['做4次长呼气：呼比吸长一倍（直接按下副交感神经）','用力握拳5秒再松开，重复3次，把张力泄到手上','对着枕头或空气，把那句憋着的话骂出来']},
+      en:{title:'That is stress pulling the alarm',
+        say:'When irritation and pressure rise, your body floods with stress hormones that specifically demand fat and sugar — the fastest soothing your body remembers.',
+        sci:'<b>What is happening:</b> chronic stress raises cortisol, directly driving cravings for high-calorie food. Interestingly, research finds only irritation actually eases briefly after eating — so your brain learned the "stressed → eat" shortcut. <b>So:</b> what needs releasing is the pressure, not feeding it.',
+        wave:['I am here. Breathe the tension out onto me.','Stress is a pressure cooker — it needs a valve, not more fuel.','A long exhale presses your calm button harder than the inhale.','What you are doing is giving the body another outlet.','Almost gone… as the stress-wave falls, you will exhale in relief.'],
+        actSay:'What you need to release is pressure — give the body a valve:',
+        acts:['4 long exhales, out twice as long as in (flips on the calm nerve)','Clench fists hard for 5s then release, x3 — drain tension into your hands','Say the thing you are holding in — out loud, to a pillow']}
+    },
+    empty:{
+      zh:{title:'是"没意思"在找刺激',
+        say:'空落落、无聊的时候，大脑的奖赏系统闲得发慌，它在到处找多巴胺——而吃，是最容易到手的那一口刺激。',
+        sci:'<b>发生了什么：</b>低刺激状态下，大脑奖赏回路缺多巴胺，食物成了最快的奖赏来源。重复几次，"无聊→吃"就会连成自动的神经习惯。<b>所以：</b>它要的是"新鲜刺激"，不是热量——换一种刺激就能骗过它。',
+        wave:['无聊也是一种浪，它比你想的更快过去。','大脑在喊"给我点什么"，但那不一定是食物。','待一会儿，我们一起找点别的火花。','你正在证明：不喂它，它也会自己平息。','快退了…… 无聊的浪一退，你会想动，而不是想吃。'],
+        actSay:'它要的是新鲜刺激，那就给它一个别的火花——',
+        acts:['放一首会让你想动的歌，跟着晃30秒','摸一样有质感的东西：冰水、毛绒、橘子皮的味道','给一个人发条消息，或看窗外找3样以前没注意的东西']},
+      en:{title:'It is "bored" hunting for a spark',
+        say:'When empty and bored, your reward system is restless and hunting dopamine everywhere — and eating is the easiest hit within reach.',
+        sci:'<b>What is happening:</b> in a low-stimulation state the reward circuit runs short on dopamine, and food becomes the quickest reward. Repeat it and "bored → eat" wires into an automatic habit. <b>So:</b> it wants novelty, not calories — a different spark can satisfy it.',
+        wave:['Boredom is a wave too — it passes faster than you think.','The brain is yelling "give me something" — it need not be food.','Stay a moment, we will find another spark together.','You are proving it settles on its own, unfed.','Almost gone… as the boredom-wave falls, you will want to move.'],
+        actSay:'It wants novelty — so give it a different spark:',
+        acts:['Play a song that makes you move, sway with it for 30s','Touch something with texture: ice water, something soft, orange peel','Message one person, or find 3 things out the window you never noticed']}
+    },
+    lonely:{
+      zh:{title:'是孤独，被当成了饿',
+        say:'孤独的时候大脑亮起的，和"想被抱抱"是同一片区域。它其实在渴望连接，只是食物比人更容易到手，于是被拿来顶替。',
+        sci:'<b>发生了什么：</b>孤独会激活大脑奖赏网络里和成瘾几乎重叠的区域（伏隔核、腹侧纹状体），产生对糖和甜食的强烈渴望——本质是身体在渴求"重新连接"。<b>所以：</b>真正能填的是一点点连接感，哪怕很小。',
+        wave:['你不是一个人在这儿，我陪着你。','孤独的痛是真的，但食物填不上那个形状的洞。','把手放在胸口，感觉一下自己还在，稳稳的。','你正在被自己好好对待——这本身就是一种连接。','快退了…… 委屈的浪退下去，会松开一点。'],
+        actSay:'你缺的是一点连接感，那就给自己一点——',
+        acts:['给一个想起来会心头一暖的人发条消息，哪怕只是"在吗"','把手放胸口，对自己说一句你最想听到的话','翻一张让你觉得"被爱过"的照片或聊天记录']},
+      en:{title:'It is loneliness, mistaken for hunger',
+        say:'When you are lonely, the brain lights up the same region as "wanting to be held." It craves connection — food is just easier to reach, so it stands in.',
+        sci:'<b>What is happening:</b> loneliness activates reward regions that overlap almost exactly with addiction (nucleus accumbens, ventral striatum), driving strong cravings for sugar — really a body aching to reconnect. <b>So:</b> what fills it is a little connection, however small.',
+        wave:['You are not alone here — I am with you.','The ache of loneliness is real, but food cannot fill that shape.','Hand on your chest — feel yourself still here, steady.','You are being cared for right now — that itself is connection.','Almost gone… as the hurt-wave falls, it loosens a little.'],
+        actSay:'What you lack is a little connection — give yourself some:',
+        acts:['Message someone who warms you to think of — even just "hey"','Hand on your chest, tell yourself the words you most want to hear','Open a photo or chat that reminds you: you have been loved']}
+    }
+  };
+
+  var lang=(/[?&]lang=en/.test(location.search)?'en':'zh'),emo='tired',surfed=0,timer=null,left=180,DUR=180,seaStart=0,seaRAF=null;
+  var urge1=0,urge2=0,plan=-1,sighRAF=null,sighStart=0;
+  function applyLang(){
+    document.querySelectorAll('[data-i]').forEach(function(el){el.innerHTML=T[lang][el.getAttribute('data-i')]});
+    document.getElementById('langBtn').textContent=lang==='zh'?'EN':'中';
+    var nm=document.getElementById('eleName');if(nm)nm.textContent=lang==='zh'?'夏天':'Summer';
+    paint();
+    paintPlan();
+  }
+  function flip(){lang=lang==='zh'?'en':'zh';try{if(window.storage)window.storage.set('lang',lang)}catch(e){}applyLang();if(document.getElementById('s-decode').classList.contains('on'))fillDecode();if(document.getElementById('s-act').classList.contains('on'))fillAct();}
+  function fmt(s){return Math.floor(s/60)+":"+("0"+s%60).slice(-2)}
+  function setEmo(e){emo=e;fillDecode();go('s-decode');}
+  function fillDecode(){
+    var d=EMO[emo][lang];
+    document.getElementById('decodeTitle').textContent=d.title;
+    document.getElementById('decodeSay').innerHTML=d.say;
+    document.getElementById('decodeSci').innerHTML=d.sci;
+    document.getElementById('decodeBtn').textContent=T[lang].decBtn;
+  }
+  function fillAct(){
+    var d=EMO[emo][lang];
+    document.getElementById('actSay').innerHTML=d.actSay;
+    var box=document.getElementById('actList');box.innerHTML='';
+    d.acts.forEach(function(a){var b=document.createElement('div');b.className='act card';b.style.marginBottom='11px';b.style.padding='14px 16px';b.textContent='· '+a;box.appendChild(b);});
+  }
+  function go(id){
+    document.querySelectorAll('.screen').forEach(function(x){x.classList.remove('on')});
+    document.getElementById(id).classList.add('on');
+    if(id==='s-wave')startWave();else stopWave();
+    if(id==='s-sigh')startSigh();else stopSigh();
+    if(id==='s-rate1')buildRate1();
+    if(id==='s-check')buildRate2();
+    if(id==='s-act')fillAct();
+    var eye=document.getElementById('eye');
+    if(id==='s-win'||id==='s-hungry'||id==='s-eat'||id==='s-act'){eye.setAttribute('d','M108 114 q 9 -9 18 0 M174 114 q 9 -9 18 0')}
+    else{eye.setAttribute('d','M108 110 q 9 9 18 0 M174 110 q 9 9 18 0')}
+  }
+  // 海浪节奏 = 呼吸节奏。一次完整呼吸 10 秒：吸4 · 顶部停1 · 呼5。
+  // 长呼气激活副交感神经（迷走神经"刹车"）。海面缓升缓降，人不自觉跟着呼吸。
+  var CYCLE=10000, INH=4000, HOLD=1000; // ms
+  function breathePhase(t){
+    var m=t%CYCLE;
+    if(m<INH){return {k:'in', r:m/INH};}                 // 吸：0→1
+    if(m<INH+HOLD){return {k:'hold', r:1};}              // 停
+    return {k:'out', r:1-(m-INH-HOLD)/(CYCLE-INH-HOLD)};  // 呼：1→0
+  }
+  // 平滑的正弦缓动，去掉快抖的高频项，让浪很"顺"
+  function seaPath(phase,amp,base){
+    var pts=[], W=400;
+    for(var x=0;x<=W;x+=8){
+      var y=base + Math.sin((x/W*2.1)+phase)*amp + Math.sin((x/W*4.3)+phase*1.3)*amp*0.18;
+      pts.push(x+' '+y.toFixed(1));
+    }
+    return 'M0 150 L0 '+base.toFixed(1)+' L'+pts.join(' L')+' L400 150 Z';
+  }
+  function drawSea(ts){
+    if(!seaStart)seaStart=ts;
+    var t=ts-seaStart;
+    var prog=(DUR-left)/DUR;
+    // 冲动整体包络：前1/3涨到峰、之后缓缓退（决定水位高低与浪的大小）
+    var env = prog<0.33 ? (0.4+prog*1.8) : Math.max(0.2,(0.95-(prog-0.33)*0.85));
+    // 呼吸：吸→水位升、浪变大；呼→水位落、浪变平
+    var b=breathePhase(t);
+    var ease = b.k==='in' ? (0.5-0.5*Math.cos(b.r*Math.PI)) : b.k==='hold' ? 1 : (0.5-0.5*Math.cos(b.r*Math.PI));
+    var waterLevel = 96 - env*30 - ease*14;      // 越吸越高（y越小）
+    var amp = (7+env*13) * (0.55+ease*0.6);      // 吸气浪大、呼气浪平
+    var drift = t/1000*0.42;                     // 极慢横向漂移
+    var p1=document.getElementById('sea1'), p2=document.getElementById('sea2');
+    if(p1)p1.setAttribute('d',seaPath(drift,amp*1.15,waterLevel-7));
+    if(p2)p2.setAttribute('d',seaPath(drift+1.1,amp,waterLevel+6));
+    // 退潮后颜色变平静（深蓝→浅蓝）
+    var calm=Math.min(1,prog*1.2);
+    if(p2)p2.setAttribute('fill', calm>0.5?'#B9D2E6':'#AEC6DD');
+    // 呼吸光环 + 文字
+    var ring=document.getElementById('breathRing'), word=document.getElementById('breathWord');
+    if(ring){var sc=0.7+ease*0.85; ring.style.transform='scale('+sc.toFixed(3)+')'; ring.style.opacity=(0.4+ease*0.5).toFixed(2);}
+    if(word){word.textContent = b.k==='in'?T[lang].bIn : b.k==='hold'?T[lang].bHold : T[lang].bOut;}
+    seaRAF=requestAnimationFrame(drawSea);
+  }
+  function startWave(){stopWave();left=DUR;seaStart=0;tick();timer=setInterval(tick,1000);seaRAF=requestAnimationFrame(drawSea);}
+  function stopWave(){if(timer){clearInterval(timer);timer=null}if(seaRAF){cancelAnimationFrame(seaRAF);seaRAF=null}}
+  function tick(){
+    document.getElementById('clock').textContent=fmt(left);
+    var done=DUR-left, prog=done/DUR;
+    var ph=document.getElementById('phase');
+    if(prog<0.30){ph.textContent=T[lang].phRise;}
+    else if(prog<0.42){ph.textContent=T[lang].phPeak;}
+    else{ph.textContent=T[lang].phFall;}
+    var idx=Math.min(4,Math.floor(prog*5));
+    document.getElementById('waveSay').innerHTML=EMO[emo][lang].wave[idx];
+    if(left<=0){stopWave();go('s-check');return}
+    left--;
+  }
+  function endWave(){stopWave();go('s-check')}
+  function buildRow(rowId,btnCb){
+    var row=document.getElementById(rowId);row.innerHTML='';
+    for(var i=1;i<=10;i++){(function(v){var b=document.createElement('button');b.textContent=v;
+      b.onclick=function(){[].forEach.call(row.children,function(c){c.classList.remove('sel')});b.classList.add('sel');btnCb(v);};
+      row.appendChild(b);})(i);}
+  }
+  function buildRate1(){
+    urge1=0;urge2=0;
+    buildRow('rate1Row',function(v){urge1=v;var b=document.getElementById('rate1Btn');b.disabled=false;b.style.opacity=1;});
+    var b=document.getElementById('rate1Btn');b.disabled=true;b.style.opacity=.4;
+  }
+  function buildRate2(){
+    document.getElementById('rate2Say').innerHTML = urge1?T[lang].say_rate2(urge1):T[lang].say_rate2b;
+    document.getElementById('deltaLine').textContent='';
+    buildRow('rate2Row',function(v){
+      urge2=v;
+      var d=document.getElementById('deltaLine');
+      if(urge1&&v<urge1){d.textContent=T[lang].deltaDown(urge1,v);}
+      else{d.textContent=T[lang].deltaFlat;}
+    });
+  }
+  var SIGH_T=[2500,1200,6300], SIGH_N=3;
+  function startSigh(){stopSigh();sighStart=0;sighRAF=requestAnimationFrame(sighLoop);}
+  function stopSigh(){if(sighRAF){cancelAnimationFrame(sighRAF);sighRAF=null}}
+  function sighLoop(ts){
+    if(!sighStart)sighStart=ts;var t=ts-sighStart;
+    var CY=SIGH_T[0]+SIGH_T[1]+SIGH_T[2];
+    var cyc=Math.floor(t/CY);
+    document.getElementById('sighCount').textContent=T[lang].sighN(Math.min(cyc+1,SIGH_N),SIGH_N);
+    if(cyc>=SIGH_N){stopSigh();go('s-wave');return;}
+    var m=t%CY,ring=document.getElementById('sighRing'),word=document.getElementById('sighWord'),sc,w;
+    if(m<SIGH_T[0]){sc=0.75+0.45*(m/SIGH_T[0]);w=T[lang].sIn;}
+    else if(m<SIGH_T[0]+SIGH_T[1]){sc=1.2+0.18*((m-SIGH_T[0])/SIGH_T[1]);w=T[lang].sIn2;}
+    else{var r=(m-SIGH_T[0]-SIGH_T[1])/SIGH_T[2];sc=1.38-0.63*r;w=T[lang].sOut;}
+    ring.style.transform='scale('+sc.toFixed(3)+')';word.textContent=w;
+    sighRAF=requestAnimationFrame(sighLoop);
+  }
+  function skipSigh(){stopSigh();go('s-wave');}
+  function pickPlan(i,btn){
+    plan=i;
+    var pr=btn.parentNode;[].forEach.call(pr.children,function(c){c.classList.remove('sel')});btn.classList.add('sel');
+    try{if(window.storage)window.storage.set('binge-plan',String(i))}catch(e){}
+    paintPlan();
+  }
+  function paintPlan(){
+    var el=document.getElementById('planLine');if(!el)return;
+    el.textContent = plan>=0 ? (T[lang].planPrefix+'\u300c'+T[lang]['p'+(plan+1)]+'\u300d') : '';
+  }
+  function win(){
+    surfed++;save();paint();
+    var d=document.getElementById('deltaStamp');
+    d.textContent=(urge1&&urge2)?T[lang].urgeStamp(urge1,urge2):'';
+    go('s-win');
+  }
+  function paint(){
+    var c=document.getElementById('count'); if(c)c.textContent=surfed>0?(lang==='zh'?('你已经陪 '+surfed+' 场暴风雨，安全地过了境'):('You have weathered '+surfed+' storms, safely')):'';
+    var tr=document.getElementById('trophy'); if(tr){tr.innerHTML=''; for(var i=0;i<Math.min(surfed,24);i++){var s=document.createElement('span');s.textContent='🌊';tr.appendChild(s);}}
+  }
+  function save(){try{if(window.storage)window.storage.set('binge-surfed',String(surfed))}catch(e){}}
+  (function(){applyLang();try{if(window.storage){
+    window.storage.get('binge-surfed').then(function(r){if(r&&r.value){surfed=parseInt(r.value)||0;paint()}}).catch(function(){});
+    window.storage.get('lang').then(function(r){if(r&&r.value&&T[r.value]){lang=r.value;applyLang()}}).catch(function(){});
+    window.storage.get('binge-plan').then(function(r){if(r&&r.value!==undefined&&r.value!==null){plan=parseInt(r.value);if(isNaN(plan))plan=-1;paintPlan()}}).catch(function(){});
+  }}catch(e){}})();
+</script>
+</body>
+</html>

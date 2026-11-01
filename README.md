@@ -23,17 +23,21 @@ The goal is deliberately simple: small tools that help in the moment, without tu
 
 ## Tools in this repository
 
-The collection is still being consolidated. Current tools and experiments include:
+The homepage is organized by **what is happening right now**, not by tool name. Pick the situation, get one next step. Available in Chinese and English (`/` and `/en/`).
 
-- **砍小器 / Task Shrinker** — turns an overwhelming task into a step small enough to start.
-- **Inner Talk Translator** — separates harsh self-talk into feelings, facts, and interpretations.
-- **闭眼冲 / Decision Once** — reduces the cost of repeatedly deciding whether to do the same task.
-- **情绪记录本 / Emotion Notebook** — helps capture a trigger, feeling, and one small next step.
-- **想法停机坪 / Idea Runway** — parks new ideas so they do not interrupt the thing already in progress.
-- **Dare to Cringe** — helps make room for embarrassment when it is blocking an important action.
-- **Inner Voice** — a privacy-first tool for examining negative self-talk.
-
-More of the 10 tools are being cleaned up and brought into this repository over time.
+| Situation | Tools |
+|---|---|
+| I can't move at all | 陪你迈出那一步 (step-with-me, zh) · Low-Energy System |
+| I know what to do but can't start | 砍小器 / Make It Tiny · Unstuck |
+| Too much on my mind | 主要矛盾 / Find the Main Thing |
+| Re-deciding the same thing every day | 闭眼冲 (zh) |
+| I don't want to go out | Out the Door |
+| I can't stop wanting to eat | Storm Brake |
+| Harsh on myself | Inner Talk Translator · Dandelion |
+| A feeling is stuck | Evening Breeze · 情绪记录本 (zh) |
+| Avoiding something awkward | Dare to Cringe |
+| Too many new ideas | 想法停机坪 (zh) |
+| Can't put the phone down at night | INFP Sleep |
 
 ## Run locally
 

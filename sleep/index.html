@@ -1,0 +1,711 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INFP 安眠 / INFP Sleep</title>
+<style>
+  :root {
+    --bg: #E7EAF2;
+    --surface: #FFFFFF;
+    --ink: #1B2036;
+    --ink-muted: #5B6178;
+    --accent-calm: #35406B;
+    --accent-action: #7A6BA6;
+    --border: #D6D9E6;
+    --on-accent: #FFFFFF;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0E1220;
+      --surface: #171B2E;
+      --ink: #E4E7F5;
+      --ink-muted: #9BA0BE;
+      --accent-calm: #7C8FC9;
+      --accent-action: #B49CE0;
+      --border: #2A3050;
+      --on-accent: #0E1220;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1220;
+    --surface: #171B2E;
+    --ink: #E4E7F5;
+    --ink-muted: #9BA0BE;
+    --accent-calm: #7C8FC9;
+    --accent-action: #B49CE0;
+    --border: #2A3050;
+    --on-accent: #0E1220;
+  }
+  :root[data-theme="light"] {
+    --bg: #E7EAF2;
+    --surface: #FFFFFF;
+    --ink: #1B2036;
+    --ink-muted: #5B6178;
+    --accent-calm: #35406B;
+    --accent-action: #7A6BA6;
+    --border: #D6D9E6;
+    --on-accent: #FFFFFF;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+    padding: 24px;
+  }
+  .card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .topbar { display: flex; align-items: center; justify-content: space-between; }
+  .dots { display: flex; gap: 8px; justify-content: center; flex: 1; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
+  .dot.active { background: var(--accent-calm); }
+  .dot.done { background: var(--accent-action); }
+  .lang-toggle {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--ink-muted);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .lang-toggle:hover { border-color: var(--accent-calm); color: var(--accent-calm); }
+  .lang-toggle:focus-visible { outline: 2px solid var(--accent-calm); outline-offset: 2px; }
+  .step { display: none; flex-direction: column; gap: 16px; }
+  .step.active { display: flex; }
+  h1 {
+    font-family: "Songti SC", "Noto Serif SC", serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-wrap: balance;
+    margin: 0;
+    color: var(--ink);
+  }
+  p.hint { margin: 0; color: var(--ink-muted); font-size: 0.9rem; line-height: 1.5; }
+  input[type="text"], textarea {
+    width: 100%;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    resize: none;
+  }
+  textarea { min-height: 120px; }
+  input[type="text"]:focus, textarea:focus { outline: 2px solid var(--accent-calm); outline-offset: 1px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--ink-muted);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .chip:hover { border-color: var(--accent-calm); color: var(--accent-calm); }
+  .chip.selected { border-color: var(--accent-action); color: var(--accent-action); }
+  .chip:focus-visible { outline: 2px solid var(--accent-calm); outline-offset: 2px; }
+  button.primary {
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--on-accent);
+    background: var(--accent-calm);
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+  }
+  button.primary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  button.secondary {
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--accent-action);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+  }
+  .timer {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 2.2rem;
+    text-align: center;
+    color: var(--accent-action);
+  }
+  .sub-timer { border: 1px solid var(--border); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .breathe-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: var(--accent-calm);
+    opacity: 0.85;
+    margin: 8px auto;
+    transform: scale(0.6);
+    transition: transform 4s ease-in-out, opacity 4s ease-in-out;
+  }
+  .breathe-circle.expand { transform: scale(1.0); opacity: 1; }
+  .summary-box {
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 0.85rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--ink);
+  }
+  .copied { color: var(--accent-action); font-size: 0.85rem; text-align: center; min-height: 1.2em; }
+  .cue-text { opacity: 1; }
+  @media (prefers-reduced-motion: no-preference) {
+    .step.active { animation: fade 0.25s ease; }
+    .cue-text { animation: cueFade 10s ease-in-out; }
+  }
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes cueFade {
+    0% { opacity: 0; transform: scale(0.85); }
+    15% { opacity: 1; transform: scale(1.05); }
+    25% { opacity: 1; transform: scale(1); }
+    80% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.95); }
+  }
+</style>
+
+<div class="card">
+  <div class="topbar">
+    <div class="dots" id="dots"></div>
+    <button class="lang-toggle" id="langToggle" type="button">EN</button>
+  </div>
+
+  <div class="step active" data-step="0">
+    <h1 data-i18n="openTitle"></h1>
+    <p class="hint" data-i18n="openHint"></p>
+    <button class="primary" data-next="1" data-i18n="start"></button>
+  </div>
+
+  <div class="step" data-step="1">
+    <h1 data-i18n="s1Title"></h1>
+    <div class="sub-timer">
+      <p class="hint" data-i18n="s1Brush"></p>
+      <p class="hint cue-text" id="brushCue"></p>
+      <div class="timer" id="brushTimer">3:00</div>
+      <button class="secondary" id="brushStart" data-i18n="s1StartBrush"></button>
+    </div>
+    <button class="primary" data-next="2" data-i18n="next"></button>
+  </div>
+
+  <div class="step" data-step="2">
+    <h1 data-i18n="s1bTitle"></h1>
+    <div class="sub-timer">
+      <p class="hint" data-i18n="s1Feet"></p>
+      <p class="hint cue-text" id="feetCue"></p>
+      <div class="timer" id="feetTimer">3:00</div>
+      <button class="secondary" id="feetStart" data-i18n="s1StartFeet"></button>
+    </div>
+    <button class="primary" data-next="3" data-i18n="next"></button>
+  </div>
+
+  <div class="step" data-step="3">
+    <h1 data-i18n="s2Title"></h1>
+    <p class="hint" data-i18n="s2Hint"></p>
+    <textarea id="dumpInput" data-i18n-placeholder="s2Placeholder"></textarea>
+    <button class="primary" data-next="4" data-i18n="s2Done"></button>
+  </div>
+
+  <div class="step" data-step="4">
+    <h1 data-i18n="s3Title"></h1>
+    <p class="hint" data-i18n="s3Hint"></p>
+    <div class="chips" id="durationChips"></div>
+    <div class="chips">
+      <button class="chip" id="ttsToggle" type="button"></button>
+      <button class="chip" id="noiseToggle" type="button"></button>
+    </div>
+    <div class="breathe-circle" id="breatheCircle"></div>
+    <div class="timer" id="meditationTimer">10:00</div>
+    <button class="secondary" id="meditationStart" data-i18n="s3Start"></button>
+    <button class="primary" data-next="5" data-i18n="next"></button>
+  </div>
+
+  <div class="step" data-step="5">
+    <h1 data-i18n="s4Title"></h1>
+    <p class="hint" data-i18n="s4Hint"></p>
+    <input type="text" id="gratitude1" data-i18n-placeholder="s4Placeholder1" />
+    <input type="text" id="gratitude2" data-i18n-placeholder="s4Placeholder2" />
+    <input type="text" id="gratitude3" data-i18n-placeholder="s4Placeholder3" />
+    <button class="primary" data-next="6" data-i18n="next"></button>
+  </div>
+
+  <div class="step" data-step="6">
+    <h1 data-i18n="s5Title"></h1>
+    <p class="hint" data-i18n="s5Hint"></p>
+    <div class="summary-box" id="summaryBox"></div>
+    <div class="copied" id="copiedMsg"></div>
+    <button class="primary" id="copyBtn" data-i18n="copy"></button>
+    <button class="secondary" id="restartBtn" data-i18n="restart"></button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var i18n = {
+    zh: {
+      langToggle: "EN",
+      openTitle: "开始之前",
+      openHint: "先把明天要做的事写在你熟悉的地方，提前为明天做个打算。接下来的五步，就不用再惦记这些了。",
+      start: "开始",
+      s1Title: "刷牙",
+      s1bTitle: "洗脚",
+      s1Brush: "刷牙 3 分钟",
+      s1StartBrush: "开始刷牙计时",
+      s1Feet: "洗脚 3 分钟",
+      s1StartFeet: "开始洗脚计时",
+      brushCues: [
+        "感受牙刷在牙齿上移动的触感",
+        "留意薄荷的味道",
+        "感觉手臂的动作，慢下来",
+        "注意牙刷毛尖端的力度",
+        "听一听刷牙的声音",
+        "感受嘴里的温度",
+        "留意手腕转动的角度",
+        "感觉牙龈被轻轻按压的感觉",
+        "注意呼吸，不用刻意调整",
+        "感受泡沫在嘴里的触感",
+        "留意站着的双脚，稳稳地",
+        "感觉整个人慢慢安静下来"
+      ],
+      feetCues: [
+        "感受水温接触皮肤",
+        "留意脚底放松下来的感觉",
+        "感觉身体慢慢卸下重量",
+        "注意脚趾一根根放松",
+        "留意水流过脚背的触感",
+        "感受身体的重量交给椅子或地面",
+        "留意呼吸变得慢一些",
+        "感觉今天的疲惫被冲掉一点",
+        "注意脚踝转动的感觉",
+        "留意皮肤表面的温度变化",
+        "感受安静下来的房间",
+        "感觉自己在一点点靠近睡眠"
+      ],
+      s2Title: "清空大脑",
+      s2Hint: "这里写的都是垃圾，写完就倒掉，不会被保存，随便写。",
+      s2Placeholder: "脑子里在转什么，都写下来……",
+      s2Done: "倒空了",
+      s3Title: "冥想",
+      s3Hint: "选一个时长，安静下来。",
+      s3VoiceLabel: "语音提示",
+      s3NoiseLabel: "水流白噪音",
+      onWord: "开",
+      offWord: "关",
+      s3Start: "开始冥想",
+      meditationStartRunning: "冥想中……",
+      breatheIn: "吸气",
+      breatheOut: "呼气",
+      s4Title: "感恩三件事",
+      s4Hint: "今天有什么值得感恩的？",
+      s4Placeholder1: "第一件……",
+      s4Placeholder2: "第二件……",
+      s4Placeholder3: "第三件……",
+      s5Title: "看书",
+      s5Hint: "把手机放到客厅，去看书。下面这行记录可以复制到你自己的笔记里：",
+      copy: "复制",
+      copied: "已复制",
+      restart: "再来一次",
+      next: "下一步",
+      durations: [3, 5, 10, 15],
+      durationLabel: "分钟"
+    },
+    en: {
+      langToggle: "中",
+      openTitle: "Before you begin",
+      openHint: "First, write down tomorrow's to-dos somewhere familiar to you. The next five steps won't ask you to hold onto them.",
+      start: "Start",
+      s1Title: "Brush teeth",
+      s1bTitle: "Wash feet",
+      s1Brush: "Brush teeth, 3 minutes",
+      s1StartBrush: "Start brushing timer",
+      s1Feet: "Soak/wash feet, 3 minutes",
+      s1StartFeet: "Start foot timer",
+      brushCues: [
+        "Feel the bristles moving against your teeth",
+        "Notice the taste of mint",
+        "Slow down the motion of your arm",
+        "Notice how much pressure the bristles apply",
+        "Listen to the sound of brushing",
+        "Feel the temperature inside your mouth",
+        "Notice the angle your wrist is turning",
+        "Feel your gums being gently pressed",
+        "Notice your breath, no need to change it",
+        "Feel the foam in your mouth",
+        "Notice your feet standing steady",
+        "Feel yourself settling, bit by bit"
+      ],
+      feetCues: [
+        "Feel the water against your skin",
+        "Notice your feet relaxing",
+        "Feel your body slowly settling",
+        "Notice each toe relaxing one by one",
+        "Feel the water moving across your feet",
+        "Feel your weight resting on the chair or floor",
+        "Notice your breath slowing down",
+        "Feel some of today's tiredness washing away",
+        "Notice the feeling of your ankles turning",
+        "Notice the temperature on your skin changing",
+        "Feel the room growing quiet",
+        "Feel yourself getting a little closer to sleep"
+      ],
+      s2Title: "Empty your mind",
+      s2Hint: "Everything you write here is trash — it gets thrown out, not saved. Write freely.",
+      s2Placeholder: "Whatever's spinning in your head, write it out...",
+      s2Done: "Emptied",
+      s3Title: "Meditate",
+      s3Hint: "Pick a duration and settle down.",
+      s3VoiceLabel: "Voice cues",
+      s3NoiseLabel: "Water noise",
+      onWord: "on",
+      offWord: "off",
+      s3Start: "Start meditating",
+      meditationStartRunning: "Meditating...",
+      breatheIn: "Breathe in",
+      breatheOut: "Breathe out",
+      s4Title: "Three things you're grateful for",
+      s4Hint: "What's worth being grateful for today?",
+      s4Placeholder1: "First...",
+      s4Placeholder2: "Second...",
+      s4Placeholder3: "Third...",
+      s5Title: "Read",
+      s5Hint: "Put your phone in the living room and go read. Copy this line into your own notes:",
+      copy: "Copy",
+      copied: "Copied",
+      restart: "Start over",
+      next: "Next",
+      durations: [3, 5, 10, 15],
+      durationLabel: "min"
+    }
+  };
+
+  var lang = ((/[?&]lang=(en|zh)/.exec(location.search)||[])[1]) || localStorage.getItem("infpSleepLang") || "zh";
+  var totalSteps = 6;
+  var state = { gratitude1: "", gratitude2: "", gratitude3: "" };
+  var meditationMinutes = 10;
+  var meditationInterval = null;
+  var meditationSecondsLeft = 0;
+  var breathInterval = null;
+  var ttsOn = false;
+  var noiseOn = false;
+  var audioCtx = null;
+  var noiseSource = null;
+  var noiseGain = null;
+  var brushInterval = null;
+  var feetInterval = null;
+
+  var dotsEl = document.getElementById("dots");
+  for (var i = 1; i <= totalSteps; i++) {
+    var d = document.createElement("div");
+    d.className = "dot" + (i === 1 ? " active" : "");
+    d.dataset.dot = i;
+    dotsEl.appendChild(d);
+  }
+
+  function applyLanguage() {
+    var dict = i18n[lang];
+    document.querySelectorAll("[data-i18n]").forEach(function (el) {
+      var key = el.dataset.i18n;
+      if (dict[key] !== undefined) el.textContent = dict[key];
+    });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) {
+      var key = el.dataset.i18nPlaceholder;
+      if (dict[key] !== undefined) el.placeholder = dict[key];
+    });
+    document.getElementById("langToggle").textContent = dict.langToggle;
+    document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+    renderDurationChips();
+    updateToggleLabels();
+  }
+
+  document.getElementById("langToggle").addEventListener("click", function () {
+    lang = lang === "zh" ? "en" : "zh";
+    localStorage.setItem("infpSleepLang", lang);
+    applyLanguage();
+  });
+
+  function showStep(n) {
+    stopMeditation();
+    document.querySelectorAll(".step").forEach(function (s) {
+      s.classList.toggle("active", s.dataset.step === String(n));
+    });
+    document.querySelectorAll(".dot").forEach(function (d) {
+      var idx = Number(d.dataset.dot);
+      d.classList.toggle("active", idx === n);
+      d.classList.toggle("done", idx < n);
+    });
+  }
+
+  document.querySelectorAll("[data-next]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      state.gratitude1 = document.getElementById("gratitude1").value.trim();
+      state.gratitude2 = document.getElementById("gratitude2").value.trim();
+      state.gratitude3 = document.getElementById("gratitude3").value.trim();
+      var next = Number(btn.dataset.next);
+      if (next === 6) finalizeEntry();
+      showStep(next);
+    });
+  });
+
+  // Step 1: brush + feet timers, with a rotating attention cue every 10 seconds
+  function startCountdown(displayId, cueId, seconds, cues, onDone) {
+    var el = document.getElementById(displayId);
+    var cueEl = document.getElementById(cueId);
+    var remaining = seconds;
+    var elapsed = 0;
+    function tick() {
+      var m = Math.floor(remaining / 60);
+      var s = remaining % 60;
+      el.textContent = m + ":" + (s < 10 ? "0" : "") + s;
+    }
+    var lastCueIndex = -1;
+    function updateCue() {
+      if (!cues || !cues.length) return;
+      var idx = Math.floor(elapsed / 10) % cues.length;
+      if (idx === lastCueIndex) return;
+      lastCueIndex = idx;
+      cueEl.textContent = cues[idx];
+      cueEl.style.animation = "none";
+      void cueEl.offsetWidth;
+      cueEl.style.animation = "";
+    }
+    tick();
+    updateCue();
+    var interval = setInterval(function () {
+      remaining--;
+      elapsed++;
+      tick();
+      updateCue();
+      if (remaining <= 0) {
+        clearInterval(interval);
+        if (onDone) onDone();
+      }
+    }, 1000);
+    return interval;
+  }
+
+  document.getElementById("brushStart").addEventListener("click", function () {
+    if (brushInterval) return;
+    brushInterval = startCountdown("brushTimer", "brushCue", 180, i18n[lang].brushCues, function () { brushInterval = null; });
+  });
+  document.getElementById("feetStart").addEventListener("click", function () {
+    if (feetInterval) return;
+    feetInterval = startCountdown("feetTimer", "feetCue", 180, i18n[lang].feetCues, function () { feetInterval = null; });
+  });
+
+  // Step 3: meditation duration chips
+  function renderDurationChips() {
+    var dict = i18n[lang];
+    var el = document.getElementById("durationChips");
+    el.innerHTML = "";
+    dict.durations.forEach(function (mins) {
+      var b = document.createElement("button");
+      b.className = "chip" + (mins === meditationMinutes ? " selected" : "");
+      b.type = "button";
+      b.textContent = mins + " " + dict.durationLabel;
+      b.addEventListener("click", function () {
+        meditationMinutes = mins;
+        document.getElementById("meditationTimer").textContent = mins + ":00";
+        renderDurationChips();
+      });
+      el.appendChild(b);
+    });
+  }
+
+  function updateToggleLabels() {
+    var dict = i18n[lang];
+    document.getElementById("ttsToggle").textContent = dict.s3VoiceLabel + "：" + (ttsOn ? dict.onWord : dict.offWord);
+    document.getElementById("noiseToggle").textContent = dict.s3NoiseLabel + "：" + (noiseOn ? dict.onWord : dict.offWord);
+  }
+
+  document.getElementById("ttsToggle").addEventListener("click", function () {
+    ttsOn = !ttsOn;
+    updateToggleLabels();
+  });
+  document.getElementById("noiseToggle").addEventListener("click", function () {
+    noiseOn = !noiseOn;
+    updateToggleLabels();
+    if (!noiseOn) stopNoise();
+  });
+
+  function startNoise() {
+    if (audioCtx) return;
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      var bufferSize = 2 * audioCtx.sampleRate;
+      var buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      var data = buffer.getChannelData(0);
+      for (var i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+      noiseSource = audioCtx.createBufferSource();
+      noiseSource.buffer = buffer;
+      noiseSource.loop = true;
+      var filter = audioCtx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 900;
+      noiseGain = audioCtx.createGain();
+      noiseGain.gain.value = 0.3;
+      noiseSource.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(audioCtx.destination);
+      noiseSource.start(0);
+      if (audioCtx.state === "suspended") audioCtx.resume();
+    } catch (e) {}
+  }
+
+  function stopNoise() {
+    if (noiseSource) {
+      try { noiseSource.stop(); } catch (e) {}
+      noiseSource.disconnect();
+      noiseSource = null;
+    }
+    if (audioCtx) {
+      try { audioCtx.close(); } catch (e) {}
+      audioCtx = null;
+    }
+  }
+
+  function speak(text) {
+    if (!ttsOn || !window.speechSynthesis) return;
+    try {
+      var utter = new SpeechSynthesisUtterance(text);
+      utter.lang = lang === "zh" ? "zh-CN" : "en-US";
+      window.speechSynthesis.speak(utter);
+    } catch (e) {}
+  }
+
+  function startBreathing() {
+    var circle = document.getElementById("breatheCircle");
+    var expanded = false;
+    function cycle() {
+      expanded = !expanded;
+      circle.classList.toggle("expand", expanded);
+      speak(expanded ? i18n[lang].breatheIn : i18n[lang].breatheOut);
+    }
+    cycle();
+    breathInterval = setInterval(cycle, 4000);
+  }
+
+  function stopBreathing() {
+    if (breathInterval) { clearInterval(breathInterval); breathInterval = null; }
+    document.getElementById("breatheCircle").classList.remove("expand");
+  }
+
+  document.getElementById("meditationStart").addEventListener("click", function () {
+    if (meditationInterval) return;
+    meditationSecondsLeft = meditationMinutes * 60;
+    if (noiseOn) startNoise();
+    startBreathing();
+    var el = document.getElementById("meditationTimer");
+    function tick() {
+      var m = Math.floor(meditationSecondsLeft / 60);
+      var s = meditationSecondsLeft % 60;
+      el.textContent = m + ":" + (s < 10 ? "0" : "") + s;
+    }
+    tick();
+    meditationInterval = setInterval(function () {
+      meditationSecondsLeft--;
+      tick();
+      if (meditationSecondsLeft <= 0) stopMeditation();
+    }, 1000);
+  });
+
+  function stopMeditation() {
+    if (meditationInterval) { clearInterval(meditationInterval); meditationInterval = null; }
+    stopBreathing();
+    stopNoise();
+  }
+
+  function pad(n) { return n < 10 ? "0" + n : String(n); }
+
+  function formatLine() {
+    var d = new Date();
+    var ts = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+    return "- [" + ts + "] [sleep] 感恩:" + state.gratitude1 + "；" + state.gratitude2 + "；" + state.gratitude3;
+  }
+
+  function finalizeEntry() {
+    var line = formatLine();
+    document.getElementById("summaryBox").textContent = line;
+    try {
+      var log = JSON.parse(localStorage.getItem("infpSleepLog") || "[]");
+      log.push(line);
+      localStorage.setItem("infpSleepLog", JSON.stringify(log));
+    } catch (e) {}
+  }
+
+  document.getElementById("copyBtn").addEventListener("click", function () {
+    var text = document.getElementById("summaryBox").textContent;
+    var msg = document.getElementById("copiedMsg");
+    function showCopied() {
+      msg.textContent = i18n[lang].copied;
+      setTimeout(function () { msg.textContent = ""; }, 2000);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(showCopied).catch(function () { fallbackCopy(text, showCopied); });
+    } else {
+      fallbackCopy(text, showCopied);
+    }
+  });
+
+  function fallbackCopy(text, cb) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+    cb();
+  }
+
+  document.getElementById("restartBtn").addEventListener("click", function () {
+    state = { gratitude1: "", gratitude2: "", gratitude3: "" };
+    document.getElementById("gratitude1").value = "";
+    document.getElementById("gratitude2").value = "";
+    document.getElementById("gratitude3").value = "";
+    document.getElementById("dumpInput").value = "";
+    document.getElementById("brushTimer").textContent = "3:00";
+    document.getElementById("feetTimer").textContent = "3:00";
+    document.getElementById("brushCue").textContent = "";
+    document.getElementById("feetCue").textContent = "";
+    if (brushInterval) { clearInterval(brushInterval); brushInterval = null; }
+    if (feetInterval) { clearInterval(feetInterval); feetInterval = null; }
+    meditationMinutes = 10;
+    document.getElementById("meditationTimer").textContent = "10:00";
+    renderDurationChips();
+    showStep(0);
+  });
+
+  applyLanguage();
+})();
+</script>

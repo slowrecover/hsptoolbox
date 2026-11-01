@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#FDF8EC">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="晚风">
+<title>夏天 · 晚风小站 | Summer · Evening Breeze</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh; background: #FDF8EC; color: #4A3B28;
+    font-family: "Noto Serif SC", Georgia, "Songti SC", serif;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .spot { position: fixed; border-radius: 50%; background: rgba(255, 214, 130, 0.30); pointer-events: none; animation: drift 16s ease-in-out infinite alternate; }
+  @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(30px, 22px) scale(1.1); } }
+  .leaf { position: fixed; border-radius: 50% 4px 50% 4px; background: rgba(122, 168, 92, 0.18); pointer-events: none; animation: drift 22s ease-in-out infinite alternate-reverse; }
+  #bar { position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; z-index: 3; }
+  #brand { font-size: 13px; letter-spacing: 2px; color: #A98C5F; }
+  #bar .r { display: flex; align-items: center; gap: 14px; }
+  #timer { font-size: 12px; color: #C4AC84; font-variant-numeric: tabular-nums; }
+  #lang { font-size: 12px; color: #A98C5F; border: 1px solid #E8CFA0; background: transparent; padding: 4px 10px; border-radius: 20px; cursor: pointer; font-family: inherit; letter-spacing: 1px; }
+  #card { width: min(420px, 92vw); position: relative; z-index: 2; padding: 24px; }
+  #q { font-size: 18px; line-height: 2.0; min-height: 110px; }
+  #note { font-size: 13px; color: #8A7355; line-height: 1.9; min-height: 44px; margin-top: 10px; }
+  #btns { display: flex; flex-direction: column; gap: 10px; margin-top: 22px; }
+  button.opt {
+    font-family: inherit; font-size: 15px; padding: 13px; cursor: pointer;
+    background: rgba(255,255,255,0.65); color: #4A3B28;
+    border: 1px solid #E8CFA0; border-radius: 12px; letter-spacing: 1px;
+  }
+  button.opt:hover { background: #FFFFFF; }
+  button.opt:active { transform: scale(0.99); }
+  #trail { font-size: 12px; color: #B99F76; text-align: center; margin-top: 22px; min-height: 18px; }
+  .seed { position: fixed; z-index: 4; pointer-events: none; font-size: 14px; color: rgba(169,140,95,0.8); animation: fly 5s ease-out forwards; }
+  @keyframes fly {
+    0% { transform: translate(0,0) rotate(0deg); opacity: 0; }
+    12% { opacity: 0.9; }
+    100% { transform: translate(70px,-52vh) rotate(40deg); opacity: 0; }
+  }
+  .foot { position: fixed; bottom: 12px; left: 0; right: 0; text-align: center; font-size: 11px; color: #C4AC84; z-index: 2; padding: 0 20px; line-height: 1.7; }
+</style>
+</head>
+<body>
+<div class="spot" style="width:180px;height:180px;top:10%;left:6%;"></div>
+<div class="spot" style="width:120px;height:120px;top:66%;left:78%;animation-duration:13s;"></div>
+<div class="leaf" style="width:64px;height:64px;top:16%;left:80%;"></div>
+<div class="leaf" style="width:44px;height:44px;top:48%;left:4%;animation-duration:26s;"></div>
+
+<div id="bar">
+  <span id="brand">夏天 · 晚风小站</span>
+  <span class="r"><span id="timer">0:00</span><button id="lang">EN</button></span>
+</div>
+
+<div id="card">
+  <canvas id="ele" width="200" height="110" style="display:block;margin:0 auto 14px;"></canvas>
+  <p id="q"></p>
+  <p id="note"></p>
+  <div id="btns"></div>
+  <p id="trail"></p>
+</div>
+<p class="foot" id="foot"></p>
+
+<script>
+var L=(/[?&]lang=en/.test(location.search)?'en':'zh');
+var T={
+  zh:{
+    brand:'夏天 · 晚风小站',
+    foot:'基于莱斯特·莱文森的释放法 · 陪你度过感受,不替代专业帮助 · 不记录任何数据',
+    seeds:'交给晚风的:',
+    minutes:function(m,r){ return '你在这里坐了 '+m+' 分钟,陪感觉走了 '+r+' 轮。都算数——包括回答"不能"的那些。'; },
+    steps:{
+      start:{ q:'找到此刻最明显的那个感觉。<br>烦躁、闷、堵着、说不清——都行。<br>不用分析它从哪来,<br>让它像傍晚的蝉鸣一样,先响着。', n:'', o:[['找到了','welcome'],['找不到,帮我找找','scan1']] },
+      scan1:{ q:'别用脑子找,问问身体。<br>从上往下慢慢扫一遍:<br><br>此刻,哪个位置最不松快?', n:'感觉不住在脑子里,住在身体里。', o:[['胸口','scan2','body'],['喉咙','scan2','body'],['肩膀','scan2','body'],['胃','scan2','body'],['都还好','numb']] },
+      scan2:{ q:'它是什么质地的?<br>不用想得太准,选最接近的。', n:'用物理的词就好,粗糙没关系。', o:[['紧紧的','scan3','tex'],['沉沉的','scan3','tex'],['堵着的','scan3','tex'],['空空的','scan3','tex'],['慌慌的','scan3','tex'],['说不清','scan3','tex']] },
+      scan3:{ q:'', n:'名字够用就行,不用再分析它从哪来。', o:[['好,去陪它','welcome']] },
+      numb:{ q:'"没什么感觉",也是一种感觉。<br>像整个下午没有一丝风。<br>就用它。', n:'麻木和空,常常是感觉的外壳。', o:[['好,就用它','welcome']] },
+      welcome:{ q:'你能不能允许这个感觉就在那儿——<br>不赶它走,不分析它,<br>让它像天气一样,热它的?', n:'"能"和"不能"都是可以的答案。这里没有正确答案,只有诚实的答案。', o:[['能','could'],['不能','couldNo']] },
+      couldNo:{ q:'不能允许它,也没关系。<br>那你能不能允许<br>"我不能允许它"这件事?', n:'抗拒本身也是一种感觉,它同样可以吹到风。', o:[['……可以','could'],['还是不行','could']] },
+      could:{ q:'现在只是问一句,不是要求你做到:<br><br>你能放下它吗?', n:'"能不能"问的是可能性,不是命令。觉得不可能,就如实回答。', o:[['能','would'],['不能','would']] },
+      would:{ q:'你愿意放下它吗?<br><br>哪怕只放下一点点,<br>像把握紧的手松开一条缝。', n:'有时我们能放下,却不愿意——它可能还有用,比如证明我们受过伤。不愿意也是答案。', o:[['愿意','when'],['不愿意','when']] },
+      when:{ q:'什么时候?', n:'', o:[['现在','check'],['还不是时候','check']] },
+      check:{ q:'深呼吸一次,慢一点。<br>晚风正好穿过来。<br><br>现在,那个感觉和刚才比——', n:'', o:[['轻了一些','lighter'],['没什么变化','again'],['好像更清楚了','again']] },
+      lighter:{ q:'轻了一点,就是释放发生了。<br>刚才那一小片,交给晚风了。<br>感觉是一层一层松开的,<br>不用一次放完。', n:'', o:[['再放一层','welcome2'],['今天到这里','end']] },
+      again:{ q:'很正常。释放常常要走几轮,<br>有时感觉先变清楚,才会变轻——<br>像热了很久,才等到那阵风。<br><br>再走一遍?', n:'刚才这一轮也算数,它松动了一点什么。', o:[['再走一遍','welcome2'],['今天到这里','end']] },
+      end:{ q:'', n:'', o:[['重新开始','restart']] }
+    },
+    endQ:function(m,r){ return '不管放下了多少,<br>你刚才做的事叫:<br>和感觉一起吹了会儿晚风,<br>而不是被它拖着跑。<br><br><span style="font-size:14px;color:#8A7355;">'+T.zh.minutes(m,r)+'</span>'; }
+  },
+  en:{
+    brand:'Summer · Evening Breeze',
+    foot:'Based on Lester Levenson\'s releasing method · A companion, not a substitute for professional help · Nothing is recorded',
+    seeds:'Given to the breeze:',
+    minutes:function(m,r){ return 'You sat here for '+m+' min and walked '+r+' round'+(r>1?'s':'')+' with your feeling. Every round counts — including the ones answered "no".'; },
+    steps:{
+      start:{ q:'Find the feeling that is loudest right now.<br>Restless, heavy, stuck, unnameable — anything works.<br>No need to analyze where it came from.<br>Let it hum, like evening cicadas.', n:'', o:[['Found it','welcome'],['Can\'t find it — help me look','scan1']] },
+      scan1:{ q:'Don\'t look with your head.<br>Ask your body instead.<br>Scan slowly, top to bottom:<br><br>where is the least ease, right now?', n:'Feelings don\'t live in the head. They live in the body.', o:[['Chest','scan2','body'],['Throat','scan2','body'],['Shoulders','scan2','body'],['Stomach','scan2','body'],['All fine','numb']] },
+      scan2:{ q:'What is its texture?<br>Don\'t aim for precision — pick the closest.', n:'Physical words work best. Rough is fine.', o:[['Tight','scan3','tex'],['Heavy','scan3','tex'],['Stuck','scan3','tex'],['Hollow','scan3','tex'],['Jittery','scan3','tex'],['Hard to say','scan3','tex']] },
+      scan3:{ q:'', n:'A rough name is enough. No need to trace where it came from.', o:[['Okay, sit with it','welcome']] },
+      numb:{ q:'"Nothing" is also a feeling.<br>Like an afternoon without any wind.<br>Use that.', n:'Numbness is often the shell of a feeling.', o:[['Okay, use it','welcome']] },
+      welcome:{ q:'Could you allow this feeling to be here —<br>not pushing it away, not analyzing it,<br>letting it be, like weather?', n:'"Yes" and "no" are both fine. There are no right answers here, only honest ones.', o:[['Yes','could'],['No','couldNo']] },
+      couldNo:{ q:'Can\'t allow it? That\'s fine too.<br>Could you allow the fact<br>that you can\'t allow it?', n:'Resistance is a feeling as well. It can sit in the breeze too.', o:[['...maybe','could'],['Still no','could']] },
+      could:{ q:'Just a question, not a demand:<br><br>Could you let it go?', n:'"Could" asks about possibility, not obligation. If it feels impossible, answer honestly.', o:[['Yes','would'],['No','would']] },
+      would:{ q:'Would you let it go?<br><br>Even a little,<br>like loosening a clenched hand by one crack.', n:'Sometimes we could, but won\'t — the feeling still serves us, perhaps as proof we were hurt. "No" is an answer.', o:[['Yes','when'],['No','when']] },
+      when:{ q:'When?', n:'', o:[['Now','check'],['Not yet','check']] },
+      check:{ q:'Take one slow breath.<br>The evening breeze is coming through.<br><br>Compared to before, the feeling is —', n:'', o:[['A little lighter','lighter'],['About the same','again'],['Clearer, somehow','again']] },
+      lighter:{ q:'A little lighter — that is release.<br>That small piece went to the breeze.<br>Feelings loosen layer by layer.<br>You don\'t have to finish today.', n:'', o:[['One more layer','welcome2'],['Enough for today','end']] },
+      again:{ q:'Completely normal. Releasing takes rounds.<br>Sometimes a feeling gets clearer<br>before it gets lighter —<br>like heat, before the wind arrives.<br><br>Walk it once more?', n:'That round still counted. Something loosened.', o:[['Once more','welcome2'],['Enough for today','end']] },
+      end:{ q:'', n:'', o:[['Start over','restart']] }
+    },
+    endQ:function(m,r){ return 'However much was released,<br>what you just did is called:<br>sitting in the breeze with a feeling,<br>instead of being dragged by it.<br><br><span style="font-size:14px;color:#8A7355;">'+T.en.minutes(m,r)+'</span>'; }
+  }
+};
+var q=document.getElementById('q'), note=document.getElementById('note'), btns=document.getElementById('btns'), trail=document.getElementById('trail');
+var curId='start', round=0, seeds=0, t0=Date.now(), happy=0, picked={body:'',tex:''};
+function render(){
+  var tt=T[L], s=tt.steps[curId];
+  document.getElementById('brand').textContent=tt.brand;
+  document.getElementById('foot').textContent=tt.foot;
+  document.getElementById('lang').textContent=L==='zh'?'EN':'中';
+  var mins=Math.max(1,Math.round((Date.now()-t0)/60000));
+  if(curId==='end'){ q.innerHTML=tt.endQ(mins,Math.max(1,round)); }
+  else if(curId==='scan3'){
+    q.innerHTML=L==='zh'
+      ?('好,就是它了——<br>'+picked.body+'那儿,'+picked.tex+'的那个。<br><br>现在,去陪它坐一会儿。')
+      :('There it is —<br>that '+picked.tex.toLowerCase()+' one, in your '+picked.body.toLowerCase()+'.<br><br>Now, go sit with it for a while.');
+  }
+  else { q.innerHTML=s.q; }
+  note.textContent=s.n;
+  btns.innerHTML='';
+  s.o.forEach(function(opt){
+    var b=document.createElement('button');
+    b.className='opt'; b.textContent=opt[0];
+    b.onclick=function(){ if(opt[2]) picked[opt[2]]=opt[0]; go(opt[1]); };
+    btns.appendChild(b);
+  });
+  trail.textContent=seeds>0?(tt.seeds+' '+'✦'.repeat(Math.min(seeds,12))):'';
+}
+function releaseSeed(){
+  seeds++;
+  var d=document.createElement('span');
+  d.className='seed'; d.textContent='✦';
+  d.style.left=(45+Math.random()*10)+'%';
+  d.style.top='55%';
+  document.body.appendChild(d);
+  setTimeout(function(){ d.remove(); },5200);
+}
+function go(id){
+  if(id==='welcome2'){ id='welcome'; }
+  if(id==='lighter'||id==='again'){ round++; releaseSeed(); happy=Date.now()+2200; }
+  if(id==='end'){ happy=Date.now()+3000; }
+  if(id==='restart'){ round=0; seeds=0; id='start'; }
+  curId=id; render();
+}
+document.getElementById('lang').onclick=function(){ L=L==='zh'?'en':'zh'; render(); };
+setInterval(function(){
+  var s=Math.floor((Date.now()-t0)/1000);
+  document.getElementById('timer').textContent=Math.floor(s/60)+':'+('0'+s%60).slice(-2);
+},1000);
+
+var eleC=document.getElementById('ele'), ec=eleC.getContext('2d');
+function drawEle(){
+  var t=Date.now(), g=92;
+  ec.clearRect(0,0,200,110);
+  ec.fillStyle='rgba(122,168,92,0.28)';
+  ec.beginPath(); ec.ellipse(100,g+8,86,10,0,0,Math.PI*2); ec.fill();
+  ec.save(); ec.translate(100,g);
+  var body='#CBD6E6', dark='#AEBCD2', blush='#F0B9B9';
+  var breathe=Math.sin(t/1100)*1.6;
+  var isHappy=t<happy;
+  ec.fillStyle=body;
+  ec.beginPath(); ec.ellipse(-6,-18+breathe*0.4,34,20+breathe*0.5,0,0,Math.PI*2); ec.fill();
+  ec.fillStyle=dark;
+  ec.beginPath(); ec.ellipse(-30,-4,10,5,0.3,0,Math.PI*2); ec.fill();
+  ec.beginPath(); ec.ellipse(8,-3,10,5,-0.2,0,Math.PI*2); ec.fill();
+  ec.fillStyle=body;
+  ec.beginPath(); ec.arc(24,-26+breathe*0.3,16,0,Math.PI*2); ec.fill();
+  var flap=Math.sin(t/(isHappy?160:420))*(isHappy?0.5:0.3);
+  ec.save(); ec.translate(16,-30+breathe*0.3); ec.rotate(-0.5+flap);
+  ec.fillStyle=dark; ec.beginPath(); ec.ellipse(0,-6,9,12,0,0,Math.PI*2); ec.fill();
+  ec.fillStyle=blush; ec.beginPath(); ec.ellipse(0,-6,5,7,0,0,Math.PI*2); ec.fill();
+  ec.restore();
+  var sway=Math.sin(t/700)*3;
+  ec.strokeStyle=body; ec.lineWidth=7; ec.lineCap='round';
+  ec.beginPath(); ec.moveTo(35,-22+breathe*0.3);
+  ec.quadraticCurveTo(46,-10,42+sway,2); ec.stroke();
+  var es=(((t+600)%3600)<200)?0.15:1;
+  if(isHappy) es=0.12;
+  ec.fillStyle='#3A4356';
+  ec.beginPath(); ec.ellipse(30,-29+breathe*0.3,2.2,2.2*es,0,0,Math.PI*2); ec.fill();
+  if(isHappy){
+    ec.strokeStyle='#3A4356'; ec.lineWidth=1.6;
+    ec.beginPath(); ec.arc(30,-27+breathe*0.3,4,0.15*Math.PI,0.85*Math.PI); ec.stroke();
+  }
+  ec.restore();
+  requestAnimationFrame(drawEle);
+}
+render();
+drawEle();
+</script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#FDF8EC">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="蒲公英">
+<title>夏天 · 蒲公英 | Summer · Dandelion</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh; background: #FDF8EC; color: #4A3B28;
+    font-family: "Noto Serif SC", Georgia, "Songti SC", serif;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .spot { position: fixed; border-radius: 50%; background: rgba(255,214,130,0.28); pointer-events: none; animation: drift 18s ease-in-out infinite alternate; }
+  @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(28px,20px) scale(1.1); } }
+  #bar { position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; z-index: 3; }
+  #brand { font-size: 13px; letter-spacing: 2px; color: #A98C5F; }
+  #lang { font-size: 12px; color: #A98C5F; border: 1px solid #E8CFA0; background: transparent; padding: 4px 10px; border-radius: 20px; cursor: pointer; font-family: inherit; letter-spacing: 1px; }
+  #card { width: min(440px, 92vw); position: relative; z-index: 2; padding: 24px; text-align: center; }
+  #prompt { font-size: 17px; line-height: 2.0; min-height: 68px; }
+  #sub { font-size: 13px; color: #8A7355; line-height: 1.9; margin-top: 8px; min-height: 40px; }
+  textarea {
+    width: 100%; margin-top: 18px; background: rgba(255,255,255,0.65); border: 1px solid #E8CFA0;
+    border-radius: 12px; color: #4A3B28; font-family: inherit; font-size: 16px; padding: 14px; line-height: 1.9;
+    min-height: 96px; resize: none; text-align: center;
+  }
+  textarea:focus { outline: none; border-color: #D9B678; }
+  #btns { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+  button.opt {
+    font-family: inherit; font-size: 15px; padding: 13px; cursor: pointer;
+    background: rgba(255,255,255,0.65); color: #4A3B28;
+    border: 1px solid #E8CFA0; border-radius: 12px; letter-spacing: 1px;
+  }
+  button.opt:hover { background: #FFF; }
+  button.opt:active { transform: scale(0.99); }
+  #dandelion { position: relative; min-height: 220px; display: none; }
+  #arrow-text {
+    font-size: 18px; line-height: 2; color: #6B5A42; max-width: 90%;
+    position: absolute; left: 50%; top: 46%; transform: translate(-50%,-50%);
+    white-space: pre-wrap; word-break: break-word;
+  }
+  #arrow-text .ch { display: inline-block; }
+  #arrow-text .ch.go { animation: scatter 4.2s ease-in forwards; }
+  @keyframes scatter {
+    0%   { opacity: 1; transform: translate(0,0) rotate(0) scale(1); filter: blur(0); }
+    18%  { opacity: 1; filter: blur(0.5px); }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.25); filter: blur(8px); }
+  }
+  #calm { position: absolute; left: 0; right: 0; bottom: 18px; font-size: 17px; color: #6B5A42; letter-spacing: 1px; opacity: 0; transition: opacity 2.4s; }
+  .seed { position: fixed; z-index: 4; pointer-events: none; color: rgba(169,140,95,0.75); font-size: 13px; animation: fly 6s ease-out forwards; }
+  @keyframes fly {
+    0% { transform: translate(0,0) rotate(0deg); opacity: 0; }
+    15% { opacity: 0.85; }
+    100% { transform: translate(90px,-56vh) rotate(50deg); opacity: 0; }
+  }
+  #echo { font-size: 19px; line-height: 2.1; color: #4A3B28; margin-top: 16px; display: none; }
+  #skip { display: none; margin-top: 168px; background: transparent; border: none; color: #C4AC84; font-size: 12px; cursor: pointer; font-family: inherit; letter-spacing: 1px; }
+  .foot { position: fixed; bottom: 12px; left: 0; right: 0; text-align: center; font-size: 11px; color: #C4AC84; z-index: 2; padding: 0 20px; line-height: 1.7; }
+</style>
+</head>
+<body>
+<div class="spot" style="width:170px;height:170px;top:10%;left:7%;"></div>
+<div class="spot" style="width:110px;height:110px;top:68%;left:78%;animation-duration:14s;"></div>
+
+<div id="bar">
+  <span id="brand">夏天 · 蒲公英</span>
+  <button id="lang">EN</button>
+</div>
+
+<div id="card">
+  <canvas id="ele" width="200" height="110" style="display:block;margin:0 auto 10px;"></canvas>
+  <p id="prompt"></p>
+  <p id="sub"></p>
+  <textarea id="input" rows="3"></textarea>
+  <div id="dandelion"><p id="arrow-text"></p><p id="calm"></p><button id="skip"></button></div>
+  <p id="echo"></p>
+  <div id="btns"></div>
+</div>
+<p class="foot" id="foot"></p>
+
+<script>
+var L=(/[?&]lang=en/.test(location.search)?'en':'zh');
+var T={
+  zh:{
+    brand:'夏天 · 蒲公英',
+    foot:'一个念头不是一个事实 · 不记录任何数据 · 它陪你度过,但不替代专业帮助',
+    steps:{
+      write:{ p:'它刚才对你说了什么?', s:'就是脑子里那句骂你的话。原话写下来,不用修饰——写下来的那一刻,它就从"事实"变回了"一句话"。', ph:'比如:这个年龄了,还一事无成。', btn:'写好了,交给风', input:true },
+      blow:{ p:'看着它。不用反驳,不用赢它。', s:'', skip:'让风快一点' },
+      friend:{ p:'刚才那句话——', s:'你会对一个正在难过的朋友,说这句话吗?', o:[['不会','friendNo'],['会','friendYes']] },
+      friendNo:{ p:'不会。', s:'那它对你,也不成立。对朋友不忍心说的话,你已经替自己挡下了一半。', o:[['继续','kind']] },
+      friendYes:{ p:'会?那听听它的语气。', s:'朋友之间也会说重话,但语气里有心疼。如果这句话里只有凶、没有心疼——那它不是提醒,是攻击。留下有用的那一半,放走凶的那一半。', o:[['继续','kind']] },
+      kind:{ p:'最后一步。', s:'如果你的朋友正处在你现在的处境,你会对他说什么?写下来。', ph:'比如:你已经比你以为的走得远了。', btn:'写好了', input:true },
+      echo:{ p:'现在,把这句话也说给自己:', s:'', o:[['收下了','end']] },
+      end:{ p:'今天,化掉了一支箭。', s:'它明天可能还会来——没关系,你已经见过它写在纸上的样子了。它没有它喊起来那么大。', o:[['再化一支','write'],['今天到这里','close']] },
+      close:{ p:'去过你的夏天吧。', s:'', o:[['重新开始','write']] }
+    },
+    calms:['深呼吸','这只是一个念头,不是一个事实','你不需要赢它,看着它就行','念头会喊,但风更长','它在变小了','风来了']
+  },
+  en:{
+    brand:'Summer · Dandelion',
+    foot:'A thought is not a fact · Nothing is recorded · A companion, not a substitute for professional help',
+    steps:{
+      write:{ p:'What did it just say to you?', s:'That harsh voice in your head — write down its exact words, unpolished. The moment it\'s written, it turns from a "fact" back into a sentence.', ph:'e.g. At your age, you\'ve achieved nothing.', btn:'Done — give it to the wind', input:true },
+      blow:{ p:'Just watch it. No arguing. No winning.', s:'', skip:'Let the wind hurry' },
+      friend:{ p:'That sentence —', s:'would you say it to a friend who is struggling?', o:[['No','friendNo'],['Yes','friendYes']] },
+      friendNo:{ p:'No.', s:'Then it doesn\'t hold for you either. What you wouldn\'t say to a friend, you\'ve already half-deflected for yourself.', o:[['Continue','kind']] },
+      friendYes:{ p:'Yes? Then listen to its tone.', s:'Friends do say hard things — but with tenderness inside. If this sentence carries only cruelty and no care, it isn\'t a reminder. It\'s an attack. Keep the useful half; release the cruel half.', o:[['Continue','kind']] },
+      kind:{ p:'One last step.', s:'If a friend were exactly where you are now — what would you say to them? Write it down.', ph:'e.g. You\'ve come further than you think.', btn:'Done', input:true },
+      echo:{ p:'Now, say it to yourself too:', s:'', o:[['Received','end']] },
+      end:{ p:'One arrow, dissolved today.', s:'It may come back tomorrow — that\'s fine. You\'ve seen what it looks like written down. It is smaller than it shouts.', o:[['Dissolve another','write'],['Enough for today','close']] },
+      close:{ p:'Go enjoy your summer.', s:'', o:[['Start over','write']] }
+    },
+    calms:['Breathe','This is a thought, not a fact','You don\'t have to win — just watch','Thoughts shout, but the wind is longer','It\'s getting smaller','Here comes the wind']
+  }
+};
+var cur='write', arrowStr='', kindStr='', calmTimer=null, seedTimer=null, blowTimer=null, endTimer=null, skipTimer=null, calmFirstTimer=null, happy=0;
+var promptEl=document.getElementById('prompt'), subEl=document.getElementById('sub'), inputEl=document.getElementById('input'),
+    btnsEl=document.getElementById('btns'), dand=document.getElementById('dandelion'), arrowEl=document.getElementById('arrow-text'),
+    calmEl=document.getElementById('calm'), echoEl=document.getElementById('echo'), skipEl=document.getElementById('skip');
+function clearTimers(){ clearInterval(calmTimer); clearInterval(seedTimer); clearTimeout(blowTimer); clearTimeout(endTimer); clearTimeout(skipTimer); clearTimeout(calmFirstTimer); }
+function seed(){
+  var d=document.createElement('span');
+  d.className='seed'; d.textContent='✦';
+  d.style.left=(40+Math.random()*20)+'%';
+  d.style.top=(38+Math.random()*14)+'%';
+  document.body.appendChild(d);
+  setTimeout(function(){ d.remove(); },6200);
+}
+function render(){
+  var tt=T[L], s=tt.steps[cur];
+  document.getElementById('brand').textContent=tt.brand;
+  document.getElementById('foot').textContent=tt.foot;
+  document.getElementById('lang').textContent=L==='zh'?'EN':'中';
+  promptEl.textContent=s.p; subEl.textContent=s.s||'';
+  inputEl.style.display=s.input?'block':'none';
+  dand.style.display=cur==='blow'?'block':'none';
+  echoEl.style.display=cur==='echo'?'block':'none';
+  skipEl.style.display='none';
+  if(s.input){ inputEl.value=''; inputEl.placeholder=s.ph||''; }
+  if(cur==='echo'){ echoEl.textContent='"'+kindStr+'"'; happy=Date.now()+3200; }
+  btnsEl.innerHTML='';
+  if(s.input){
+    var b=document.createElement('button');
+    b.className='opt'; b.textContent=s.btn;
+    b.onclick=function(){
+      var v=inputEl.value.trim();
+      if(!v) return;
+      if(cur==='write'){ arrowStr=v; go('blow'); }
+      else { kindStr=v; go('echo'); }
+    };
+    btnsEl.appendChild(b);
+  } else if(s.o){
+    s.o.forEach(function(opt){
+      var b=document.createElement('button');
+      b.className='opt'; b.textContent=opt[0];
+      b.onclick=function(){ go(opt[1]); };
+      btnsEl.appendChild(b);
+    });
+  }
+  if(cur==='blow') startBlow(s);
+}
+function startBlow(s){
+  clearTimers();
+  arrowEl.innerHTML='';
+  for(var ci=0;ci<arrowStr.length;ci++){
+    var sp=document.createElement('span');
+    sp.className='ch';
+    sp.textContent=arrowStr[ci]===' '?'\u00A0':arrowStr[ci];
+    sp.style.setProperty('--dx',(30+Math.random()*120)+'px');
+    sp.style.setProperty('--dy',(-90-Math.random()*160)+'px');
+    sp.style.setProperty('--rot',(Math.random()*80-20)+'deg');
+    arrowEl.appendChild(sp);
+  }
+  calmEl.style.opacity=0;
+  var tt=T[L], i=0;
+  var chs=arrowEl.children;
+  blowTimer=setTimeout(function(){
+    for(var k=0;k<chs.length;k++){
+      (function(el){
+        setTimeout(function(){ el.className='ch go'; }, Math.random()*3200);
+      })(chs[k]);
+    }
+  },400);
+  calmTimer=setInterval(function(){
+    calmEl.style.opacity=0;
+    setTimeout(function(){
+      calmEl.textContent=tt.calms[i%tt.calms.length]; i++;
+      calmEl.style.opacity=1;
+    },900);
+  },3600);
+  calmFirstTimer=setTimeout(function(){ calmEl.textContent=tt.calms[0]; calmEl.style.opacity=1; i=1; },800);
+  seedTimer=setInterval(seed,450);
+  
+  endTimer=setTimeout(function(){ clearTimers(); go('friend'); },9000);
+}
+skipEl.onclick=function(){ clearTimers(); go('friend'); };
+function go(id){ clearTimers(); cur=id; render(); }
+document.getElementById('lang').onclick=function(){ L=L==='zh'?'en':'zh'; render(); };
+
+var eleC=document.getElementById('ele'), ec=eleC.getContext('2d');
+function drawEle(){
+  var t=Date.now(), g=92;
+  ec.clearRect(0,0,200,110);
+  ec.fillStyle='rgba(122,168,92,0.26)';
+  ec.beginPath(); ec.ellipse(100,g+8,86,10,0,0,Math.PI*2); ec.fill();
+  ec.save(); ec.translate(100,g);
+  var body='#CBD6E6', dark='#AEBCD2', blush='#F0B9B9';
+  var breathe=Math.sin(t/1100)*1.6, isHappy=t<happy;
+  ec.fillStyle=body;
+  ec.beginPath(); ec.ellipse(-6,-18+breathe*0.4,34,20+breathe*0.5,0,0,Math.PI*2); ec.fill();
+  ec.fillStyle=dark;
+  ec.beginPath(); ec.ellipse(-30,-4,10,5,0.3,0,Math.PI*2); ec.fill();
+  ec.beginPath(); ec.ellipse(8,-3,10,5,-0.2,0,Math.PI*2); ec.fill();
+  ec.fillStyle=body;
+  ec.beginPath(); ec.arc(24,-26+breathe*0.3,16,0,Math.PI*2); ec.fill();
+  var flap=Math.sin(t/(isHappy?160:420))*(isHappy?0.5:0.3);
+  ec.save(); ec.translate(16,-30+breathe*0.3); ec.rotate(-0.5+flap);
+  ec.fillStyle=dark; ec.beginPath(); ec.ellipse(0,-6,9,12,0,0,Math.PI*2); ec.fill();
+  ec.fillStyle=blush; ec.beginPath(); ec.ellipse(0,-6,5,7,0,0,Math.PI*2); ec.fill();
+  ec.restore();
+  var sway=Math.sin(t/700)*3;
+  ec.strokeStyle=body; ec.lineWidth=7; ec.lineCap='round';
+  ec.beginPath(); ec.moveTo(35,-22+breathe*0.3);
+  ec.quadraticCurveTo(46,-10,42+sway,2); ec.stroke();
+  var es=(((t+600)%3600)<200)?0.15:1;
+  if(isHappy) es=0.12;
+  ec.fillStyle='#3A4356';
+  ec.beginPath(); ec.ellipse(30,-29+breathe*0.3,2.2,2.2*es,0,0,Math.PI*2); ec.fill();
+  if(isHappy){
+    ec.strokeStyle='#3A4356'; ec.lineWidth=1.6;
+    ec.beginPath(); ec.arc(30,-27+breathe*0.3,4,0.15*Math.PI,0.85*Math.PI); ec.stroke();
+  }
+  ec.restore();
+  requestAnimationFrame(drawEle);
+}
+render();
+drawEle();
+</script>
+</body>
+</html>

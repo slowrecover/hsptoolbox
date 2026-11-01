@@ -3,109 +3,88 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HSP Toolbox: Free Tools for Highly Sensitive People</title>
-<meta name="description" content="Small, free browser tools for highly sensitive people and overthinkers: start a task you're stuck on, choose what matters today, get through a low-energy day. No sign-up.">
+<title>HSP Toolbox · Small tools for the moments you get stuck</title>
+<meta name="description" content="Free self-help tools for highly sensitive people and overthinkers, organized by what&#x27;s happening right now: can&#x27;t move, can&#x27;t start, don&#x27;t want to go out, urge to binge, harsh inner critic, can&#x27;t sleep. No sign-up. Your entries stay on your device.">
 <link rel="canonical" href="https://slowrecover.github.io/hsptoolbox/en/">
-<link rel="alternate" hreflang="en" href="https://slowrecover.github.io/hsptoolbox/en/">
 <link rel="alternate" hreflang="zh" href="https://slowrecover.github.io/hsptoolbox/">
-<meta property="og:title" content="HSP Toolbox: Free Tools for Highly Sensitive People">
-<meta property="og:description" content="Small, free browser tools for highly sensitive people and overthinkers. No sign-up, no tracking.">
-<meta property="og:url" content="https://slowrecover.github.io/hsptoolbox/en/">
-<meta property="og:type" content="website">
-<meta name="theme-color" content="#4F9277">
+<link rel="alternate" hreflang="en" href="https://slowrecover.github.io/hsptoolbox/en/">
+<link rel="manifest" href="../manifest.json">
 <link rel="icon" href="../icon.svg">
+<link rel="apple-touch-icon" href="../icon.svg">
+<meta name="theme-color" content="#4F9277">
 <style>
-/* Same visual system as the Chinese home page: soft sage paper, white cards, one green accent. */
-:root{
-  --bg:#E9EDEA; --surface:#FFFFFF; --surface-soft:#F4F6F3;
-  --ink:#2B3A35; --muted:#6F7F77; --line:#DCE3DF;
-  --accent:#4F9277; --accent-soft:#E2EFE8;
-  --radius:20px;
-  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  color-scheme:light;
-}
-*{box-sizing:border-box}
-html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;line-height:1.6;padding-inline:20px;padding-block:44px 40px}
-.wrap{max-width:520px;margin:0 auto}
-.head{margin-bottom:30px}
-.mark{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-.brand{display:flex;align-items:center;gap:9px;font-size:.82rem;letter-spacing:.06em;color:var(--muted);font-weight:600}
+:root{--bg:#E9EDEA;--surface:#FFFFFF;--soft:#F4F6F3;--ink:#2B3A35;--muted:#7F8F88;--line:#DCE3DF;
+--accent:#4F9277;--accent-soft:#E2EFE8;--radius:18px;
+--font:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans SC","Segoe UI",sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#18201D;--surface:#212B27;--soft:#1C2522;--ink:#E3EAE6;--muted:#93A39B;--line:#2F3B36;--accent:#6DB394;--accent-soft:#25352E}}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;line-height:1.55;
+min-height:100vh;display:flex;justify-content:center;padding:40px 16px 40px}
+.wrap{width:100%;max-width:520px}
+.top{display:flex;align-items:center;gap:9px;margin-bottom:28px}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
-.lang{font-size:.78rem;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:5px 11px}
-h1{font-size:1.75rem;line-height:1.25;margin:0 0 10px;letter-spacing:-.005em;text-wrap:balance}
-.tag{color:var(--muted);font-size:.98rem;margin:0}
-.cards{display:flex;flex-direction:column;gap:14px}
-.card{display:block;text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;box-shadow:0 12px 34px -26px rgba(43,58,53,.55);transition:transform .14s ease,box-shadow .14s ease,border-color .14s}
-.card:hover{transform:translateY(-2px);border-color:var(--accent)}
-.card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-.card h2{font-size:1.12rem;margin:0 0 5px}
-.card p{color:var(--muted);font-size:.93rem;margin:0 0 12px}
-.cta{color:var(--accent);font-weight:600;font-size:.9rem}
-.card .lang-note{display:inline-block;margin-left:8px;font-size:.72rem;color:var(--muted);background:var(--surface-soft);border:1px solid var(--line);border-radius:999px;padding:2px 9px;font-weight:600;vertical-align:middle}
-.about{margin-top:38px;display:grid;gap:14px}
-.about h2{font-size:1.15rem;margin:10px 0 0}
-.about p{margin:0}
-.about ul{margin:0;padding-left:20px}
-.about li{margin-bottom:6px}
-.foot{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.8rem;line-height:1.7}
-.foot a{color:var(--accent)}
-.foot p{margin:0 0 8px}
-@media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
+.brand{font-size:.82rem;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.lang{margin-left:auto;font-size:.8rem;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.lang:hover{color:var(--accent);border-color:var(--accent)}
+h1{font-size:2rem;line-height:1.25;margin:0 0 10px;letter-spacing:.01em}
+.sub{color:var(--muted);margin:0 0 26px;font-size:.98rem}
+.list{display:flex;flex-direction:column;gap:10px}
+.sit{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+box-shadow:0 10px 30px -26px rgba(43,58,53,.6)}
+.sit[open]{border-color:var(--accent)}
+summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:14px;padding:18px 18px;min-height:64px;font-size:1.05rem;font-weight:600}
+summary::-webkit-details-marker{display:none}
+summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:var(--radius)}
+.num{font-size:.75rem;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums;min-width:20px}
+.label{flex:1}
+.chev{width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .18s;margin-right:4px}
+.sit[open] .chev{transform:rotate(-135deg)}
+.tools{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px}
+.tool{position:relative;display:block;text-decoration:none;color:inherit;background:var(--soft);border:1px solid var(--line);
+border-radius:14px;padding:14px 40px 14px 16px;transition:border-color .14s,transform .14s}
+.tool:hover{border-color:var(--accent);transform:translateY(-1px)}
+.tool.first{background:var(--accent-soft);border-color:transparent}
+.tag{display:block;font-size:.72rem;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:2px}
+.tname{display:block;font-weight:700;font-size:1rem;margin-bottom:3px}
+.tdesc{display:block;color:var(--muted);font-size:.88rem;line-height:1.5}
+.go{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--accent);font-weight:700}
+.note{margin:4px 2px 0;font-size:.82rem;color:var(--muted)}
+.note a,.foot a{color:var(--accent)}
+.about{margin-top:34px;padding:18px;border-radius:var(--radius);background:var(--soft);border:1px solid var(--line)}
+.about h2{font-size:.95rem;margin:0 0 6px}
+.about p{margin:0;color:var(--muted);font-size:.9rem}
+.foot{margin-top:22px;color:var(--muted);font-size:.8rem;line-height:1.7}
+.foot .safe{display:block;margin-bottom:12px}
+.foot .made{display:block;text-align:center}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="head">
-    <div class="mark"><span class="brand"><span class="dot"></span>HSP Toolbox</span><a class="lang" href="../" hreflang="zh">中文</a></div>
-    <h1>Small tools for the moments you get stuck</h1>
-    <p class="tag">Free tools for highly sensitive people and overthinkers. No sign-up, no tracking, nothing to install.</p>
-  </header>
-
-  <main class="cards">
-    <a class="card" href="make-it-tiny/">
-      <h2>Make It Tiny</h2>
-      <p>Can't start something you care about? Shrink it to one step you can do in ten minutes.</p>
-      <span class="cta">Open tool →</span>
-    </a>
-    <a class="card" href="main-thing/">
-      <h2>Find the Main Thing</h2>
-      <p>Everything feels urgent? Four questions help you pick the one thing that matters most today.</p>
-      <span class="cta">Open tool →</span>
-    </a>
-    <a class="card" href="low-energy/">
-      <h2>Low-Energy System</h2>
-      <p>Running on empty? Six basics, each with a floor version that still counts.</p>
-      <span class="cta">Open tool →</span>
-    </a>
-    <a class="card" href="../inner-talk/">
-      <h2>Inner Talk Translator <span class="lang-note">English + 中文</span></h2>
-      <p>A harsh voice in your head? Split it into feelings, facts and interpretations, without forced positivity.</p>
-      <span class="cta">Open tool →</span>
-    </a>
-    <a class="card" href="../dare-to-cringe/">
-      <h2>Dare to Cringe</h2>
-      <p>Avoiding something because it might feel awkward? Turn the fear into one small, safe action, then compare what you expected with what happened.</p>
-      <span class="cta">Open tool →</span>
-    </a>
-  </main>
-
-  <section class="about" aria-labelledby="about-hsp">
-    <h2 id="about-hsp">What does "highly sensitive" mean?</h2>
-    <p>High sensitivity, also called sensory processing sensitivity, is a temperament trait first described by psychologist Elaine Aron in the 1990s. Highly sensitive people tend to process things deeply, and can be overwhelmed more easily by noise, pressure or a packed schedule. It is a trait, not a disorder.</p>
-    <p>These tools are built for the moments that trait can make harder: starting, choosing, and talking to yourself kindly when things go wrong.</p>
-    <h2>How the tools are different</h2>
-    <ul>
-      <li><strong>Private by design.</strong> What you write stays on your device. There are no accounts and nothing is uploaded.</li>
-      <li><strong>One problem each.</strong> Every tool does a single job and takes a minute or two.</li>
-      <li><strong>No forced positivity.</strong> The tools help you look at a thought or a task more clearly. They don't tell you how to feel.</li>
-    </ul>
-  </section>
-
+<main class="wrap">
+  <div class="top"><span class="dot"></span><span class="brand">HSP Toolbox</span><a class="lang" href="../" hreflang="zh">中文</a></div>
+  <h1>Right now,<br>I…</h1>
+  <p class="sub">Tap one. You get one next step, nothing more.</p>
+  <div class="list">
+<details class="sit"><summary><span class="num">01</span><span class="label">I can&#x27;t move at all</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="../en/low-energy/"><span class="tag">Start here</span><span class="tname">Low-Energy System</span><span class="tdesc">Six basics, each with a floor version you can still do on an empty battery.</span><span class="go" aria-hidden="true">→</span></a></div></details>
+<details class="sit"><summary><span class="num">02</span><span class="label">I know what to do, but I can&#x27;t start</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="../en/make-it-tiny/"><span class="tag">Start here</span><span class="tname">Make It Tiny</span><span class="tdesc">Shrink a task you can&#x27;t start into one step you can do in ten minutes.</span><span class="go" aria-hidden="true">→</span></a><a class="tool" href="../unstuck/?lang=en"><span class="tag">Or try</span><span class="tname">Unstuck</span><span class="tdesc">Know what to do but can&#x27;t move? Five steps to take the stuck apart.</span><span class="go" aria-hidden="true">→</span></a></div></details>
+<details class="sit"><summary><span class="num">03</span><span class="label">Too much on my mind, I don&#x27;t know what comes first</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="../en/main-thing/"><span class="tag">Start here</span><span class="tname">Find the Main Thing</span><span class="tdesc">Write everything down; four questions find the one thing that matters today.</span><span class="go" aria-hidden="true">→</span></a></div></details>
+<details class="sit"><summary><span class="num">04</span><span class="label">I don&#x27;t want to go out</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="../out-the-door/?lang=en"><span class="tag">Start here</span><span class="tname">Out the Door</span><span class="tdesc">Figure out why you&#x27;re stuck, shrink going out to the tiniest step, then a countdown walks you out.</span><span class="go" aria-hidden="true">→</span></a></div></details>
+<details class="sit"><summary><span class="num">05</span><span class="label">I can&#x27;t stop wanting to eat</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="../storm-brake/?lang=en"><span class="tag">Start here</span><span class="tname">Storm Brake</span><span class="tdesc">Don&#x27;t fight the urge. See what&#x27;s underneath it, then breathe with the wave until it passes.</span><span class="go" aria-hidden="true">→</span></a><p class="note">If this happens often or feels out of control, it's worth talking to a professional. <a href="https://findahelpline.com" rel="noopener">Find a free helpline in your country</a>.</p></div></details>
+<details class="sit"><summary><span class="num">06</span><span class="label">I&#x27;m being harsh on myself</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="../inner-talk/"><span class="tag">Start here</span><span class="tname">Inner Talk Translator</span><span class="tdesc">Split a harsh thought into feelings, facts and interpretations, without forced positivity.</span><span class="go" aria-hidden="true">→</span></a><a class="tool" href="../dandelion/?lang=en"><span class="tag">Or try</span><span class="tname">Dandelion</span><span class="tdesc">Write down what your inner critic said and watch it scatter in the wind. One minute.</span><span class="go" aria-hidden="true">→</span></a></div></details>
+<details class="sit"><summary><span class="num">07</span><span class="label">A feeling is stuck in me</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="../evening-breeze/?lang=en"><span class="tag">Start here</span><span class="tname">Evening Breeze</span><span class="tdesc">Find the feeling stuck in your body and let it loosen, one gentle question at a time.</span><span class="go" aria-hidden="true">→</span></a></div></details>
+<details class="sit"><summary><span class="num">08</span><span class="label">I&#x27;m avoiding something because it feels awkward</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="../dare-to-cringe/"><span class="tag">Start here</span><span class="tname">Dare to Cringe</span><span class="tdesc">Avoiding something because it might feel awkward? Turn the fear into one small, safe action.</span><span class="go" aria-hidden="true">→</span></a></div></details>
+<details class="sit"><summary><span class="num">09</span><span class="label">It&#x27;s bedtime but I can&#x27;t put my phone down</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="../sleep/?lang=en"><span class="tag">Start here</span><span class="tname">INFP Sleep</span><span class="tdesc">A short bedtime ritual that ends with the phone leaving the room.</span><span class="go" aria-hidden="true">→</span></a></div></details>
+  </div>
+  <section class="about"><h2>What this is</h2><p>Small tools I built with AI for myself during a long low stretch, now shared for anyone who needs them. Free, no sign-up, nothing uploaded: what you write stays on your device. High sensitivity is a temperament trait first described by psychologist Elaine Aron, not a disorder.</p></section>
   <footer class="foot">
-    <p>Built by someone who knows these moments firsthand. Open source on <a href="https://github.com/slowrecover/hsptoolbox">GitHub</a>. <a href="../" hreflang="zh">中文版工具箱</a> has more tools in Chinese.</p>
-    <p>These tools are for everyday overwhelm. They are not a substitute for professional care. If you are struggling to stay safe, you can find a free, confidential helpline in your country at <a href="https://findahelpline.com">findahelpline.com</a>.</p>
+    <span class="safe">These are everyday self-help tools, not medical tools, and not a substitute for professional care. If you are struggling to stay safe, contact your local emergency number or find a free, confidential helpline at <a href="https://findahelpline.com" rel="noopener">findahelpline.com</a>.</span>
+    <span class="made">Made for the me I used to be. · <a href="https://github.com/slowrecover/hsptoolbox">Open source on GitHub</a></span>
   </footer>
-</div>
+</main>
+<script>
+// Only one situation open at a time, so the screen stays calm.
+document.querySelectorAll('details.sit').forEach(function(d){
+  d.addEventListener('toggle',function(){ if(d.open) document.querySelectorAll('details.sit[open]').forEach(function(o){ if(o!==d) o.open=false; }); });
+});
+</script>
 </body>
 </html>

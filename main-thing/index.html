@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>主要矛盾 · 今天只揪出一件事</title>
+<style>
+  :root{
+    --paper:#E9E5DE;
+    --card:#F3F0EA;
+    --ink:#4A4A47;
+    --muted:#9A968D;
+    --red:#A8736A;
+    --hold:#9A968D;
+    --win:#7E8A77;
+    --line:#D4CFC5;
+    --gold:#B69B6E;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{background:var(--paper);color:var(--ink);
+    font-family:-apple-system,"PingFang SC","Noto Sans SC",sans-serif;
+    min-height:100vh;padding:20px 16px 60px;}
+  .wrap{max-width:520px;margin:0 auto;}
+  .masthead{display:flex;align-items:baseline;justify-content:space-between;
+    border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:6px;}
+  h1{font-family:"Noto Serif SC",serif;font-size:22px;letter-spacing:2px;font-weight:500;}
+  .code{font-size:11px;letter-spacing:3px;color:var(--muted);}
+  .tagline{font-size:12px;color:var(--muted);margin-bottom:22px;line-height:1.7;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px;}
+  label{display:block;font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:10px;}
+  textarea{width:100%;border:none;background:transparent;resize:none;font-family:inherit;
+    font-size:16px;line-height:1.6;color:var(--ink);min-height:48px;outline:none;}
+  .row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px;}
+  .hint{font-size:11px;color:var(--muted);}
+  .btn{border:none;border-radius:12px;padding:12px 18px;font-size:14px;font-weight:500;
+    font-family:inherit;cursor:pointer;color:#fff;background:var(--red);letter-spacing:1px;}
+  .btn:active{transform:translateY(1px);}
+  .btn:disabled{opacity:.4;}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:400;}
+  .btn.small{padding:8px 14px;font-size:12px;border-radius:10px;}
+  .btn.win{background:var(--win);}
+  .btn.block{width:100%;margin-top:4px;}
+  .thing{display:flex;align-items:center;gap:8px;padding:11px 13px;border:1px solid var(--line);
+    border-radius:12px;margin-bottom:8px;background:var(--card);}
+  .thing .t{flex:1;font-size:15px;line-height:1.45;word-break:break-word;}
+  .thing .x{color:var(--muted);font-size:18px;cursor:pointer;padding:0 4px;line-height:1;}
+  .stepwrap{text-align:center;}
+  .knife{font-size:11px;letter-spacing:2px;color:var(--red);margin-bottom:6px;}
+  .qbig{font-size:18px;line-height:1.55;font-weight:600;margin-bottom:6px;}
+  .qsub{font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:18px;}
+  .nowthing{background:var(--paper);border:1px dashed var(--line);border-radius:8px;
+    padding:12px;font-size:16px;line-height:1.5;margin-bottom:18px;}
+  .opts{display:flex;flex-direction:column;gap:11px;}
+  .opt{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:15px;
+    font-size:15px;font-family:inherit;color:var(--ink);cursor:pointer;text-align:left;line-height:1.4;}
+  .opt:active{background:var(--paper);}
+  .progress{font-size:11px;color:var(--muted);margin-bottom:16px;letter-spacing:1px;}
+  .result-hero{background:var(--card);border:1.5px solid var(--win);border-radius:18px;
+    padding:26px 18px;text-align:center;margin-bottom:16px;}
+  .result-hero .crown{font-size:11px;letter-spacing:3px;color:var(--win);margin-bottom:10px;}
+  .result-hero .big{font-size:20px;line-height:1.5;font-weight:700;}
+  .result-hero .note{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6;}
+  .held{margin-top:8px;}
+  .held .htitle{font-size:11px;letter-spacing:2px;color:var(--hold);margin:18px 0 10px;text-align:center;}
+  .held .hitem{font-size:13px;color:var(--muted);padding:8px 11px;border:1px solid var(--line);
+    border-radius:7px;margin-bottom:6px;background:transparent;line-height:1.4;}
+  .empty{text-align:center;color:var(--muted);font-size:13px;line-height:1.8;padding:30px 18px;
+    border:1px dashed var(--line);border-radius:10px;}
+  .footer{font-size:11px;color:var(--muted);text-align:center;margin-top:22px;line-height:1.8;}
+  .credit{font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.7;}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);
+    color:var(--paper);font-size:13px;padding:10px 18px;border-radius:20px;opacity:0;
+    transition:opacity .25s;pointer-events:none;max-width:86%;text-align:center;}
+  .toast.show{opacity:1;}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead"><h1>主要矛盾</h1><span class="code">ONE · THING</span></div>
+  <p class="tagline">你不是事多,是脑子不会给事排大小。<br>把它们倒出来,今天只揪出一件。</p>
+  <div id="app"></div>
+  <p class="footer" id="footer"></p>
+  <p class="credit">你写的只存在你自己的手机里,没有人看得到。</p>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='one-thing';
+// stage: 'collect' | 'sift' | 'result'
+let S={things:[],stage:'collect',idx:0,knife:0,result:null,held:[],created:0};
+
+// 四把刀 + 心口问
+const KNIVES=[
+  {tag:'第 一 刀 · 后 果',q:'这件事一直拖着不做,三个月后我会很后悔、损失很大吗?',
+   sub:'砍掉"看着急、其实拖得起"的事。',yes:'后果重',no:'拖得起'},
+  {tag:'第 二 刀 · 杠 杆',q:'这件事做成了,能让其他几件事跟着变简单,甚至不用做了吗?',
+   sub:'找那张推倒一切的多米诺骨牌。',yes:'是杠杆',no:'不是'},
+  {tag:'第 三 刀 · 真 假 急',q:'它是真的现在必须解决,还是只是声音大、让我心慌,其实能等?',
+   sub:'情绪上的慌,常常假装成紧急。',yes:'真的急',no:'假的急'},
+  {tag:'第 四 刀 · 能 动 吗',q:'这件事是我现在就能动手的,还是急也没用、只能等的?',
+   sub:'砍掉你控制不了的。',yes:'能动手',no:'只能等'}
+];
+
+function load(){try{const r=localStorage.getItem(KEY);if(r){S=JSON.parse(r);}}catch(e){}render();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');
+  clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2000);}
+function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+function addThing(){
+  const el=document.getElementById('inp');const v=el.value.trim();
+  if(!v){toast('写一件压在心里的事');return;}
+  S.things.push({id:uid(),text:v,score:0,alive:true});
+  el.value='';save();render();el2();
+}
+function el2(){const el=document.getElementById('inp');if(el)el.focus();}
+function delThing(id){S.things=S.things.filter(t=>t.id!==id);save();render();}
+
+function startSift(){
+  if(S.things.length<2){toast('至少倒出两件事,才好排');return;}
+  S.things.forEach(t=>{t.score=0;t.out=false;});
+  S.stage='sift';S.idx=0;S.knife=0;S.created=Date.now();save();render();
+}
+
+// 逐件事走完四把刀:idx=第几件事, knife=这件事的第几刀
+function ans(yes){
+  const t=S.things[S.idx];
+  if(!t){finishSift();return;}
+  const k=KNIVES[S.knife];
+  if(yes)t.score++;
+  // 第四刀答"只能等" => 这件事出局(按住),不再计入主要矛盾候选
+  if(S.knife===3 && !yes){t.out=true;}
+  S.knife++;
+  if(S.knife>=KNIVES.length){
+    // 这件事四刀走完,换下一件
+    S.knife=0;S.idx++;
+    if(S.idx>=S.things.length){finishSift();return;}
+  }
+  save();render();
+}
+
+function finishSift(){
+  // 没出局的里挑得分最高;并列都进候选,交给"心口问"
+  const inPool=S.things.filter(t=>!t.out);
+  let pool = inPool.length? inPool : S.things.slice();
+  const max=Math.max(...pool.map(t=>t.score));
+  const top=pool.filter(t=>t.score===max);
+  S.heartCandidates=top.map(t=>t.id);
+  S.held=S.things.filter(t=>!top.includes(t)).map(t=>({text:t.text}));
+  S.stage='heart';save();render();
+}
+
+function pickHeart(id){
+  const t=S.things.find(x=>x.id===id);
+  S.result={text:t.text};
+  S.held=S.things.filter(x=>x.id!==id).map(x=>({text:x.text}));
+  S.stage='result';save();render();
+}
+
+function reset(){
+  S={things:[],stage:'collect',idx:0,knife:0,result:null,held:[],created:0};
+  save();render();
+}
+
+function render(){
+  const app=document.getElementById('app');
+  const footer=document.getElementById('footer');
+
+  if(S.stage==='collect'){
+    footer.innerHTML='四把刀:后果 · 杠杆 · 真假急 · 能不能动手<br>筛完,再问你的心一句。';
+    let list = S.things.length
+      ? S.things.map(t=>'<div class="thing"><span class="t">'+esc(t.text)+'</span><span class="x" onclick="delThing(\''+t.id+'\')">&times;</span></div>').join('')
+      : '<div class="empty">把现在压在心里的事,<br>一件一件倒出来。<br>钱、内容、工具、家里的事…多乱都行。</div>';
+    app.innerHTML=
+      '<div class="panel"><label>压在心里的一件事</label>'
+      +'<textarea id="inp" placeholder="想到啥写啥,一次一件…"></textarea>'
+      +'<div class="row"><span class="hint">已倒出 '+S.things.length+' 件</span>'
+      +'<button class="btn small" onclick="addThing()">加进来</button></div></div>'
+      +'<div>'+list+'</div>'
+      +'<button class="btn block" '+(S.things.length<2?'disabled':'')+' onclick="startSift()">开始筛 · 揪出主要矛盾</button>';
+    return;
+  }
+
+  if(S.stage==='sift'){
+    footer.innerHTML='';
+    const t=S.things[S.idx];
+    const k=KNIVES[S.knife];
+    if(!t||!k){finishSift();return;}
+    app.innerHTML=
+      '<div class="stepwrap">'
+      +'<div class="progress">第 '+(S.idx+1)+'/'+S.things.length+' 件事 · 第 '+(S.knife+1)+'/4 把刀</div>'
+      +'<div class="nowthing">「'+esc(t.text)+'」</div>'
+      +'<div class="knife">'+k.tag+'</div>'
+      +'<div class="qbig">'+k.q+'</div>'
+      +'<div class="qsub">'+k.sub+'</div>'
+      +'<div class="opts">'
+      +'<button class="opt" onclick="ans(true)">✓ '+k.yes+'</button>'
+      +'<button class="opt" onclick="ans(false)">✕ '+k.no+'</button>'
+      +'</div></div>';
+    return;
+  }
+
+  if(S.stage==='heart'){
+    footer.innerHTML='';
+    const cands=S.heartCandidates.map(id=>S.things.find(t=>t.id===id));
+    app.innerHTML=
+      '<div class="stepwrap">'
+      +'<div class="knife" style="color:var(--gold)">最 后 一 问 · 你 的 心</div>'
+      +'<div class="qbig">逻辑筛到这儿了。<br>但你的心,指向哪一件?</div>'
+      +'<div class="qsub">有时候脑子算出一件,心里却清楚是另一件。<br>选那个你心里"咯噔"一下的。</div>'
+      +'<div class="opts">'
+      +cands.map(t=>'<button class="opt" onclick="pickHeart(\''+t.id+'\')">'+esc(t.text)+'</button>').join('')
+      +'</div></div>';
+    return;
+  }
+
+  if(S.stage==='result'){
+    footer.innerHTML='其余的不是不做,是今天不用愁。<br>它们会等你。明天再来,重新揪一件。';
+    let held = S.held.length
+      ? '<div class="held"><div class="htitle">先 按 住 · 今 天 不 用 愁</div>'
+        +S.held.map(h=>'<div class="hitem">'+esc(h.text)+'</div>').join('')+'</div>'
+      : '';
+    app.innerHTML=
+      '<div class="result-hero">'
+      +'<div class="crown">今 天 · 只 做 这 一 件</div>'
+      +'<div class="big">'+esc(S.result.text)+'</div>'
+      +'<div class="note">把全部力气,只给它。<br>做完它,今天就赢了。</div>'
+      +'</div>'
+      +held
+      +'<button class="btn ghost block" onclick="reset()">明天再来 · 重新揪一件</button>';
+    return;
+  }
+}
+load();
+</script>
+</body>
+</html>

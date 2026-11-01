@@ -3,106 +3,90 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>自救工具箱 · 给高敏感人</title>
-<meta name="description" content="给高敏感人和想太多的人的免费自救小工具：砍小器、闭眼冲、情绪记录本、想法停机坪、内心话翻译器。不用注册，你写的东西只留在自己的设备里。">
+<title>自救工具箱 · 给高敏感人和想太多的人</title>
+<meta name="description" content="给高敏感人和想太多的人的免费自救小工具。按「此刻怎么了」找工具：动不了、开始不了、不想出门、停不下来想吃、骂自己、睡不着。不用注册，写的东西只留在你自己的设备里。">
 <link rel="canonical" href="https://slowrecover.github.io/hsptoolbox/">
 <link rel="alternate" hreflang="zh" href="https://slowrecover.github.io/hsptoolbox/">
 <link rel="alternate" hreflang="en" href="https://slowrecover.github.io/hsptoolbox/en/">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#4F9277">
+<link rel="icon" href="icon.svg">
 <link rel="apple-touch-icon" href="icon.svg">
+<meta name="theme-color" content="#4F9277">
 <style>
-:root{
-  --bg:#E9EDEA; --surface:#FFFFFF; --surface-soft:#F4F6F3;
-  --ink:#2B3A35; --muted:#9AA8A1; --line:#DCE3DF;
-  --accent:#4F9277; --accent-press:#447F68; --accent-soft:#E2EFE8;
-  --radius:20px;
-  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans SC","Segoe UI",sans-serif;
-}
-*{box-sizing:border-box}
-html,body{margin:0}
-body{
-  background:var(--bg);color:var(--ink);font-family:var(--font);
-  -webkit-font-smoothing:antialiased;line-height:1.55;
-  min-height:100vh;display:flex;justify-content:center;
-  padding:48px 22px 40px;
-}
-.wrap{width:100%;max-width:480px}
-.head{margin-bottom:34px}
-.mark{display:flex;align-items:center;gap:9px;margin-bottom:18px}
+:root{--bg:#E9EDEA;--surface:#FFFFFF;--soft:#F4F6F3;--ink:#2B3A35;--muted:#7F8F88;--line:#DCE3DF;
+--accent:#4F9277;--accent-soft:#E2EFE8;--radius:18px;
+--font:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans SC","Segoe UI",sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#18201D;--surface:#212B27;--soft:#1C2522;--ink:#E3EAE6;--muted:#93A39B;--line:#2F3B36;--accent:#6DB394;--accent-soft:#25352E}}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;line-height:1.55;
+min-height:100vh;display:flex;justify-content:center;padding:40px 16px 40px}
+.wrap{width:100%;max-width:520px}
+.top{display:flex;align-items:center;gap:9px;margin-bottom:28px}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
-.mark span{font-size:.82rem;letter-spacing:.06em;color:var(--muted);font-weight:600}
-h1{font-size:1.7rem;line-height:1.3;margin:0 0 10px;letter-spacing:.01em}
-.tag{color:var(--muted);font-size:.95rem;margin:0}
-.tag b{color:var(--accent);font-weight:600}
-.cards{display:flex;flex-direction:column;gap:14px}
-.card{
-  display:block;text-decoration:none;color:inherit;
-  background:var(--surface);border:1px solid var(--line);
-  border-radius:var(--radius);padding:22px 22px;
-  box-shadow:0 12px 34px -26px rgba(43,58,53,.55);
-  transition:transform .14s ease, box-shadow .14s ease, border-color .14s;
-}
-a.card:hover{transform:translateY(-2px);box-shadow:0 18px 40px -24px rgba(43,58,53,.6);border-color:var(--accent)}
-.card h2{font-size:1.16rem;margin:0 0 6px;display:flex;align-items:center;gap:9px}
-.card p{color:var(--muted);font-size:.92rem;margin:0 0 16px;line-height:1.55}
-.cta{display:inline-flex;align-items:center;gap:6px;color:var(--accent);font-weight:600;font-size:.92rem}
-.cta .arrow{transition:transform .14s}
-a.card:hover .cta .arrow{transform:translateX(3px)}
-.card.soon{opacity:.78}
-.pill{
-  display:inline-block;font-size:.74rem;color:var(--muted);font-weight:600;
-  background:var(--surface-soft);border:1px solid var(--line);
-  border-radius:999px;padding:4px 11px;
-}
-.mark .lang{margin-left:auto;font-size:.76rem;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:4px 11px;letter-spacing:0}
-.foot{margin-top:30px;text-align:center;color:var(--muted);font-size:.74rem;line-height:1.7}
-.foot .priv{display:block;margin-top:4px}
+.brand{font-size:.82rem;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.lang{margin-left:auto;font-size:.8rem;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.lang:hover{color:var(--accent);border-color:var(--accent)}
+h1{font-size:2rem;line-height:1.25;margin:0 0 10px;letter-spacing:.01em}
+.sub{color:var(--muted);margin:0 0 26px;font-size:.98rem}
+.list{display:flex;flex-direction:column;gap:10px}
+.sit{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+box-shadow:0 10px 30px -26px rgba(43,58,53,.6)}
+.sit[open]{border-color:var(--accent)}
+summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:14px;padding:18px 18px;min-height:64px;font-size:1.05rem;font-weight:600}
+summary::-webkit-details-marker{display:none}
+summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:var(--radius)}
+.num{font-size:.75rem;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums;min-width:20px}
+.label{flex:1}
+.chev{width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .18s;margin-right:4px}
+.sit[open] .chev{transform:rotate(-135deg)}
+.tools{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px}
+.tool{position:relative;display:block;text-decoration:none;color:inherit;background:var(--soft);border:1px solid var(--line);
+border-radius:14px;padding:14px 40px 14px 16px;transition:border-color .14s,transform .14s}
+.tool:hover{border-color:var(--accent);transform:translateY(-1px)}
+.tool.first{background:var(--accent-soft);border-color:transparent}
+.tag{display:block;font-size:.72rem;font-weight:700;color:var(--accent);letter-spacing:.04em;margin-bottom:2px}
+.tname{display:block;font-weight:700;font-size:1rem;margin-bottom:3px}
+.tdesc{display:block;color:var(--muted);font-size:.88rem;line-height:1.5}
+.go{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--accent);font-weight:700}
+.note{margin:4px 2px 0;font-size:.82rem;color:var(--muted)}
+.note a,.foot a{color:var(--accent)}
+.about{margin-top:34px;padding:18px;border-radius:var(--radius);background:var(--soft);border:1px solid var(--line)}
+.about h2{font-size:.95rem;margin:0 0 6px}
+.about p{margin:0;color:var(--muted);font-size:.9rem}
+.foot{margin-top:22px;color:var(--muted);font-size:.8rem;line-height:1.7}
+.foot .safe{display:block;margin-bottom:12px}
+.foot .made{display:block;text-align:center}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="head">
-    <div class="mark"><span class="dot"></span><span>自救工具箱</span><a class="lang" href="en/" hreflang="en">English</a></div>
-    <h1>用行为科学,<br>帮高敏感的你,慢慢开始</h1>
-    <p class="tag">一个个小工具,帮你在动不了的时候,<b>动一下</b>。</p>
-  </header>
-  <div class="cards">
-    <a class="card" href="kanxiaoqi.html">
-      <h2>砍小器</h2>
-      <p>把大到动不了的事,砍成一分钟能做的一步。用行为科学,把"开始"变简单。</p>
-      <span class="cta">开始用 <span class="arrow">→</span></span>
-    </a>
-    <a class="card" href="inner-talk/">
-      <h2>Inner Talk Translator · 内心话翻译器</h2>
-      <p>把刺耳的自我评价拆成感受、事实和解释。中英双语，不强行积极。</p>
-      <span class="cta">开始用 <span class="arrow">→</span></span>
-    </a>
-    <a class="card" href="zhaozuo.html">
-      <h2>闭眼冲</h2>
-      <p>每天想做的事,一次定好,之后别想,照做就行。治"每天重新决定"的内耗。</p>
-      <span class="cta">开始用 <span class="arrow">→</span></span>
-    </a>
-    <a class="card" href="emotion/">
-      <h2>情绪记录本</h2>
-      <p>说不清、绷不住的时候,先记一下——什么触发的,什么感觉,给你一个当下能做的小办法。</p>
-      <span class="cta">开始用 <span class="arrow">→</span></span>
-    </a>
-    <a class="card" href="tingjiping.html">
-      <h2>想法停机坪</h2>
-      <p>想法太多、总在换新坑?先丢进候机厅,每周五开一次「想法法庭」,三问全过才准飞。</p>
-      <span class="cta">开始用 <span class="arrow">→</span></span>
-    </a>
-    <div class="card soon">
-      <h2>决策尺子</h2>
-      <p>遇事就乱、起情绪时,一把随身的判断尺,问自己一句,就稳了。</p>
-      <span class="pill">即将上线</span>
-    </div>
+<main class="wrap">
+  <div class="top"><span class="dot"></span><span class="brand">自救工具箱</span><a class="lang" href="en/" hreflang="en">English</a></div>
+  <h1>此刻的你，<br>是哪一种？</h1>
+  <p class="sub">点一下，只给你一个下一步。</p>
+  <div class="list">
+<details class="sit"><summary><span class="num">01</span><span class="label">我完全动不了，什么都不想做</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="step-with-me/"><span class="tag">先用这个</span><span class="tname">陪你迈出那一步</span><span class="tdesc">先说出来，再感受身体被支撑着，握一下拳、呼吸两次，最后只做一个动作。</span><span class="go" aria-hidden="true">→</span></a><a class="tool" href="low-energy/"><span class="tag">也可以试试</span><span class="tname">低电量清单</span><span class="tdesc">六件基本小事，每件都有一个电量见底也能做的「保底版」。</span><span class="go" aria-hidden="true">→</span></a></div></details>
+<details class="sit"><summary><span class="num">02</span><span class="label">知道该做，就是开始不了</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="kanxiaoqi.html"><span class="tag">先用这个</span><span class="tname">砍小器</span><span class="tdesc">把大到动不了的事，砍成十分钟能做的一步。</span><span class="go" aria-hidden="true">→</span></a><a class="tool" href="unstuck/"><span class="tag">也可以试试</span><span class="tname">解耦执行</span><span class="tdesc">知道该做却不想动？五步，把「卡住」拆开。</span><span class="go" aria-hidden="true">→</span></a></div></details>
+<details class="sit"><summary><span class="num">03</span><span class="label">事情太多，脑子乱，不知道先做哪个</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="main-thing/"><span class="tag">先用这个</span><span class="tname">主要矛盾</span><span class="tdesc">把心里的事全倒出来，四个问题砍下去，今天只揪出一件。</span><span class="go" aria-hidden="true">→</span></a></div></details>
+<details class="sit"><summary><span class="num">04</span><span class="label">明知该做的事，还在反复纠结</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="zhaozuo.html"><span class="tag">先用这个</span><span class="tname">闭眼冲</span><span class="tdesc">想做的事一次定好，之后不用再想，照做就行。治「每天重新决定」的内耗。</span><span class="go" aria-hidden="true">→</span></a></div></details>
+<details class="sit"><summary><span class="num">05</span><span class="label">我不想出门</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="out-the-door/"><span class="tag">先用这个</span><span class="tname">出门小推车</span><span class="tdesc">先分清是没电、焦虑还是低落，再把出门拆到最小，倒数把你推出门。</span><span class="go" aria-hidden="true">→</span></a></div></details>
+<details class="sit"><summary><span class="num">06</span><span class="label">停不下来地想吃东西</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="storm-brake/"><span class="tag">先用这个</span><span class="tname">暴风雨急刹车</span><span class="tdesc">不跟冲动硬扛：先看清底下是累、压力、空虚还是孤单，再跟着呼吸的浪，等它自己退下去。</span><span class="go" aria-hidden="true">→</span></a><p class="note">如果暴食经常发生、让你很痛苦，值得找专业的人聊一聊。<a href="https://findahelpline.com" rel="noopener">这里可以找到你所在国家的免费求助热线</a>。</p></div></details>
+<details class="sit"><summary><span class="num">07</span><span class="label">我在心里骂自己</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="inner-talk/"><span class="tag">先用这个</span><span class="tname">内心话翻译器</span><span class="tdesc">把刺耳的自我评价拆成感受、事实和解释，不强行积极。</span><span class="go" aria-hidden="true">→</span></a><a class="tool" href="dandelion/"><span class="tag">也可以试试</span><span class="tname">蒲公英</span><span class="tdesc">把那句骂你的话写下来，看它像蒲公英一样被风吹散。一分钟。</span><span class="go" aria-hidden="true">→</span></a></div></details>
+<details class="sit"><summary><span class="num">08</span><span class="label">有个情绪堵着，说不清</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="evening-breeze/"><span class="tag">先用这个</span><span class="tname">晚风小站</span><span class="tdesc">找到身体里堵着的那个感觉，一问一答，陪它慢慢松开。</span><span class="go" aria-hidden="true">→</span></a><a class="tool" href="emotion/"><span class="tag">也可以试试</span><span class="tname">情绪记录本</span><span class="tdesc">说不清的时候先记一下：什么触发的、什么感觉，再给你一个当下能做的小办法。</span><span class="go" aria-hidden="true">→</span></a></div></details>
+<details class="sit"><summary><span class="num">09</span><span class="label">怕尴尬，一直不敢去做</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="dare-to-cringe/"><span class="tag">先用这个</span><span class="tname">Dare to Cringe（英文）</span><span class="tdesc">因为怕尴尬一直不敢做？把害怕变成一个安全的小动作，事后对比想象和现实。</span><span class="go" aria-hidden="true">→</span></a></div></details>
+<details class="sit"><summary><span class="num">10</span><span class="label">新想法太多，总想开新坑</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="tingjiping.html"><span class="tag">先用这个</span><span class="tname">想法停机坪</span><span class="tdesc">新想法先丢进候机厅，每周五开一次「想法法庭」，三问全过才准飞。</span><span class="go" aria-hidden="true">→</span></a></div></details>
+<details class="sit"><summary><span class="num">11</span><span class="label">该睡了，却放不下手机</span><span class="chev" aria-hidden="true"></span></summary><div class="tools"><a class="tool first" href="sleep/"><span class="tag">先用这个</span><span class="tname">INFP 安眠</span><span class="tdesc">一套睡前小仪式，最后一步是把手机放回客厅。</span><span class="go" aria-hidden="true">→</span></a></div></details>
   </div>
-  <p class="foot">
-    做给以前的我。
-    <span class="priv">不上传、不联网——你写的东西,只留在你自己的设备里。</span>
-  </p>
-</div>
+  <section class="about"><h2>这是什么</h2><p>一个在低谷里的人，用 AI 给自己做的小工具，现在拿出来给同样需要的人。全部免费、不用注册、不上传——你写的东西只留在你自己的设备里。</p></section>
+  <footer class="foot">
+    <span class="safe">这些是日常自救小工具，不是医疗工具，不能代替专业帮助。如果你很难保证自己的安全，请联系当地的紧急电话，或在 <a href="https://findahelpline.com" rel="noopener">findahelpline.com</a> 找到你所在国家的免费求助热线。</span>
+    <span class="made">做给以前的我。 · <a href="https://github.com/slowrecover/hsptoolbox">开源在 GitHub</a></span>
+  </footer>
+</main>
+<script>
+// Only one situation open at a time, so the screen stays calm.
+document.querySelectorAll('details.sit').forEach(function(d){
+  d.addEventListener('toggle',function(){ if(d.open) document.querySelectorAll('details.sit[open]').forEach(function(o){ if(o!==d) o.open=false; }); });
+});
+</script>
 </body>
 </html>
